@@ -16,7 +16,7 @@ function loadImportApp(storage=memoryStorage()) {
  document.querySelector=selector=>selector==='.modal'&&!node('#modal-root').innerHTML?null:selector==='#entry-form'&&!node('#modal-root').innerHTML.includes('id="entry-form"')?null:node(selector);
  const window={localStorage:storage,confirm(){return true;},scrollTo(){},addEventListener(type,cb){windowListeners.set(type,cb);}};
  const context=vm.createContext({document,window,console,TextDecoder,TextEncoder,Blob,URL:{createObjectURL(){return 'blob:test';},revokeObjectURL(){}},setTimeout(){return 1;},clearTimeout(){}});
- for(const file of ['ledger.js','importer.js','scenario.js','app.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../dist',file),'utf8'),context,{filename:file});
+ for(const file of ['ledger.js','importer.js','scenario.js','relations.js','relations-ui.js','app.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../dist',file),'utf8'),context,{filename:file});
  return {node,storage,documentListeners,windowListeners,run(code){return vm.runInContext(code,context);},value(code){return JSON.parse(vm.runInContext('JSON.stringify('+code+')',context));},put(key,value){context[key]=value;}};
 }
 function configure(app,text,extra={}) {

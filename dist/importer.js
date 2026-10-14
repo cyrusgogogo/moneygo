@@ -430,6 +430,20 @@
       else if (canonical(locations.get(change.after.transactionId)) !== canonical(change.transactionAfter)) conflicts.push({ evidenceId: change.evidenceId, transactionId: change.after.transactionId, reason: '交易已被编辑、删除或恢复，不能覆盖后续操作。' });
     }
     for (const ref of batch.resolvedQuarantineIds) { const q = quarantineStore.get(ref); if (!q || q.resolvedByBatchId !== batch.id) conflicts.push({ evidenceId: null, transactionId: null, reason: '隔离记录已有后续修复。' }); }
+    if (state.bookkeeping) {
+      const dependencies = new Map(), data = state.bookkeeping;
+      const add = (transactionId, kind, id) => {if (!dependencies.has(transactionId)) dependencies.set(transactionId, []); dependencies.get(transactionId).push({kind,id});};
+      for (const row of data.links) {add(row.primaryId,'link',row.id);add(row.shadowId,'link',row.id);}
+      for (const row of data.refunds) {add(row.expenseId,'refund',row.id);add(row.incomeId,'refund',row.id);}
+      for (const row of data.claims) add(row.expenseId,'claim',row.id);
+      for (const row of data.settlements) add(row.incomeId,'settlement',row.id);
+      for (const row of data.refundPlans) add(row.expenseId,'refundPlan',row.id);
+      for (const change of batch.changes) {
+        const transactionId = change.after.transactionId, referenced = dependencies.get(transactionId);
+        if (referenced && canonical(change.transactionBefore) !== canonical(change.transactionAfter)) conflicts.push({ evidenceId: change.evidenceId, transactionId, reason: '交易已有证据关联、退款或应收依赖，请先核对并撤销关联，再回滚导入批次。', dependencies: referenced });
+      }
+    }
+
     if (conflicts.length) return { state, conflicts, rolledBack: false };
     const working = detach(state);
     for (const change of batch.changes.slice().reverse()) {

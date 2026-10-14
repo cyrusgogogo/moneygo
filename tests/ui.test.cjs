@@ -73,7 +73,7 @@ function loadApp(storage = memoryStorage(), {today} = {}) {
     },
     setTimeout() { return 1; }, clearTimeout() {}
   });
-  for (const filename of ['ledger.js', 'scenario.js', 'importer.js', 'app.js']) {
+  for (const filename of ['ledger.js', 'scenario.js', 'relations.js', 'importer.js', 'relations-ui.js', 'app.js']) {
     const source = fs.readFileSync(path.join(__dirname, '../dist/', filename), 'utf8');
     vm.runInContext(source, context, { filename: 'dist/' + filename });
   }

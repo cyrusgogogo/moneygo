@@ -10,6 +10,7 @@
   const VERSION = 1;
   const SIMULATION_VERSION = 2;
   const IMPORT_VERSION = 3;
+  const BOOKKEEPING_VERSION = 4;
   const STORAGE_KEY = 'moneygo.ledger.v1';
   const MAX_AMOUNT_CENTS = 999999999999;
   const LIMITS = Object.freeze({
@@ -143,7 +144,19 @@
     transaction.note = note(value.note);
     return transaction;
   }
+  function relationEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./relations.js') : root.MoneygoRelations;
+    if (!engine) fail('RELATIONS_UNAVAILABLE', '账务关联模块未加载，请刷新后重试');
+    return engine;
+  }
   function compute(state, month) {
+    if (state.bookkeeping !== undefined) {
+      const result = relationEngine().calculate(state, month);
+      return { accountBalances: result.accountBalances, totals: {
+        incomeCents: result.personal.incomeCents, expenseCents: result.personal.expenseCents,
+        transferCents: result.personal.transferCents, netCents: result.personal.netCents
+      } };
+    }
     const accountBalances = Object.create(null);
     let openingTotal = 0;
     for (const account of state.accounts) {
@@ -169,9 +182,10 @@
   }
   function validateState(input) {
     record(input, '账本');
-    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION && input.version !== IMPORT_VERSION) ||
+    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION && input.version !== IMPORT_VERSION && input.version !== BOOKKEEPING_VERSION) ||
         (input.version === SIMULATION_VERSION && input.simulation === undefined) ||
-        (input.version === IMPORT_VERSION && input.imports === undefined)) fail('INVALID_VERSION', '不支持此账本版本');
+        (input.version === IMPORT_VERSION && input.imports === undefined) ||
+        (input.version === BOOKKEEPING_VERSION && input.bookkeeping === undefined)) fail('INVALID_VERSION', '不支持此账本版本');
     if (input.currency !== 'CNY') fail('INVALID_CURRENCY', '当前账本仅支持人民币 CNY');
     const accountRows = list(input.accounts, LIMITS.accounts, '账户');
     if (accountRows.length === 0) fail('LAST_ACCOUNT', '至少需要保留一个账户');
@@ -185,7 +199,7 @@
       ids.add(id);
       return id;
     }
-    const state = { version: input.imports !== undefined ? IMPORT_VERSION : input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
+    const state = { version: input.bookkeeping !== undefined ? BOOKKEEPING_VERSION : input.imports !== undefined ? IMPORT_VERSION : input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
     state.accounts = accountRows.map(value => {
       record(value, '账户');
       return { id: unique(identifier(value.id)), name: name(value.name), openingBalanceCents: cents(value.openingBalanceCents, true, true) };
@@ -219,6 +233,7 @@
       if (!engine) fail('IMPORT_UNAVAILABLE', '账单导入模块未加载，请刷新后重试');
       state.imports = engine.validateImportState(input.imports, state);
     }
+    if (input.bookkeeping !== undefined) state.bookkeeping = relationEngine().validate(input.bookkeeping, state);
     compute(state);
     return state;
   }
@@ -269,6 +284,11 @@
       if (index < 0) fail('NOT_FOUND', '要编辑的交易不存在');
     }
     const value = { ...input, id: id === undefined ? newId(state, 'transaction') : id };
+    if (index >= 0 && state.bookkeeping) {
+      const before = state.transactions[index];
+      const financialChanged = ['type', 'date', 'amountCents', 'accountId', 'toAccountId'].some(key => (before[key] ?? null) !== (value[key] ?? null));
+      if (financialChanged && relationEngine().dependencies(state, id).length) fail('RELATION_REFERENCED', '交易已有账务关联，请先撤销相关关联后再修改金额、日期或资金账户；备注与分类仍可修正');
+    }
     if (index < 0) state.transactions.push(value);
     else state.transactions[index] = value;
     return validateState(state);
@@ -340,6 +360,12 @@
     state.categories = state.categories.filter(value => value.id !== id);
     return validateState(state);
   }
+  function financialView(inputState, month) { return relationEngine().calculate(validateState(inputState), month); }
+  function expenseAmounts(inputState) {
+    const state = validateState(inputState);
+    if (state.bookkeeping) return Object.fromEntries(Object.entries(relationEngine().calculate(state).impacts).map(([id, impact]) => [id, impact.personalExpenseCents]));
+    return Object.fromEntries(state.transactions.map(t => [t.id, t.type === 'expense' ? t.amountCents : 0]));
+  }
   function balances(inputState) { return compute(validateState(inputState)).accountBalances; }
   function summary(inputState, month) {
     if (month !== undefined && (typeof month !== 'string' || !/^\d{4}-\d{2}$/.test(month) || !validDate(month + '-01'))) {
@@ -377,11 +403,13 @@
   function parseBackup(text) {
     const value = record(parseJSON(text), '备份');
     if (value.format !== 'moneygo-backup') fail('INVALID_BACKUP', '请选择 Moneygo 导出的备份文件');
-    if (value.version !== VERSION && value.version !== 2 && value.version !== IMPORT_VERSION) fail('INVALID_VERSION', '不支持此备份版本');
+    if (value.version !== VERSION && value.version !== 2 && value.version !== IMPORT_VERSION && value.version !== BOOKKEEPING_VERSION) fail('INVALID_VERSION', '不支持此备份版本');
     if (value.version === 2 && (!value.data || value.data.simulation === undefined)) fail('INVALID_BACKUP', '沙盘备份缺少方案数据');
     if (value.version === 1 && value.data && value.data.simulation !== undefined) fail('INVALID_BACKUP', '沙盘数据须使用新版备份格式');
     if (value.version === IMPORT_VERSION && (!value.data || value.data.imports === undefined)) fail('INVALID_BACKUP', '导入备份缺少来源与批次数据');
     if (value.version < IMPORT_VERSION && value.data && value.data.imports !== undefined) fail('INVALID_BACKUP', '导入数据须使用新版备份格式');
+    if (value.version === BOOKKEEPING_VERSION && (!value.data || value.data.bookkeeping === undefined)) fail('INVALID_BACKUP', '账务关系备份缺少关系数据');
+    if (value.version < BOOKKEEPING_VERSION && value.data && value.data.bookkeeping !== undefined) fail('INVALID_BACKUP', '账务关系须使用新版备份格式');
     if (!value.data || value.data.version !== value.version) fail('INVALID_BACKUP', '备份封装与账本版本不一致');
     timestamp(value.exportedAt);
     return validateState(value.data);
@@ -396,7 +424,10 @@
       counts: { accounts: roundTrip.accounts.length, categories: roundTrip.categories.length,
         transactions: roundTrip.transactions.length, trash: roundTrip.trash.length,
         importBatches: roundTrip.imports ? roundTrip.imports.batches.length : 0,
-        evidence: roundTrip.imports ? roundTrip.imports.evidence.length : 0 },
+        evidence: roundTrip.imports ? roundTrip.imports.evidence.length : 0,
+        links: roundTrip.bookkeeping?.links.length || 0, refunds: roundTrip.bookkeeping?.refunds.length || 0,
+        claims: roundTrip.bookkeeping?.claims.length || 0, settlements: roundTrip.bookkeeping?.settlements.length || 0,
+        snapshots: roundTrip.bookkeeping?.snapshots.length || 0, refundPlans: roundTrip.bookkeeping?.refundPlans.length || 0 },
       balances: compute(roundTrip).accountBalances,
       verifiedAt: new Date().toISOString()
     };
@@ -427,8 +458,8 @@
   }
 
   return Object.freeze({
-    VERSION, SIMULATION_VERSION, IMPORT_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
+    VERSION, SIMULATION_VERSION, IMPORT_VERSION, BOOKKEEPING_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
     createEmpty, parseAmount, validDate, validateState, putTransaction, deleteTransaction, undoDelete,
-    putAccount, removeAccount, putCategory, removeCategory, balances, summary, backup, parseBackup, verifyBackup, load, save
+    putAccount, removeAccount, putCategory, removeCategory, financialView, expenseAmounts, balances, summary, backup, parseBackup, verifyBackup, load, save
   });
 }));

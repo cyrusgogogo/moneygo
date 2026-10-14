@@ -225,12 +225,13 @@
       month: value, totalCents: 0,
       categoryTotals: Object.fromEntries(categories.map(category => [category.id, 0]))
     }]));
+    const expenseAmounts = Ledger.expenseAmounts(state);
     for (const transaction of state.transactions) {
       if (transaction.type !== 'expense' || exclusions.has(transaction.id)) continue;
       const row = historyByMonth.get(transaction.date.slice(0, 7));
       if (!row) continue;
-      row.categoryTotals[transaction.categoryId] = add(row.categoryTotals[transaction.categoryId], transaction.amountCents);
-      row.totalCents = add(row.totalCents, transaction.amountCents);
+      row.categoryTotals[transaction.categoryId] = add(row.categoryTotals[transaction.categoryId], expenseAmounts[transaction.id]);
+      row.totalCents = add(row.totalCents, expenseAmounts[transaction.id]);
     }
     const historyRows = [...historyByMonth.values()];
     const baselineCategories = categories.map(category => {
