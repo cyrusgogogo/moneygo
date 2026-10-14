@@ -1,0 +1,13 @@
+{
+  "name": "moneygo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "个人账单归集与消费分析交互原型，使用内置虚构数据。",
+  "scripts": {
+    "check": "node --check dist/app.js",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,37 @@
+# Dependencies, generated reports, caches, and local editor files
+node_modules/
+coverage/
+playwright-report/
+test-results/
+.cache/
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Credentials and local deployment configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+.openai/
+
+# Never commit real financial statements, exports, uploads, or local databases.
+# Future synthetic fixtures must be reviewed and explicitly added under tests/fixtures/.
+statements/
+uploads/
+exports/
+private-data/
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.pdf
+*.zip
+*.tar
+*.tar.gz
+*.sqlite
+*.sqlite3
+*.db
