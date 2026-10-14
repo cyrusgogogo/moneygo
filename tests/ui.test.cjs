@@ -31,7 +31,7 @@ function memoryStorage(initial = {}) {
 // A deliberately small DOM substitute for source-level UI logic and generated
 // markup only. These tests do not emulate layout, native form validation, focus
 // navigation, file pickers, actual storage durability, or a real browser.
-function loadApp(storage = memoryStorage()) {
+function loadApp(storage = memoryStorage(), {today} = {}) {
   const nodes = new Map();
   const documentListeners = new Map();
   const windowListeners = new Map();
@@ -43,10 +43,10 @@ function loadApp(storage = memoryStorage()) {
     if (!nodes.has(selector)) {
       nodes.set(selector, {
         innerHTML: '', textContent: '', value: '', disabled: false,
-        checked: false, hidden: false, isConnected: true, dataset: {}, style: {},
+        checked: false, hidden: false, isConnected: true, dataset: {}, style: {}, listeners: new Map(),
         classList: { add() {}, remove() {}, contains() { return false; } },
         focus() { document.activeElement = this; },
-        addEventListener() {}, setSelectionRange() {},
+        addEventListener(type, callback) { this.listeners.set(type, callback); }, setSelectionRange() {},
         querySelectorAll() { return []; }, closest() { return null; }
       });
     }
@@ -63,9 +63,17 @@ function loadApp(storage = memoryStorage()) {
   };
   const context = vm.createContext({
     document, window, console,
+    ...(today ? {Date: class extends Date {
+      constructor(...args) { super(...(args.length ? args : [today + 'T12:00:00Z'])); }
+      static now() { return new Date(today + 'T12:00:00Z').getTime(); }
+    }} : {}),
+    FormData: class {
+      constructor(form) { this.form = form; }
+      getAll(name) { return this.form.formData?.[name] || []; }
+    },
     setTimeout() { return 1; }, clearTimeout() {}
   });
-  for (const filename of ['ledger.js', 'app.js']) {
+  for (const filename of ['ledger.js', 'scenario.js', 'app.js']) {
     const source = fs.readFileSync(path.join(__dirname, '../dist/', filename), 'utf8');
     vm.runInContext(source, context, { filename: 'dist/' + filename });
   }
@@ -97,6 +105,10 @@ function confirmRestore(app) {
   app.node('#confirm-restore').onclick();
 }
 
+module.exports = { memoryStorage, loadApp, withExpense, namedState, prepareRestore, confirmRestore, ROLLBACK_KEY };
+
+// Importing the harness does not register this file's tests a second time.
+if (require.main === module) {
 test('real app starts empty and does not persist sample data', () => {
   const app = loadApp();
   assert.equal(app.value('state.transactions.length'), 0);
@@ -395,3 +407,5 @@ test('transfer search matches the displayed destination account name', () => {
   assert.match(app.node('#app').innerHTML, /data-tx=/);
   assert.match(app.node('#app').innerHTML, /Move funds/);
 });
+
+}

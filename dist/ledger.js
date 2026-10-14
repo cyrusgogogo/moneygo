@@ -8,6 +8,7 @@
   'use strict';
 
   const VERSION = 1;
+  const SIMULATION_VERSION = 2;
   const STORAGE_KEY = 'moneygo.ledger.v1';
   const MAX_AMOUNT_CENTS = 999999999999;
   const LIMITS = Object.freeze({
@@ -167,7 +168,8 @@
   }
   function validateState(input) {
     record(input, '账本');
-    if (input.version !== VERSION) fail('INVALID_VERSION', '不支持此账本版本');
+    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION) ||
+        (input.version === SIMULATION_VERSION && input.simulation === undefined)) fail('INVALID_VERSION', '不支持此账本版本');
     if (input.currency !== 'CNY') fail('INVALID_CURRENCY', '当前账本仅支持人民币 CNY');
     const accountRows = list(input.accounts, LIMITS.accounts, '账户');
     if (accountRows.length === 0) fail('LAST_ACCOUNT', '至少需要保留一个账户');
@@ -181,7 +183,7 @@
       ids.add(id);
       return id;
     }
-    const state = { version: VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
+    const state = { version: input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
     state.accounts = accountRows.map(value => {
       record(value, '账户');
       return { id: unique(identifier(value.id)), name: name(value.name), openingBalanceCents: cents(value.openingBalanceCents, true, true) };
@@ -205,6 +207,11 @@
       if (id !== transaction.id) fail('INVALID_ID', '已删除交易标识不一致');
       return { id, deletedAt: timestamp(value.deletedAt), transaction };
     });
+    if (input.simulation !== undefined) {
+      const engine = typeof module === 'object' && module.exports ? require('./scenario.js') : root.MoneygoScenario;
+      if (!engine) fail('SIMULATION_UNAVAILABLE', '消费沙盘模块未加载，请刷新后重试');
+      state.simulation = engine.validate(input.simulation);
+    }
     compute(state);
     return state;
   }
@@ -356,14 +363,16 @@
   }
   function backup(inputState) {
     const data = validateState(inputState);
-    const text = JSON.stringify({ format: 'moneygo-backup', version: VERSION, exportedAt: new Date().toISOString(), data }, null, 2);
+    const text = JSON.stringify({ format: 'moneygo-backup', version: data.simulation ? 2 : VERSION, exportedAt: new Date().toISOString(), data }, null, 2);
     checkSize(text);
     return text;
   }
   function parseBackup(text) {
     const value = record(parseJSON(text), '备份');
     if (value.format !== 'moneygo-backup') fail('INVALID_BACKUP', '请选择 Moneygo 导出的备份文件');
-    if (value.version !== VERSION) fail('INVALID_VERSION', '不支持此备份版本');
+    if (value.version !== VERSION && value.version !== 2) fail('INVALID_VERSION', '不支持此备份版本');
+    if (value.version === 2 && (!value.data || value.data.simulation === undefined)) fail('INVALID_BACKUP', '沙盘备份缺少方案数据');
+    if (value.version === 1 && value.data && value.data.simulation !== undefined) fail('INVALID_BACKUP', '沙盘数据须使用新版备份格式');
     timestamp(value.exportedAt);
     return validateState(value.data);
   }
@@ -393,7 +402,7 @@
   }
 
   return Object.freeze({
-    VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
+    VERSION, SIMULATION_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
     createEmpty, parseAmount, validDate, validateState, putTransaction, deleteTransaction, undoDelete,
     putAccount, removeAccount, putCategory, removeCategory, balances, summary, backup, parseBackup, load, save
   });
