@@ -9,6 +9,7 @@
 
   const VERSION = 1;
   const SIMULATION_VERSION = 2;
+  const IMPORT_VERSION = 3;
   const STORAGE_KEY = 'moneygo.ledger.v1';
   const MAX_AMOUNT_CENTS = 999999999999;
   const LIMITS = Object.freeze({
@@ -168,8 +169,9 @@
   }
   function validateState(input) {
     record(input, '账本');
-    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION) ||
-        (input.version === SIMULATION_VERSION && input.simulation === undefined)) fail('INVALID_VERSION', '不支持此账本版本');
+    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION && input.version !== IMPORT_VERSION) ||
+        (input.version === SIMULATION_VERSION && input.simulation === undefined) ||
+        (input.version === IMPORT_VERSION && input.imports === undefined)) fail('INVALID_VERSION', '不支持此账本版本');
     if (input.currency !== 'CNY') fail('INVALID_CURRENCY', '当前账本仅支持人民币 CNY');
     const accountRows = list(input.accounts, LIMITS.accounts, '账户');
     if (accountRows.length === 0) fail('LAST_ACCOUNT', '至少需要保留一个账户');
@@ -183,7 +185,7 @@
       ids.add(id);
       return id;
     }
-    const state = { version: input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
+    const state = { version: input.imports !== undefined ? IMPORT_VERSION : input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
     state.accounts = accountRows.map(value => {
       record(value, '账户');
       return { id: unique(identifier(value.id)), name: name(value.name), openingBalanceCents: cents(value.openingBalanceCents, true, true) };
@@ -211,6 +213,11 @@
       const engine = typeof module === 'object' && module.exports ? require('./scenario.js') : root.MoneygoScenario;
       if (!engine) fail('SIMULATION_UNAVAILABLE', '消费沙盘模块未加载，请刷新后重试');
       state.simulation = engine.validate(input.simulation);
+    }
+    if (input.imports !== undefined) {
+      const engine = typeof module === 'object' && module.exports ? require('./importer.js') : root.MoneygoImporter;
+      if (!engine) fail('IMPORT_UNAVAILABLE', '账单导入模块未加载，请刷新后重试');
+      state.imports = engine.validateImportState(input.imports, state);
     }
     compute(state);
     return state;
@@ -363,18 +370,36 @@
   }
   function backup(inputState) {
     const data = validateState(inputState);
-    const text = JSON.stringify({ format: 'moneygo-backup', version: data.simulation ? 2 : VERSION, exportedAt: new Date().toISOString(), data }, null, 2);
+    const text = JSON.stringify({ format: 'moneygo-backup', version: data.version, exportedAt: new Date().toISOString(), data }, null, 2);
     checkSize(text);
     return text;
   }
   function parseBackup(text) {
     const value = record(parseJSON(text), '备份');
     if (value.format !== 'moneygo-backup') fail('INVALID_BACKUP', '请选择 Moneygo 导出的备份文件');
-    if (value.version !== VERSION && value.version !== 2) fail('INVALID_VERSION', '不支持此备份版本');
+    if (value.version !== VERSION && value.version !== 2 && value.version !== IMPORT_VERSION) fail('INVALID_VERSION', '不支持此备份版本');
     if (value.version === 2 && (!value.data || value.data.simulation === undefined)) fail('INVALID_BACKUP', '沙盘备份缺少方案数据');
     if (value.version === 1 && value.data && value.data.simulation !== undefined) fail('INVALID_BACKUP', '沙盘数据须使用新版备份格式');
+    if (value.version === IMPORT_VERSION && (!value.data || value.data.imports === undefined)) fail('INVALID_BACKUP', '导入备份缺少来源与批次数据');
+    if (value.version < IMPORT_VERSION && value.data && value.data.imports !== undefined) fail('INVALID_BACKUP', '导入数据须使用新版备份格式');
+    if (!value.data || value.data.version !== value.version) fail('INVALID_BACKUP', '备份封装与账本版本不一致');
     timestamp(value.exportedAt);
     return validateState(value.data);
+  }
+  function verifyBackup(text) {
+    const restored = parseBackup(text);
+    const serialized = backup(restored);
+    const roundTrip = parseBackup(serialized);
+    if (JSON.stringify(restored) !== JSON.stringify(roundTrip)) fail('BACKUP_VERIFY_FAILED', '备份试恢复前后不一致，未修改当前账本');
+    return {
+      state: roundTrip,
+      counts: { accounts: roundTrip.accounts.length, categories: roundTrip.categories.length,
+        transactions: roundTrip.transactions.length, trash: roundTrip.trash.length,
+        importBatches: roundTrip.imports ? roundTrip.imports.batches.length : 0,
+        evidence: roundTrip.imports ? roundTrip.imports.evidence.length : 0 },
+      balances: compute(roundTrip).accountBalances,
+      verifiedAt: new Date().toISOString()
+    };
   }
   function load(storage) {
     try {
@@ -402,8 +427,8 @@
   }
 
   return Object.freeze({
-    VERSION, SIMULATION_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
+    VERSION, SIMULATION_VERSION, IMPORT_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
     createEmpty, parseAmount, validDate, validateState, putTransaction, deleteTransaction, undoDelete,
-    putAccount, removeAccount, putCategory, removeCategory, balances, summary, backup, parseBackup, load, save
+    putAccount, removeAccount, putCategory, removeCategory, balances, summary, backup, parseBackup, verifyBackup, load, save
   });
 }));
