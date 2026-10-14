@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const source = fs.readFileSync(path.join(__dirname, '../dist/app.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '../dist/demo.js'), 'utf8');
 
 // Keep the shipped source unchanged. This harness tests domain logic only;
 // it deliberately does not pretend to implement a browser or layout engine.
@@ -153,10 +153,10 @@ test('reset clears reviews, imports, filters and selected month', () => {
 });
 
 test('shipped HTML points to local assets and clearly labels demo data', () => {
-  const html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '../dist/demo.html'), 'utf8');
   assert.match(html, /lang="zh-CN"/);
   assert.match(html, /href="styles\.css"/);
-  assert.match(html, /src="app\.js"/);
+  assert.match(html, /src="demo\.js"/);
   assert.match(html, /虚构示例数据/);
   assert.doesNotMatch(html, /(?:src|href)="https?:\/\//);
   assert.doesNotMatch(source, /\b(?:fetch|XMLHttpRequest|WebSocket)\s*\(/);
