@@ -1,0 +1,38 @@
+'use strict';
+// RR-027–029: existing raw-byte guard and persistence ordering remain independent.
+const test=require('node:test'),A=require('node:assert/strict'),H=require('./refund-receipts-host-harness.cjs');
+
+// Full own-data evidence is realm-independent, preserves field presence and array
+// order, and records every original node's prior frozen status before preparation.
+function preparedObservation(){
+ const rows=[];
+ function inspect(value){const data=[],frozen=[],stack=[{value,path:[]}];while(stack.length){const {value,path}=stack.pop();if(value===null||typeof value!=='object'){A.ok(value===null||['string','number','boolean'].includes(typeof value));data.push({path,type:value===null?'null':typeof value,value});continue;}A.equal(Object.getOwnPropertySymbols(value).length,0);const keys=Object.getOwnPropertyNames(value).sort();data.push({path,type:Array.isArray(value)?'array':'object',keys});frozen.push({path,frozen:Object.isFrozen(value)});for(const key of keys.slice().reverse()){const d=Object.getOwnPropertyDescriptor(value,key);A.ok(Object.hasOwn(d,'value'));A.ok(d.enumerable||Array.isArray(value)&&key==='length');stack.push({value:d.value,path:path.concat(key)});}}return {data,frozen};}
+ return {rows,inspect,afterScript(file,context,window){if(file!=='save-preflight.js')return;const real=window.MoneygoSavePreflight;window.MoneygoSavePreflight=Object.freeze({...real,prepare(...args){const record={input:args[0],before:inspect(args[0])};rows.push(record);record.out=real.prepare(...args);record.after=inspect(args[0]);return record.out;}});}};
+}
+function assertPreparedRefund(a,observation){const row=observation.rows[0],commit=H.latest(a,'commit').out,saved=a.saves[0].args[1];A.equal(observation.rows.length,1);A.equal(row.input,commit);A.notEqual(saved,commit);A.equal(saved,row.out.state);A.deepEqual(observation.inspect(saved).data,row.before.data);A.deepEqual(observation.inspect(commit),row.before);A.deepEqual(row.after,row.before);A.ok(row.before.frozen.every(x=>x.frozen));A.ok(observation.inspect(saved).frozen.every(x=>x.frozen));for(const attempt of H.io(a,'set',H.KEY))A.equal(attempt[2],row.out.compactRaw);}
+function failure(a,before,old){A.equal(a.run('JSON.stringify(state)'),before.state);A.equal(a.run('savedRaw'),before.savedRaw);A.equal(a.node('#toast').textContent,'');A.ok(a.node('#refund-refresh'),'Failed save offers regenerate review');A.equal(a.node('#refund-refresh').hidden,false);const c=a.node('#entry-form')?.elements.namedItem('confirmed');if(c)A.equal(c.checked,false);A.equal(H.current(a,old.ticket),false);H.staleCallbacks(a,old);H.click(a,'#refund-review-back');A.equal(a.node('#entry-form').elements.namedItem('amount').value,'30.00');A.equal(a.node('#entry-form').elements.namedItem('reason').value,'Explicit synthetic exact refund review');if(a.run('stale')){const counts={preview:a.calls.preview,commit:a.calls.commit,writes:H.io(a,'set',H.KEY).length};a.node('#entry-form').dispatch('submit');A.deepEqual({preview:a.calls.preview,commit:a.calls.commit,writes:H.io(a,'set',H.KEY).length},counts,'Stale retained draft is not an allocation bypass');}}
+test('refund host RR-027: quota cleanup retries exact same candidate once, never replays commit and saves before memory',()=>{
+ const observation=preparedObservation(),a=H.ready({note:'optional synthetic invalid diagnostic',afterScript:observation.afterScript}),before=H.snapshot(a),initial=a.run('state');let attempts=0;
+ a.fault((op,key)=>{if(op==='set'&&key===H.KEY){A.equal(a.run('state'),initial);A.equal(a.node('#toast').textContent,'');if(++attempts===1)throw H.quota();}});H.confirm(a);
+ A.equal(attempts,2);A.equal(a.calls.commit,1);A.equal(a.writerCalls.length,2);A.equal(a.saves.length,2);A.equal(a.saves[0].args[1],a.saves[1].args[1]);assertPreparedRefund(a,observation);A.equal(H.io(a,'set',H.KEY)[0][2],H.io(a,'set',H.KEY)[1][2]);A.equal(H.io(a,'remove',H.NOTE).length,1);A.equal(a.store.values.has(H.NOTE),false);A.equal(a.value('state.bookkeeping.refunds.length'),1);A.deepEqual(H.snapshot(a).balances,before.balances);A.match(a.node('#toast').textContent,/退款|分配/);
+});
+for(const mode of ['ordinary-write','quota-twice','quota-then-security','quota-no-note','read-denied'])test('refund host RR-028: '+mode+' retains financial state, draft and reason without success',()=>{
+ const a=H.ready({note:mode==='quota-no-note'?undefined:'optional synthetic note'}),before=H.snapshot(a),old=H.retained(a);let attempts=0;
+ a.fault((op,key)=>{if(key!==H.KEY)return;if(op==='get'&&mode==='read-denied')throw H.denied();if(op==='set'){attempts++;if(mode==='ordinary-write')throw Error('Synthetic ordinary save rejection');if(mode==='quota-twice'||mode==='quota-no-note'||mode==='quota-then-security'&&attempts===1)throw H.quota();if(mode==='quota-then-security')throw H.denied();}});H.confirm(a);
+ A.equal(a.calls.commit,1);A.equal(attempts,mode==='read-denied'?0:mode==='quota-twice'||mode==='quota-then-security'?2:1);A.equal(a.store.values.get(H.KEY),before.stored);A.match(a.node('#modal-root').textContent,/未|失败|拒绝|刷新|保存/);failure(a,before,old);
+});
+for(const mode of ['whitespace-only','invalid-json'])test('refund host RR-029: '+mode+' raw storage conflict independently blocks an otherwise current reviewed command',()=>{
+ const a=H.ready(),before=H.snapshot(a),old=H.retained(a),other=mode==='whitespace-only'?before.stored+'\n':'{synthetic invalid json';A.equal(H.current(a),true);a.store.values.set(H.KEY,other);H.confirm(a);
+ A.equal(a.calls.commit,1,'Coordinator may produce valid state while host guard independently rejects');A.equal(H.io(a,'set',H.KEY).length,0);A.equal(a.run('stale'),true);A.equal(a.store.values.get(H.KEY),other);failure(a,before,old);
+});
+for(const mode of ['changed-after-cleanup','read-denied-after-cleanup'])test('refund host RR-029: '+mode+' cancels quota retry without a second commit or overwrite',()=>{
+ const a=H.ready({note:'optional synthetic note'}),before=H.snapshot(a),old=H.retained(a);let released=false;
+ a.fault((op,key)=>{if(op==='set'&&key===H.KEY)throw H.quota();if(op==='remove'&&key===H.NOTE){released=true;if(mode==='changed-after-cleanup')a.store.values.set(H.KEY,before.stored+' ');}if(op==='get'&&key===H.KEY&&released&&mode==='read-denied-after-cleanup')throw H.denied();});H.confirm(a);
+ A.equal(a.calls.commit,1);A.equal(H.io(a,'set',H.KEY).length,1);A.equal(H.io(a,'remove',H.NOTE).length,1);A.equal(a.store.values.get(H.KEY),mode==='changed-after-cleanup'?before.stored+' ':before.stored);failure(a,before,old);
+});
+test('refund host RR-028: a final save failure permits only a new review and explicit new consent',()=>{
+ const a=H.ready(),before=H.snapshot(a),old=H.retained(a);a.fault((op,key)=>{if(op==='set'&&key===H.KEY)throw H.denied();});H.confirm(a);A.equal(a.calls.commit,1);A.equal(a.run('JSON.stringify(state)'),before.state);A.equal(H.current(a,old.ticket),false);a.fault(null);H.click(a,'#refund-refresh');A.equal(a.calls.preview,2);A.equal(a.node('#entry-form').elements.namedItem('confirmed').checked,false);A.equal(a.node('#refund-confirm').disabled,true);H.confirm(a);A.equal(a.calls.commit,2);A.equal(a.value('state.bookkeeping.refunds.length'),1);A.equal(a.value('state.bookkeeping.audit.filter(x=>x.kind==="refund").length'),1);
+});
+for(const raw of ['{invalid json','null'])test('refund host RR-028: unreadable startup '+raw+' cannot fall back to an allocation',()=>{
+ const a=H.app({raw,open:false});H.open(a);A.equal(a.run('Boolean(blocked)'),true);const button=H.action(a,'refund');if(button&&!button.disabled)H.click(a,button);A.equal(a.calls.preview||0,0);A.equal(a.calls.commit||0,0);A.equal(H.io(a,'set',H.KEY).length,0);A.equal(a.store.values.get(H.KEY),raw);
+});

@@ -1,0 +1,11 @@
+# Cash-buffer boundary acceptance
+
+All B01–B24 design requirements are mapped to the `CB Bxx` tests in `../cash-buffer-boundary.test.cjs` and registered sibling modules. The model source and old verifiers/assertions are not edited by this suite.
+
+Fixtures use existing public account, role, snapshot, transaction, importer, spending, income and credit writers. No financial audits or retained relationships are authored. The positive safe-anchor fixture is 9,008 independently returned public `Ledger.putTransaction(type: income)` rows assembled unchanged onto one genuine public-writer base, then fully validated and backup-roundtripped. Its generator, all public writer pins and raw file hash are verified every time it is loaded. It mirrors the accepted negative-safe-anchor construction, rather than changing signs in retained raw data.
+
+New real resources include separately tuned full pending and confirmed 8 MiB envelopes, each with a valid one-byte-over input; 100 included accounts × 93 days and 1,000 residual costs; a genuine 3,000-choice source for the 8 MiB query boundary; positive MAX_SAFE stock; signed negative overflow even while blocked; and the unchanged accepted 20,000-canonical-leg fixture's independently corroborated ancestor output refusal. Ancestor failure is not buffer-capacity success. Exact 32 MiB raw tests remain labeled malformed/preflight-only, as inherited evidence does; no schema-valid exact raw acceptance is claimed.
+
+Measurements go to `MONEYGO_BUFFER_EVIDENCE_DIR` or a temporary directory. They record loaded and final source hash, exact runner hash, timestamp, elapsed time and cumulative process RSS. Re-run against the final stable model before retaining resource evidence. Timing is shared-host Node timing, not a native-browser result.
+
+`baseline-continuity.json` pins 217 accepted test/helper source files and eight authored assets. Its comparison allows only the separately approved method-list and release-literal edits. The ordinary full regression is owned by the parent. This suite does not claim that baseline executions were rerun just because source continuity passes. B24 deliberately fails until all four inherited DailyCash and five inherited room resource observations match the final model.

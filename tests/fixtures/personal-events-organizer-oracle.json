@@ -1,0 +1,386 @@
+{
+  "kind": "synthetic-frozen-v013-organizer-equivalence-oracle",
+  "sourceOrganizerSha": "1c39fc09f7e36e60b0db387758f2b062f672f8f49707bccc44b2a5f389b076f6",
+  "sourceLedgerSha": "98da6da9ebac09aeedddf7f2aeec20677b45a04e04676aff5d6d61f2659ddeb1",
+  "plain": {
+    "version": 1,
+    "currency": "CNY",
+    "accounts": [
+      {
+        "id": "account-cash",
+        "name": "现金",
+        "openingBalanceCents": 0
+      },
+      {
+        "id": "synthetic-bank",
+        "name": "SYNTHETIC other bank",
+        "openingBalanceCents": 10000
+      }
+    ],
+    "categories": [
+      {
+        "id": "expense-food",
+        "name": "餐饮",
+        "type": "expense"
+      },
+      {
+        "id": "expense-transport",
+        "name": "交通",
+        "type": "expense"
+      },
+      {
+        "id": "expense-shopping",
+        "name": "购物",
+        "type": "expense"
+      },
+      {
+        "id": "expense-housing",
+        "name": "居住",
+        "type": "expense"
+      },
+      {
+        "id": "expense-entertainment",
+        "name": "娱乐",
+        "type": "expense"
+      },
+      {
+        "id": "expense-health",
+        "name": "医疗",
+        "type": "expense"
+      },
+      {
+        "id": "expense-other",
+        "name": "其他支出",
+        "type": "expense"
+      },
+      {
+        "id": "income-salary",
+        "name": "工资",
+        "type": "income"
+      },
+      {
+        "id": "income-bonus",
+        "name": "奖金",
+        "type": "income"
+      },
+      {
+        "id": "income-other",
+        "name": "其他收入",
+        "type": "income"
+      }
+    ],
+    "transactions": [
+      {
+        "id": "synthetic-income",
+        "type": "income",
+        "date": "2026-10-01",
+        "amountCents": 50000,
+        "accountId": "account-cash",
+        "categoryId": "income-other",
+        "note": "SYNTHETIC salary"
+      },
+      {
+        "id": "synthetic-expense",
+        "type": "expense",
+        "date": "2026-10-02",
+        "amountCents": 10000,
+        "accountId": "account-cash",
+        "categoryId": "expense-other",
+        "note": "SYNTHETIC merchant"
+      },
+      {
+        "id": "synthetic-transfer",
+        "type": "transfer",
+        "date": "2026-10-03",
+        "amountCents": 2000,
+        "accountId": "account-cash",
+        "toAccountId": "synthetic-bank",
+        "note": "SYNTHETIC own transfer"
+      },
+      {
+        "id": "synthetic-september",
+        "type": "expense",
+        "date": "2026-09-30",
+        "amountCents": 3000,
+        "accountId": "synthetic-bank",
+        "categoryId": "expense-other",
+        "note": "SYNTHETIC merchant"
+      }
+    ],
+    "trash": []
+  },
+  "fixtures": [
+    {
+      "id": "plain",
+      "stateHash": "800ed9ec20a4de3f31a9d074a4f2719971c14516411e6ca48918c7544adf9c06",
+      "exportHash": "b2e43e4fca8bccaf2d59c87361ff21a267cf3623c42a3aa549626273c2181440",
+      "merchants": {
+        "all": "b6461b464333ca5b59c0117af88dfa6f89deac3dbd1948a746199ffde87ca270",
+        "2026-09": "8ae625dc8aecf1358c57633f1d9ae2b46399e258c63f18882a0b38a9d48c4b22",
+        "2026-10": "57228d3cb24560855cb3b63b6b8eaa16d69b499a117fa4469beb48517216abf9",
+        "2026-11": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "closes": [
+        {
+          "options": {
+            "month": "2026-09",
+            "reason": "SYNTHETIC legacy projection oracle",
+            "at": "2026-10-14T10:00:00.000Z"
+          },
+          "stateHash": "0e1214c17118f477b4261deb43cf11528d82c39dcf3e0192a79d75a551bd34a2",
+          "closeHash": "b09fdb6617091a2a981de549a6ab9908522cada07deaad53b72af2760225f7be",
+          "auditHash": "4e2cced2d13ee63fcfea51a518dca26c93a4b71af17e803e9dbd19899f445f18",
+          "comparisonHash": "ebb7765e191cb3c29f5b4ad58f6148d69ad6a56a376d9f5f3029517c129c4fb7",
+          "totals": {
+            "cash": {
+              "incomeCents": 0,
+              "expenseCents": 3000,
+              "transferCents": 0,
+              "netCents": -3000
+            },
+            "personal": {
+              "incomeCents": 0,
+              "expenseCents": 3000,
+              "transferCents": 0,
+              "netCents": -3000,
+              "refundCents": 0,
+              "claimCents": 0
+            },
+            "categories": [
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 3000,
+                "personalCents": 3000
+              }
+            ]
+          }
+        },
+        {
+          "options": {
+            "month": "2026-10",
+            "reason": "SYNTHETIC legacy projection oracle",
+            "at": "2026-10-14T10:00:00.000Z"
+          },
+          "stateHash": "5506ab84758b81165b0cd40d9044f1a42828bd1e3494e9d1e3f36e853e2e046c",
+          "closeHash": "27fd72ef22855feb678b2de25334aff0f3b313645b7fee05d0f1f9d84f8304aa",
+          "auditHash": "67ba70b50ee2459e4607dbf9d590a76d6ecc14f701b73a9df558ef2517b7d6d0",
+          "comparisonHash": "0926413528c9af32ab75fb8c2f3de5931b58ddedc4901504e20da7acc892b88d",
+          "totals": {
+            "cash": {
+              "incomeCents": 50000,
+              "expenseCents": 10000,
+              "transferCents": 2000,
+              "netCents": 40000
+            },
+            "personal": {
+              "incomeCents": 50000,
+              "expenseCents": 10000,
+              "transferCents": 2000,
+              "netCents": 40000,
+              "refundCents": 0,
+              "claimCents": 0
+            },
+            "categories": [
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 10000,
+                "personalCents": 10000
+              },
+              {
+                "categoryId": "income-other",
+                "type": "income",
+                "cashCents": 50000,
+                "personalCents": 50000
+              }
+            ]
+          }
+        },
+        {
+          "options": {
+            "month": "2026-10",
+            "transactionIds": [
+              "synthetic-expense",
+              "synthetic-transfer"
+            ],
+            "reason": "SYNTHETIC legacy projection oracle",
+            "at": "2026-10-14T10:00:00.000Z"
+          },
+          "stateHash": "01693d7fd31a102046e3e1d9b26059fcaf5157431a05c96e02633db6bcb147c9",
+          "closeHash": "12aec282086cbade81758e3e516c3f9e5127a4d2121cb41c27fd9bd62b218e2c",
+          "auditHash": "1e3df09b92a1d8d44ad5e75e5c41c6c82b2e940218daaf3233ce43476ddae9f5",
+          "comparisonHash": "90615239b4f6716e3196caf034d946ecf300b6b6900e16cecc537b754132c72e",
+          "totals": {
+            "cash": {
+              "incomeCents": 0,
+              "expenseCents": 10000,
+              "transferCents": 2000,
+              "netCents": -10000
+            },
+            "personal": {
+              "incomeCents": 0,
+              "expenseCents": 10000,
+              "transferCents": 2000,
+              "netCents": -10000,
+              "refundCents": 0,
+              "claimCents": 0
+            },
+            "categories": [
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 10000,
+                "personalCents": 10000
+              }
+            ]
+          }
+        }
+      ],
+      "existingComparisons": []
+    },
+    {
+      "id": "full",
+      "stateHash": "347c02bee74fe84417fb525839d685833525e455ca776088067ba28077b083a8",
+      "exportHash": "347c02bee74fe84417fb525839d685833525e455ca776088067ba28077b083a8",
+      "merchants": {
+        "all": "da82ed9079005ff9496b21b7cbd76c59dc2077a36c881a15cae60037a310f657",
+        "2026-09": "db4752b6c84aee178045a2ecf790c2d8ba0c5cd13be04a54319a0b93a925959a",
+        "2026-10": "fe3f224e4b3a76850a00992a280e6e6638575bab46042969da7db364e03da96c",
+        "2026-11": "c18ee65980b2a3be7fe870e7db54c6a31f4665df8e3920c4922df12535bb41d0"
+      },
+      "closes": [
+        {
+          "options": {
+            "month": "2026-09",
+            "reason": "SYNTHETIC legacy projection oracle",
+            "at": "2026-10-14T10:00:00.000Z"
+          },
+          "stateHash": "320bef64ed72ef8fddfc1ee2ad3d3e1c556ffab610be43b1a56a9e80d8148230",
+          "closeHash": "ecc60cf1b99e3d666d1bedc6237039bd1becd5875d9286c4b5cb65e4be480b11",
+          "auditHash": "e92420e5de1ba651f9dcac88d81e187ca53ea36aa6d9508676279682bc1007fd",
+          "comparisonHash": "849d96c94a12dc8949715d837b196052cc27587cc8b7a0906d1bf22ec6c2097c",
+          "totals": {
+            "cash": {
+              "incomeCents": 0,
+              "expenseCents": 36000,
+              "transferCents": 0,
+              "netCents": -36000
+            },
+            "personal": {
+              "incomeCents": 0,
+              "expenseCents": 37500,
+              "transferCents": 0,
+              "netCents": -37500,
+              "refundCents": 1500,
+              "claimCents": 0
+            },
+            "categories": [
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 36000,
+                "personalCents": 37500
+              }
+            ]
+          }
+        },
+        {
+          "options": {
+            "month": "2026-10",
+            "reason": "SYNTHETIC legacy projection oracle",
+            "at": "2026-10-14T10:00:00.000Z"
+          },
+          "stateHash": "d1c507faaabbe236c9bd5746661b569522db115b1c937dae96122137c0baeba7",
+          "closeHash": "312639b5421bb62741c640162a9f0ded10e7f03c9397fd97a3db61320ba3b180",
+          "auditHash": "a35f574cb751229d65385040ca1b9c9d2f7bcb6a21d0d25fb089ba1417fcc0d3",
+          "comparisonHash": "f97ba07936c9fbc72d3c795407959126bf486e4bb6b4b79a1db845f391b6d07c",
+          "totals": {
+            "cash": {
+              "incomeCents": 50700,
+              "expenseCents": 19085,
+              "transferCents": 22000,
+              "netCents": 31615
+            },
+            "personal": {
+              "incomeCents": 50700,
+              "expenseCents": 13085,
+              "transferCents": 22000,
+              "netCents": 37615,
+              "refundCents": 0,
+              "claimCents": 3000
+            },
+            "categories": [
+              {
+                "categoryId": "expense-food",
+                "type": "expense",
+                "cashCents": 1334,
+                "personalCents": 1334
+              },
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 17751,
+                "personalCents": 11751
+              },
+              {
+                "categoryId": "income-other",
+                "type": "income",
+                "cashCents": 50700,
+                "personalCents": 50700
+              }
+            ]
+          }
+        },
+        {
+          "options": {
+            "month": "2026-10",
+            "transactionIds": [
+              "transaction-a61d6166-e9b1-4eaa-9f55-6c439f400e2f"
+            ],
+            "reason": "SYNTHETIC legacy projection oracle",
+            "at": "2026-10-14T10:00:00.000Z"
+          },
+          "stateHash": "13480bffa3645ca9b1e01d5405501755382202d9616ff5ea0057467d8f2480d8",
+          "closeHash": "0b5af1868399c6e7155a308562170a585263af4467fde74e581fb977d8fc4ff8",
+          "auditHash": "46f7ccd032758fa6d2d92bbf0283aa39000d1f2ce2e5705253ceaf54363f9cdd",
+          "comparisonHash": "ef9499e1c9d4bf8dd5e82b3fc656e3501666671714b5980a90f63c7bf7bf874d",
+          "totals": {
+            "cash": {
+              "incomeCents": 0,
+              "expenseCents": 10000,
+              "transferCents": 0,
+              "netCents": -10000
+            },
+            "personal": {
+              "incomeCents": 0,
+              "expenseCents": 0,
+              "transferCents": 0,
+              "netCents": 0,
+              "refundCents": 0,
+              "claimCents": 0
+            },
+            "categories": [
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 10000,
+                "personalCents": 0
+              }
+            ]
+          }
+        }
+      ],
+      "existingComparisons": [
+        {
+          "id": "organizer-close-9",
+          "hash": "1f9df30b0c15caa69b4edc20004ead7e305be3e9f0a933a83c1db0573141c75a"
+        },
+        {
+          "id": "organizer-close-10",
+          "hash": "0cbb403ea8b9acb01d783fcb73b176fae084bb92c4ac8b0773c9f53b4a3f50ab"
+        }
+      ]
+    }
+  ]
+}

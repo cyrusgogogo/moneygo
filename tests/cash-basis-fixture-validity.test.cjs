@@ -1,0 +1,3 @@
+'use strict';
+const test=require('node:test'),A=require('node:assert/strict');const F=require('./cash-basis-independent-fixtures.cjs');
+test('independent fixtures are genuinely accepted by unchanged public APIs',()=>{for(const s of [F.simple(),F.imported(F.simple()),F.importedNative()]){A.deepEqual(F.L.validateState(s),s);A.deepEqual(F.L.parseBackup(F.L.backup(s)),s)}const s=F.importedNative();A.equal(s.imports.evidence[0].expectedTransaction.type,'expense');A.equal(s.transactions[0].type,'transfer');A.deepEqual(F.R.calculate(s).drilldown.accountFlows[0].movements,[{accountId:'a',signedCents:-30000},{accountId:'b',signedCents:30000}]);});

@@ -1,12 +1,13 @@
 /* Moneygo's deterministic, local-only spending sandbox. All money is integer cents. */
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./ledger.js'));
-  else root.MoneygoScenario = factory(root.MoneygoLedger);
-}(typeof window !== 'undefined' ? window : globalThis, function (Ledger) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./ledger.js'), root);
+  else root.MoneygoScenario = factory(root.MoneygoLedger, root);
+}(typeof window !== 'undefined' ? window : globalThis, function (Ledger, root) {
   'use strict';
 
   const VERSION = 1;
+  const EVENT_VERSION = 2;
   const LIMITS = Object.freeze({ scenarios: 3, adjustments: 200, oneOffs: 100, exclusions: 10000, completeMonths: 120 });
   const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
 
@@ -18,6 +19,7 @@
     }
   }
   function fail(code, message) { throw new ScenarioError(code, message); }
+  function personalEngine() { if (typeof module === 'object' && module.exports) return require('./personal-events.js'); if (root.MoneygoPersonalEvents) return root.MoneygoPersonalEvents; fail('PERSONAL_EVENTS_UNAVAILABLE', '个人收支事件模块尚未加载'); }
   function record(value, fields, label) {
     if (!value || typeof value !== 'object' || Array.isArray(value) ||
         Object.prototype.toString.call(value) !== '[object Object]') {
@@ -46,6 +48,39 @@
     }
     if (Reflect.ownKeys(value).length !== value.length + 1) fail('INVALID_SCHEMA', label + '包含不支持的字段');
     return value;
+  }
+  // V2 is a new strict data format. Do not broaden or change the historic V1
+  // normalizer's accepted input/error behavior while checking this new format.
+  const nativeSource = Function.call.bind(Function.prototype.toString);
+  const ordinaryObjectKeys = Reflect.ownKeys(Object.prototype), ordinaryArrayKeys = Reflect.ownKeys(Array.prototype);
+  function ordinaryPrototype(proto, name, keys) {
+    if (!proto) return false;
+    const constructor = Object.getOwnPropertyDescriptor(proto, 'constructor');
+    if (!constructor || !Object.prototype.hasOwnProperty.call(constructor, 'value') || typeof constructor.value !== 'function') return false;
+    const back = Object.getOwnPropertyDescriptor(constructor.value, 'prototype');
+    const own = Reflect.ownKeys(proto);
+    return !!back && Object.prototype.hasOwnProperty.call(back, 'value') && back.value === proto && nativeSource(constructor.value) === 'function ' + name + '() { [native code] }' && own.length === keys.length && own.every(key => keys.includes(key));
+  }
+  function plainTree(value) {
+    const pending = [{ node: value }], ancestors = new Set(); let count = 0;
+    while (pending.length) {
+      const { node, exit } = pending.pop();
+      if (!node || typeof node !== 'object') continue;
+      if (exit) { ancestors.delete(node); continue; }
+      if (ancestors.has(node) || ++count > 50000) fail('INVALID_SCHEMA', '模拟数据不能循环或超出结构上限');
+      ancestors.add(node); pending.push({ node, exit: true });
+      const prototype = Object.getPrototypeOf(node);
+      if (Array.isArray(node)) {
+        if (!ordinaryPrototype(prototype, 'Array', ordinaryArrayKeys)) fail('INVALID_SCHEMA', '排除事件数组必须是普通数组');
+        list(node, 10000, '模拟数据');
+      } else if (prototype !== null && (Object.getPrototypeOf(prototype) !== null || !ordinaryPrototype(prototype, 'Object', ordinaryObjectKeys))) fail('INVALID_SCHEMA', '模拟数据必须是普通记录');
+      for (const key of Reflect.ownKeys(node)) {
+        if (Array.isArray(node) && key === 'length') continue;
+        const descriptor = Object.getOwnPropertyDescriptor(node, key);
+        if (typeof key !== 'string' || !descriptor.enumerable || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) fail('INVALID_SCHEMA', '模拟字段必须是普通数据');
+        pending.push({ node: descriptor.value });
+      }
+    }
   }
   function identifier(value) {
     if (typeof value !== 'string' || value.length > Ledger.LIMITS.idLength ||
@@ -114,14 +149,22 @@
    * through this function. No validation or calculation occurs during module load.
    */
   function validate(input, state) { // eslint-disable-line no-unused-vars
+    if (input && typeof input === 'object' && Object.getOwnPropertyDescriptor(input, 'version')?.value === EVENT_VERSION) plainTree(input);
     record(input, ['version', 'completeMonths', 'exclusions', 'scenarios', 'activeId'], '模拟设置');
-    if (input.version !== VERSION) fail('INVALID_VERSION', '不支持此模拟设置版本');
+    if (input.version !== VERSION && input.version !== EVENT_VERSION) fail('INVALID_VERSION', '不支持此模拟设置版本');
     const complete = new Set();
     const completeMonths = list(input.completeMonths, LIMITS.completeMonths, '已确认完整月份')
       .map(value => unique(month(value), complete, '完整月份'));
     const excluded = new Set();
     const exclusions = list(input.exclusions, LIMITS.exclusions, '排除交易')
-      .map(value => unique(identifier(value), excluded, '排除交易'));
+      .map(value => {
+        if (input.version === VERSION) return unique(identifier(value), excluded, '排除交易');
+        record(value, ['kind', 'id'], '排除事件');
+        if (value.kind !== 'transaction-expense' && value.kind !== 'held-recognition') fail('INVALID_EVENT_KIND', '不支持此排除事件类型');
+        const key = { kind: value.kind, id: identifier(value.id) };
+        unique(JSON.stringify([key.kind, key.id]), excluded, '排除事件');
+        return key;
+      });
     const ids = new Set();
     const scenarioIds = new Set();
     const scenarioRows = list(input.scenarios, LIMITS.scenarios, '方案');
@@ -156,7 +199,7 @@
     });
     const activeId = identifier(input.activeId);
     if (!scenarioIds.has(activeId)) fail('INVALID_REFERENCE', '当前方案不存在');
-    return { version: VERSION, completeMonths, exclusions, scenarios, activeId };
+    return { version: input.version, completeMonths, exclusions, scenarios, activeId };
   }
 
   /*
@@ -194,6 +237,19 @@
     const months = nextMonths(currentMonth);
     const state = Ledger.validateState(inputState);
     const settings = validate(inputSettings);
+    return calculatePrepared(state, settings, today, () => Ledger.personalEvents(state).expenseEvents);
+  }
+
+  // Internal coordinator seam: both state/settings and the full personal stream
+  // were validated in the fixed before/after pipeline. No upward replay occurs.
+  function calculateHeldReview(validatedState, validatedSettings, asOfDate, personalEvents) {
+    if (!Ledger.validDate(asOfDate)) fail('INVALID_DATE', '今天须为有效的 YYYY-MM-DD');
+    return calculatePrepared(validatedState, validatedSettings, asOfDate, () => personalEvents.expenseEvents);
+  }
+
+  function calculatePrepared(state, settings, today, expenseEventRows) {
+    const currentMonth = today.slice(0, 7);
+    const months = nextMonths(currentMonth);
     const eligibleMonths = settings.completeMonths.filter(value => value < currentMonth).sort();
     const historyMonths = eligibleMonths.slice(-6);
     const historyMonthCount = historyMonths.length;
@@ -216,22 +272,28 @@
       ...state.transactions.filter(value => value.type === 'expense').map(value => value.id),
       ...state.trash.filter(value => value.transaction.type === 'expense').map(value => value.id)
     ]);
-    const staleExclusions = settings.exclusions.filter(id => !transactionIds.has(id));
-    if (staleExclusions.length) warnings.push({ code: 'STALE_EXCLUSIONS', transactionIds: staleExclusions, count: staleExclusions.length });
-    const exclusions = new Set(settings.exclusions);
+    const activeRecognitionIds = new Set((state.bookkeeping?.heldRecognitions || []).map(row => row.id));
+    const staleExclusions = settings.version === VERSION
+      ? settings.exclusions.filter(id => !transactionIds.has(id))
+      : settings.exclusions.filter(key => key.kind === 'transaction-expense' ? !transactionIds.has(key.id) : !activeRecognitionIds.has(key.id));
+    if (staleExclusions.length) warnings.push(settings.version === VERSION
+      ? { code: 'STALE_EXCLUSIONS', transactionIds: staleExclusions, count: staleExclusions.length }
+      : { code: 'STALE_EXCLUSIONS', eventKeys: staleExclusions.map(key => ({ kind: key.kind, id: key.id })), count: staleExclusions.length });
+    const eventEngine = personalEngine();
+    const exclusions = new Set(settings.exclusions.map(key => eventEngine.keyOf(settings.version === VERSION ? { kind: 'transaction-expense', id: key } : key)));
     const categories = state.categories.filter(value => value.type === 'expense');
     const categoryIds = new Set(categories.map(value => value.id));
     const historyByMonth = new Map(historyMonths.map(value => [value, {
       month: value, totalCents: 0,
       categoryTotals: Object.fromEntries(categories.map(category => [category.id, 0]))
     }]));
-    const expenseAmounts = Ledger.expenseAmounts(state);
-    for (const transaction of state.transactions) {
-      if (transaction.type !== 'expense' || exclusions.has(transaction.id)) continue;
-      const row = historyByMonth.get(transaction.date.slice(0, 7));
+    const expenseEvents = expenseEventRows();
+    for (const event of expenseEvents) {
+      if (exclusions.has(eventEngine.keyOf(event.key))) continue;
+      const row = historyByMonth.get(event.effectiveDate.slice(0, 7));
       if (!row) continue;
-      row.categoryTotals[transaction.categoryId] = add(row.categoryTotals[transaction.categoryId], expenseAmounts[transaction.id]);
-      row.totalCents = add(row.totalCents, expenseAmounts[transaction.id]);
+      row.categoryTotals[event.categoryId] = add(row.categoryTotals[event.categoryId], event.amountCents);
+      row.totalCents = add(row.totalCents, event.amountCents);
     }
     const historyRows = [...historyByMonth.values()];
     const baselineCategories = categories.map(category => {
@@ -296,5 +358,5 @@
     return { today, currentMonth, months, historyMonths, historyMonthCount, baseline, scenarios, activeId: settings.activeId, warnings };
   }
 
-  return Object.freeze({ VERSION, LIMITS, ScenarioError, defaultSettings, validate, calculate });
+  return Object.freeze({ VERSION, EVENT_VERSION, LIMITS, ScenarioError, defaultSettings, validate, calculate, calculateHeldReview });
 }));

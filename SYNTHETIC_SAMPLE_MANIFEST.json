@@ -1,0 +1,214 @@
+{
+  "format": "moneygo-synthetic-sample-manifest",
+  "version": 1,
+  "protocol": "moneygo-synthetic-samples-v1",
+  "testedEngineRelease": "0.23.0",
+  "fixedReferenceDate": "2026-11-02",
+  "disclosure": "All included sample files are authored synthetic data. Hashes establish reproduction/source provenance only, never bank authenticity, user-file provenance, financial completeness or browser acceptance.",
+  "starterProvenance": "Independently built using Ledger.createEmpty, Ledger.putAccount, Ledger.validateState and Ledger.backup; persisted once with genuine generated ID/export time. No arrays stripped from complex seed and no versions rewritten.",
+  "complexProvenance": "Exact bytes of tests/fixtures/all-extensions-v6.json. Original public-API builder and 86-test oracle are source-hashed; this build uses actual Ledger.verifyBackup.",
+  "reproducibility": "node scripts/build-synthetic-samples.cjs --check compares deterministic artifacts from retained seed inputs. --create-starter is first-time authoring only; IDs and export timestamp legitimately differ for a newly authored starter. No Date or randomness monkeypatch.",
+  "sources": {
+    "tests/fixtures/all-extensions-v6.json": {
+      "sha256": "653d1c849274368e2697b28401a8ec10ac3d1f7c68fc8efc8b02be8362d6f71b",
+      "bytes": 177721
+    },
+    "tests/fixtures/all-extensions-v6.ids.json": {
+      "sha256": "c1efe6d0109a751066b194f95db8146ac94cbb60f52e91c2dbfdccaef9a7f633",
+      "bytes": 3186
+    },
+    "tests/full-backup-fixture.cjs": {
+      "sha256": "306133b22b26b586c6c37dec6e5ebc04e2225058d89abff0321fcb1fe4bb046f",
+      "bytes": 13471
+    },
+    "tests/full-backup-verification.test.cjs": {
+      "sha256": "7ba3f993425d00009ef0727f2bb21af7bafe5beeed812f4d82ef6cbd3b128361",
+      "bytes": 29243
+    },
+    "tests/synthetic-practice-fixture.cjs": {
+      "sha256": "88ba33d818a1a8b3b1d5e506e0f45df05eb12da15283b23154af7c10638c834d",
+      "bytes": 8059
+    },
+    "tests/synthetic-samples.test.cjs": {
+      "sha256": "52673e97b353b21634e10cc381fce9450705dbddb49435c14ad641f4fdf5b38c",
+      "bytes": 20845
+    },
+    "SAMPLE_GUIDE.md": {
+      "sha256": "cdc95bfcd1dcfb8ab0b175e2f522d453eaeba945666fe6ac3afe14d470331da0",
+      "bytes": 17812
+    },
+    "dist/samples/SYNTHETIC-starter.json": {
+      "sha256": "a088a0ba283854679ab3e6dc27f6491dc028fa8c7269acc3865c8096b2c42cc8",
+      "bytes": 1550
+    },
+    "scripts/build-synthetic-samples.cjs": {
+      "sha256": "afc92d8c0c8b12abb7459c5789bd45c6b39ff8f3c185664267f18ad90f2bb1c7",
+      "bytes": 9827
+    },
+    "dist/cash-basis.js": {
+      "sha256": "cd179f123772fd27f89a293449a828402015ec6631941ec048f3f0c936d5eee0",
+      "bytes": 38454
+    },
+    "dist/daily-cash.js": {
+      "sha256": "deb0f3f5428af53f10387c99cc8c5a8ce18a3a137b60a1c8d9349f795804ea84",
+      "bytes": 100590
+    },
+    "dist/spending-core.js": {
+      "sha256": "793ad670a63003a50f62cb891d54301000444b33f083987eaac99a06e76e71d2",
+      "bytes": 38792
+    },
+    "dist/spending-planning.js": {
+      "sha256": "367250ee6d0eb44548a47b7c8d9c4caef11b3770547fbd5b98b22fd87071164a",
+      "bytes": 43671
+    },
+    "dist/income-core.js": {
+      "sha256": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6",
+      "bytes": 29041
+    },
+    "dist/retained-identities.js": {
+      "sha256": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+      "bytes": 19564
+    },
+    "dist/income-planning.js": {
+      "sha256": "cb7822a2a8ae9a0d362ee876e4c5ff2d52c30e746026aaaf7808a710bc597d58",
+      "bytes": 35525
+    },
+    "dist/held-core.js": {
+      "sha256": "bd6d6efd9ca82b8d5ca69613d3aeb1d0a0b66c8479d312f4eae283fc14e0b26e",
+      "bytes": 17418
+    },
+    "dist/held-funds.js": {
+      "sha256": "9f5a6a542695717faa669bfb3a2382b773bfc9c7fe668826858e29aa9c65d4dc",
+      "bytes": 34638
+    },
+    "dist/personal-events.js": {
+      "sha256": "8bfead2ceeab8fccaf49bae135e63004efe91c870d2c7f1e8660d474ac2241a4",
+      "bytes": 21659
+    },
+    "dist/ledger.js": {
+      "sha256": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+      "bytes": 46393
+    },
+    "dist/importer.js": {
+      "sha256": "6779fd0f02b673aecc9c6f82dccb20921e0c21eb42a1697a4bb29a18341152b0",
+      "bytes": 65729
+    },
+    "dist/relations.js": {
+      "sha256": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+      "bytes": 106234
+    },
+    "dist/obligations.js": {
+      "sha256": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+      "bytes": 47636
+    },
+    "dist/organizer.js": {
+      "sha256": "1b206b72f043f1989bb8741cfc1a4f31206440579ebcec9fbc50b056aaca0cb2",
+      "bytes": 123245
+    },
+    "dist/scenario.js": {
+      "sha256": "b62f3a7d180bf199ac637821153d9b1d83d2b0bfdc03d17620ad56bd7691ebca",
+      "bytes": 22331
+    }
+  },
+  "artifacts": {
+    "dist/samples/SYNTHETIC-complex-v6.json": {
+      "sha256": "653d1c849274368e2697b28401a8ec10ac3d1f7c68fc8efc8b02be8362d6f71b",
+      "bytes": 177721
+    },
+    "dist/samples/SYNTHETIC-starter.json": {
+      "sha256": "a088a0ba283854679ab3e6dc27f6491dc028fa8c7269acc3865c8096b2c42cc8",
+      "bytes": 1550
+    },
+    "dist/samples/SYNTHETIC-practice-bank.csv": {
+      "sha256": "501f6a80873cc8e424db70472a6493f162bf8c89c17a95c8aa9eaf71ee84e569",
+      "bytes": 900
+    },
+    "dist/samples/SYNTHETIC-practice-credit.tsv": {
+      "sha256": "8bc5b4183873f62a6800b1e959111864a62a8a51777712ecdb4cad00dc038274",
+      "bytes": 271
+    },
+    "dist/samples/SYNTHETIC-practice-coffee-correction.csv": {
+      "sha256": "e04fea2ed7d5dab24cc8fe2d6e650069eadeeb519b46d5961b876952b10b531f",
+      "bytes": 140
+    },
+    "dist/samples/SYNTHETIC-practice-coffee-cancellation.csv": {
+      "sha256": "123772c6c34aec1f416869e0db48c5887c96c08ebd859ef9eb6c7b76b9bf9d27",
+      "bytes": 140
+    },
+    "dist/synthetic-samples.js": {
+      "sha256": "90ce21717e8e7c0eba1ecf6dfe9385bef55c2cf48aa3a78ca33101f614c51063",
+      "bytes": 396696
+    },
+    "dist/synthetic-practice.html": {
+      "sha256": "174a436ce8eb0bfe58d9c033412e1904f37dd999297f082d665ac39408b8a9c0",
+      "bytes": 21750
+    }
+  },
+  "seeds": {
+    "complex": {
+      "schemaVersion": 6,
+      "counts": {
+        "accounts": 6,
+        "categories": 10,
+        "transactions": 19,
+        "trash": 1,
+        "importBatches": 3,
+        "evidence": 1,
+        "composites": 1,
+        "links": 1,
+        "transferPairs": 1,
+        "refunds": 1,
+        "claims": 1,
+        "settlements": 1,
+        "snapshots": 2,
+        "refundPlans": 1,
+        "rules": 1,
+        "aliases": 1,
+        "organizerBatches": 3,
+        "closes": 2,
+        "scopes": 1,
+        "creditProfiles": 5,
+        "creditStatements": 2,
+        "installmentContracts": 1,
+        "creditRepayments": 2,
+        "billedInstallments": 1,
+        "feeEvidence": 1
+      }
+    },
+    "starter": {
+      "schemaVersion": 1,
+      "counts": {
+        "accounts": 2,
+        "categories": 10,
+        "transactions": 0,
+        "trash": 0,
+        "importBatches": 0,
+        "evidence": 0,
+        "composites": 0,
+        "links": 0,
+        "transferPairs": 0,
+        "refunds": 0,
+        "claims": 0,
+        "settlements": 0,
+        "snapshots": 0,
+        "refundPlans": 0,
+        "rules": 0,
+        "aliases": 0,
+        "organizerBatches": 0,
+        "closes": 0,
+        "scopes": 0,
+        "creditProfiles": 0,
+        "creditStatements": 0,
+        "installmentContracts": 0,
+        "creditRepayments": 0,
+        "billedInstallments": 0,
+        "feeEvidence": 0
+      }
+    }
+  },
+  "limits": [
+    "No native file picker or full browser/UI acceptance claimed.",
+    "Fixed transaction and reference dates are explicit; real model clocks and genuine audit/export timestamps are unchanged.",
+    "Session exports may include user-selected data and must use neutral session labels."
+  ]
+}

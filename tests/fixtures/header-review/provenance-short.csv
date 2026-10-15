@@ -1,0 +1,4 @@
+private intro
+date,amount,status,unmapped
+2026-09-01,1,completed,plain
+2026-09-02,2,completed,tail

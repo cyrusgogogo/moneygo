@@ -1,0 +1,429 @@
+{
+  "format": "moneygo-backup",
+  "version": 4,
+  "exportedAt": "2026-10-14T11:08:51.227Z",
+  "data": {
+    "version": 4,
+    "currency": "CNY",
+    "accounts": [
+      {
+        "id": "account-cash",
+        "name": "现金",
+        "openingBalanceCents": 0
+      },
+      {
+        "id": "bank",
+        "name": "Synthetic bank",
+        "openingBalanceCents": 100000
+      }
+    ],
+    "categories": [
+      {
+        "id": "expense-food",
+        "name": "餐饮",
+        "type": "expense"
+      },
+      {
+        "id": "expense-transport",
+        "name": "交通",
+        "type": "expense"
+      },
+      {
+        "id": "expense-shopping",
+        "name": "购物",
+        "type": "expense"
+      },
+      {
+        "id": "expense-housing",
+        "name": "居住",
+        "type": "expense"
+      },
+      {
+        "id": "expense-entertainment",
+        "name": "娱乐",
+        "type": "expense"
+      },
+      {
+        "id": "expense-health",
+        "name": "医疗",
+        "type": "expense"
+      },
+      {
+        "id": "expense-other",
+        "name": "其他支出",
+        "type": "expense"
+      },
+      {
+        "id": "income-salary",
+        "name": "工资",
+        "type": "income"
+      },
+      {
+        "id": "income-bonus",
+        "name": "奖金",
+        "type": "income"
+      },
+      {
+        "id": "income-other",
+        "name": "其他收入",
+        "type": "income"
+      }
+    ],
+    "transactions": [
+      {
+        "id": "out",
+        "type": "expense",
+        "date": "2026-09-30",
+        "amountCents": 10000,
+        "accountId": "bank",
+        "categoryId": "expense-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "in",
+        "type": "income",
+        "date": "2026-10-02",
+        "amountCents": 10000,
+        "accountId": "account-cash",
+        "categoryId": "income-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "purchase",
+        "type": "expense",
+        "date": "2026-09-01",
+        "amountCents": 1000,
+        "accountId": "bank",
+        "categoryId": "expense-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "refund",
+        "type": "income",
+        "date": "2026-10-05",
+        "amountCents": 200,
+        "accountId": "bank",
+        "categoryId": "income-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "settlement",
+        "type": "income",
+        "date": "2026-10-06",
+        "amountCents": 100,
+        "accountId": "bank",
+        "categoryId": "income-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "evidence",
+        "type": "expense",
+        "date": "2026-10-02",
+        "amountCents": 1000,
+        "accountId": "bank",
+        "categoryId": "expense-other",
+        "note": "Synthetic legacy review"
+      }
+    ],
+    "trash": [],
+    "bookkeeping": {
+      "version": 1,
+      "revision": 5,
+      "links": [
+        {
+          "id": "relation-link-1",
+          "createdAt": "2026-10-14T11:08:51.171Z",
+          "primaryId": "purchase",
+          "shadowId": "evidence",
+          "reason": "Synthetic duplicate",
+          "primarySignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          },
+          "shadowSignature": {
+            "type": "expense",
+            "date": "2026-10-02",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "refunds": [
+        {
+          "id": "relation-refund-2",
+          "createdAt": "2026-10-14T11:08:51.177Z",
+          "incomeId": "refund",
+          "expenseId": "purchase",
+          "amountCents": 200,
+          "reason": "Synthetic actual refund",
+          "planId": null,
+          "incomeSignature": {
+            "type": "income",
+            "date": "2026-10-05",
+            "amountCents": 200,
+            "accountId": "bank",
+            "toAccountId": null
+          },
+          "expenseSignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "relation-claim-3",
+          "createdAt": "2026-10-14T11:08:51.180Z",
+          "expenseId": "purchase",
+          "amountCents": 100,
+          "kind": "advance",
+          "name": "Synthetic third-party portion",
+          "dueDate": null,
+          "status": "unsubmitted",
+          "note": "",
+          "expenseSignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "relation-settlement-4",
+          "createdAt": "2026-10-14T11:08:51.189Z",
+          "incomeId": "settlement",
+          "claimId": "relation-claim-3",
+          "amountCents": 100,
+          "reason": "Synthetic settlement",
+          "expenseId": "purchase",
+          "incomeSignature": {
+            "type": "income",
+            "date": "2026-10-06",
+            "amountCents": 100,
+            "accountId": "bank",
+            "toAccountId": null
+          },
+          "expenseSignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "snapshots": [
+        {
+          "id": "relation-snapshot-5",
+          "createdAt": "2026-10-14T11:08:51.210Z",
+          "accountId": "bank",
+          "date": "2026-09-30",
+          "actualBalanceCents": 89000,
+          "note": "",
+          "ledgerBalanceCents": 89000,
+          "basis": {
+            "openingBalanceCents": 100000,
+            "transactions": [
+              {
+                "id": "out",
+                "type": "expense",
+                "date": "2026-09-30",
+                "amountCents": 10000,
+                "accountId": "bank",
+                "toAccountId": null
+              },
+              {
+                "id": "purchase",
+                "type": "expense",
+                "date": "2026-09-01",
+                "amountCents": 1000,
+                "accountId": "bank",
+                "toAccountId": null
+              }
+            ],
+            "excluded": []
+          }
+        }
+      ],
+      "refundPlans": [],
+      "audit": [
+        {
+          "id": "relation-audit-1",
+          "revision": 1,
+          "at": "2026-10-14T11:08:51.171Z",
+          "kind": "link",
+          "recordId": "relation-link-1",
+          "action": "create",
+          "reason": "Synthetic duplicate",
+          "before": null,
+          "after": {
+            "id": "relation-link-1",
+            "createdAt": "2026-10-14T11:08:51.171Z",
+            "primaryId": "purchase",
+            "shadowId": "evidence",
+            "reason": "Synthetic duplicate",
+            "primarySignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            },
+            "shadowSignature": {
+              "type": "expense",
+              "date": "2026-10-02",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-2",
+          "revision": 2,
+          "at": "2026-10-14T11:08:51.177Z",
+          "kind": "refund",
+          "recordId": "relation-refund-2",
+          "action": "create",
+          "reason": "Synthetic actual refund",
+          "before": null,
+          "after": {
+            "id": "relation-refund-2",
+            "createdAt": "2026-10-14T11:08:51.177Z",
+            "incomeId": "refund",
+            "expenseId": "purchase",
+            "amountCents": 200,
+            "reason": "Synthetic actual refund",
+            "planId": null,
+            "incomeSignature": {
+              "type": "income",
+              "date": "2026-10-05",
+              "amountCents": 200,
+              "accountId": "bank",
+              "toAccountId": null
+            },
+            "expenseSignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-3",
+          "revision": 3,
+          "at": "2026-10-14T11:08:51.180Z",
+          "kind": "claim",
+          "recordId": "relation-claim-3",
+          "action": "create",
+          "reason": "登记应收份额",
+          "before": null,
+          "after": {
+            "id": "relation-claim-3",
+            "createdAt": "2026-10-14T11:08:51.180Z",
+            "expenseId": "purchase",
+            "amountCents": 100,
+            "kind": "advance",
+            "name": "Synthetic third-party portion",
+            "dueDate": null,
+            "status": "unsubmitted",
+            "note": "",
+            "expenseSignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-4",
+          "revision": 4,
+          "at": "2026-10-14T11:08:51.189Z",
+          "kind": "settlement",
+          "recordId": "relation-settlement-4",
+          "action": "create",
+          "reason": "Synthetic settlement",
+          "before": null,
+          "after": {
+            "id": "relation-settlement-4",
+            "createdAt": "2026-10-14T11:08:51.189Z",
+            "incomeId": "settlement",
+            "claimId": "relation-claim-3",
+            "amountCents": 100,
+            "reason": "Synthetic settlement",
+            "expenseId": "purchase",
+            "incomeSignature": {
+              "type": "income",
+              "date": "2026-10-06",
+              "amountCents": 100,
+              "accountId": "bank",
+              "toAccountId": null
+            },
+            "expenseSignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-5",
+          "revision": 5,
+          "at": "2026-10-14T11:08:51.210Z",
+          "kind": "snapshot",
+          "recordId": "relation-snapshot-5",
+          "action": "create",
+          "reason": "记录用户提供的日终实际余额",
+          "before": null,
+          "after": {
+            "id": "relation-snapshot-5",
+            "createdAt": "2026-10-14T11:08:51.210Z",
+            "accountId": "bank",
+            "date": "2026-09-30",
+            "actualBalanceCents": 89000,
+            "note": "",
+            "ledgerBalanceCents": 89000,
+            "basis": {
+              "openingBalanceCents": 100000,
+              "transactions": [
+                {
+                  "id": "out",
+                  "type": "expense",
+                  "date": "2026-09-30",
+                  "amountCents": 10000,
+                  "accountId": "bank",
+                  "toAccountId": null
+                },
+                {
+                  "id": "purchase",
+                  "type": "expense",
+                  "date": "2026-09-01",
+                  "amountCents": 1000,
+                  "accountId": "bank",
+                  "toAccountId": null
+                }
+              ],
+              "excluded": []
+            }
+          }
+        }
+      ]
+    }
+  }
+}

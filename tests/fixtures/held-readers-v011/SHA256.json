@@ -1,0 +1,36 @@
+{
+  "sourceRelease": "0.11.0",
+  "purpose": "Exact immutable original readers for genuine new-format rejection; not recreated with candidate code.",
+  "files": [
+    {
+      "file": "ledger.js",
+      "sha256": "98da6da9ebac09aeedddf7f2aeec20677b45a04e04676aff5d6d61f2659ddeb1",
+      "bytes": 28092
+    },
+    {
+      "file": "relations.js",
+      "sha256": "fa25322599ba112e6fdd0d11507f597a2518d65face126bb3bd80a8bbc3dc2ea",
+      "bytes": 82278
+    },
+    {
+      "file": "organizer.js",
+      "sha256": "1c39fc09f7e36e60b0db387758f2b062f672f8f49707bccc44b2a5f389b076f6",
+      "bytes": 74457
+    },
+    {
+      "file": "obligations.js",
+      "sha256": "b3cfe94c1c910e9bac90db2e1873e4938a8be96390cb374e7bae4d3f4d07e826",
+      "bytes": 42487
+    },
+    {
+      "file": "scenario.js",
+      "sha256": "93563d71eeb585ae15b1914f990211839b6432f0f704cf43c2842c17ece737ec",
+      "bytes": 17686
+    },
+    {
+      "file": "importer.js",
+      "sha256": "df4d370f1e1d66d04808c704d847375dea09b818514695121378023c5515fb75",
+      "bytes": 61955
+    }
+  ]
+}

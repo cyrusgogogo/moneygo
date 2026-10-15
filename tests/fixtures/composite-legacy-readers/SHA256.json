@@ -1,0 +1,9 @@
+{
+  "source": "Unmodified Moneygo v0.9.0 frozen reader modules, 2026-10-14",
+  "algorithm": "SHA-256",
+  "files": {
+    "ledger.js": "f530111bc51b3de2368b3a95d51741ac10dedff6552d4eded41f22f8e0311755",
+    "organizer.js": "a9fa645fa6d1ec3b1da9c5e03dbfd32e8c6c916bc2de844727c247fa4ecbe328",
+    "relations.js": "6df91f76bb102fab9502ab20a5c0a8b5f38a37b58c71a7f38175fc1671aed427"
+  }
+}

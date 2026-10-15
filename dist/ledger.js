@@ -11,6 +11,10 @@
   const SIMULATION_VERSION = 2;
   const IMPORT_VERSION = 3;
   const BOOKKEEPING_VERSION = 4;
+  const ORGANIZER_VERSION = 5;
+  const OBLIGATIONS_VERSION = 6;
+  const INCOME_PLANNING_VERSION = 7;
+  const SPENDING_PLANNING_VERSION = 8;
   const STORAGE_KEY = 'moneygo.ledger.v1';
   const MAX_AMOUNT_CENTS = 999999999999;
   const LIMITS = Object.freeze({
@@ -149,6 +153,72 @@
     if (!engine) fail('RELATIONS_UNAVAILABLE', '账务关联模块未加载，请刷新后重试');
     return engine;
   }
+  function personalEventEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./personal-events.js') : root.MoneygoPersonalEvents;
+    if (!engine) fail('PERSONAL_EVENTS_UNAVAILABLE', '个人收支投影模块未加载，请刷新后重试');
+    return engine;
+  }
+  // Only normalized base rows enter this path; a plain book needs no Relations state.
+  function plainPersonalEvents(state, month) {
+    const engine = personalEventEngine();
+    const facts = state.transactions.map(row => ({
+      transactionId: row.id, kind: row.type, effectiveDate: row.date,
+      categoryId: row.type === 'transfer' ? null : row.categoryId,
+      accountId: row.accountId, rawAmountCents: row.amountCents,
+      personalAmountCents: row.type === 'transfer' ? 0 : row.amountCents,
+      excluded: false, primaryId: null, transferPairId: null, compositeId: null,
+      personalAuthority: true, fundingAuthority: true
+    }));
+    const events = engine.projectLegacy(facts);
+    return month === undefined ? events : Object.freeze({
+      expenseEvents: engine.select(events.expenseEvents, { month }),
+      incomeEvents: engine.select(events.incomeEvents, { month })
+    });
+  }
+  function organizerEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./organizer.js') : root.MoneygoOrganizer;
+    if (!engine) fail('ORGANIZER_UNAVAILABLE', '整理复盘模块未加载，请刷新后重试');
+    return engine;
+  }
+  function obligationsEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./obligations.js') : root.MoneygoObligations;
+    if (!engine) fail('OBLIGATIONS_UNAVAILABLE', '信用义务模块未加载，请刷新后重试');
+    return engine;
+  }
+  function incomeCoreEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./income-core.js') : root.MoneygoIncomeCore;
+    if (!engine || typeof engine.inspectData !== 'function' || typeof engine.validateExtension !== 'function') fail('INCOME_CORE_UNAVAILABLE', '收入计划校验模块未加载，请刷新后重试');
+    return engine;
+  }
+  function spendingCoreEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./spending-core.js') : root.MoneygoSpendingCore;
+    if (!engine || typeof engine.inspectData !== 'function' || typeof engine.validateExtension !== 'function') fail('SPENDING_CORE_UNAVAILABLE', '支出计划校验模块未加载，请刷新后重试');
+    return engine;
+  }
+  function retainedIdentityEngine() {
+    const engine = typeof module === 'object' && module.exports ? require('./retained-identities.js') : root.MoneygoRetainedIdentities;
+    if (!engine) fail('IDENTITIES_UNAVAILABLE', '保留标识校验模块未加载，请刷新后重试');
+    return engine;
+  }
+  // This traversal is private to the already-normalized full Ledger boundary.
+  function normalizedRetainedIdentities(state) { return retainedIdentityEngine().collectNormalized(state); }
+  function assertPlanningIdentities(state) {
+    const records = normalizedRetainedIdentities(state), owned = new Map();
+    for (const row of records) if (['incomePlanning', 'spendingPlanning'].includes(row.namespace) && row.usage === 'definition') {
+      if (owned.has(row.id) && owned.get(row.id) !== row.ownerKey) fail('IDENTITY_COLLISION', '计划标识与保留的其他记录标识冲突');
+      owned.set(row.id, row.ownerKey);
+    }
+    // Protect planning-owned identities only. Existing typed foreign historical
+    // reuse remains legal; borrowed proof references do not establish ownership.
+    if (records.some(row => owned.has(row.id) && owned.get(row.id) !== row.ownerKey)) fail('IDENTITY_COLLISION', '计划标识与保留的其他记录标识冲突');
+  }
+  function collectRetainedIdentities(rawState) {
+    let spending;
+    try { spending = rawState && typeof rawState === 'object' && ('spendingPlanning' in rawState || Object.getOwnPropertyDescriptor(rawState, 'version')?.value === SPENDING_PLANNING_VERSION); }
+    catch (_) { fail('INVALID_DATA', '账本边界不能安全检查'); }
+    (spending ? spendingCoreEngine() : incomeCoreEngine()).inspectData(rawState);
+    return normalizedRetainedIdentities(validateState(rawState));
+  }
   function compute(state, month) {
     if (state.bookkeeping !== undefined) {
       const result = relationEngine().calculate(state, month);
@@ -178,14 +248,112 @@
     for (const account of state.accounts) balanceTotal = safeAdd(balanceTotal, accountBalances[account.id]);
     // Also check a grand total derived from flows, independent of account ordering.
     if (month === undefined) safeAdd(openingTotal, totals.netCents);
+    // The old arithmetic above remains the acceptance/error guard, including
+    // transient per-account overflow. Public personal totals come from events.
+    const events = plainPersonalEvents(state, month);
+    const personal = personalEventEngine().reduce(events.expenseEvents.concat(events.incomeEvents));
+    totals.incomeCents = personal.incomeCents;
+    totals.expenseCents = personal.expenseCents;
+    totals.netCents = personal.netCents;
     return { accountBalances, totals };
   }
+  function heldBasePreflight(input) {
+    function ordinary(value, label) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) fail('INVALID_DATA', label + '须为普通数据记录');
+      const proto = Object.getPrototypeOf(value);
+      if (proto !== null) {
+        const descriptor = Object.getOwnPropertyDescriptor(proto, 'constructor'), back = descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value') && typeof descriptor.value === 'function' ? Object.getOwnPropertyDescriptor(descriptor.value, 'prototype') : null;
+        if (Object.getPrototypeOf(proto) !== null || !back || back.value !== proto || Function.prototype.toString.call(descriptor.value) !== 'function Object() { [native code] }') fail('INVALID_DATA', label + '不能继承自自定义对象');
+      }
+      for (const key of Reflect.ownKeys(value)) { const descriptor = Object.getOwnPropertyDescriptor(value, key); if (typeof key !== 'string' || !descriptor.enumerable || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) fail('INVALID_DATA', label + '不能含访问器或隐藏字段'); }
+    }
+    ordinary(input, '本金账本');
+    for (const [key, limit] of [['accounts', LIMITS.accounts], ['categories', LIMITS.categories], ['transactions', LIMITS.rows], ['trash', LIMITS.rows]]) {
+      const rows = input[key];
+      if (!Array.isArray(rows)) fail('INVALID_DATA', key + '须为数组');
+      if (rows.length > limit) fail('ROW_LIMIT', key + '数量超过上限');
+      const proto = Object.getPrototypeOf(rows), descriptor = proto && Object.getOwnPropertyDescriptor(proto, 'constructor'), back = descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value') && typeof descriptor.value === 'function' ? Object.getOwnPropertyDescriptor(descriptor.value, 'prototype') : null;
+      if (!Array.isArray(proto) || !back || back.value !== proto || Function.prototype.toString.call(descriptor.value) !== 'function Array() { [native code] }' || Reflect.ownKeys(rows).length !== rows.length + 1) fail('INVALID_DATA', key + '须为普通密集数组');
+      for (let index = 0; index < rows.length; index++) {
+        const descriptor = Object.getOwnPropertyDescriptor(rows, String(index));
+        if (!descriptor || !descriptor.enumerable || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) fail('INVALID_DATA', key + '不能含空项或访问器');
+        ordinary(descriptor.value, key + '记录');
+        if (key === 'trash') ordinary(descriptor.value.transaction, '已删除交易');
+      }
+    }
+  }
+  // New spending states must never pass caller-controlled property reads into
+  // legacy validators. Snapshot descriptors, retaining their order and prototype
+  // evidence, then inspect the detached graph before older normalizers see it.
+  function spendingDataSnapshot(input) {
+    const core = spendingCoreEngine(); core.inspectData(input);
+    try {
+      const copies = new WeakMap(), pending = [], detached = []; let nodes = 0;
+      function detach(value) {
+        if (++nodes > core.LIMITS.dataNodes || typeof value === 'string' && value.length > core.LIMITS.stringCodeUnits) fail('INVALID_DATA', '账本数据超过安全检查上限');
+        if (!value || typeof value !== 'object') return value;
+        if (copies.has(value)) return copies.get(value);
+        const array = Array.isArray(value), result = array ? [] : Object.create(Object.getPrototypeOf(value));
+        if (array) Object.setPrototypeOf(result, Object.getPrototypeOf(value));
+        copies.set(value, result); detached.push(result); pending.push({ value, result, array }); return result;
+      }
+      const result = detach(input);
+      while (pending.length) {
+        const frame = pending.pop();
+        for (const key of Reflect.ownKeys(frame.value)) {
+          const descriptor = Object.getOwnPropertyDescriptor(frame.value, key);
+          if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value') || typeof key !== 'string' || key.length > core.LIMITS.stringCodeUnits || (!descriptor.enumerable && !(frame.array && key === 'length'))) fail('INVALID_DATA', '账本字段在检查时发生变化');
+          if (frame.array && key === 'length') { Object.defineProperty(frame.result, key, { value: descriptor.value, writable: true }); continue; }
+          Object.defineProperty(frame.result, key, { value: detach(descriptor.value), enumerable: descriptor.enumerable, writable: true, configurable: true });
+        }
+      }
+      core.inspectData(result);
+      // Realm-localize only after original prototype evidence is accepted; older
+      // modules may compare Object.prototype by identity. Keep null prototypes.
+      for (const value of detached) if (Object.getPrototypeOf(value) !== null) Object.setPrototypeOf(value, Array.isArray(value) ? Array.prototype : Object.prototype);
+      return result;
+    } catch (_) { fail('INVALID_DATA', '账本边界不能安全检查'); }
+  }
   function validateState(input) {
+    let outerDescriptor, planningDescriptor, spendingDescriptor, hasSpending, hasIncome;
+    try {
+      const objectInput = input && typeof input === 'object';
+      outerDescriptor = objectInput ? Object.getOwnPropertyDescriptor(input, 'version') : null;
+      planningDescriptor = objectInput ? Object.getOwnPropertyDescriptor(input, 'incomePlanning') : null;
+      spendingDescriptor = objectInput ? Object.getOwnPropertyDescriptor(input, 'spendingPlanning') : null;
+      hasSpending = objectInput && 'spendingPlanning' in input;
+      hasIncome = objectInput && 'incomePlanning' in input;
+    } catch (_) { fail('INVALID_DATA', '账本边界不能安全检查'); }
+    if (outerDescriptor && (!outerDescriptor.enumerable || !Object.prototype.hasOwnProperty.call(outerDescriptor, 'value'))) fail('INVALID_DATA', '账本版本须为普通数据字段');
+    let boundaryVersion = outerDescriptor?.value;
+    if (boundaryVersion === SPENDING_PLANNING_VERSION || spendingDescriptor || hasSpending) { input = spendingDataSnapshot(input); boundaryVersion = Object.getOwnPropertyDescriptor(input, 'version')?.value; }
+    else if (boundaryVersion === INCOME_PLANNING_VERSION || planningDescriptor || hasIncome) incomeCoreEngine().inspectData(input);
+    if ([INCOME_PLANNING_VERSION, SPENDING_PLANNING_VERSION].includes(boundaryVersion) && Object.keys(input).some(key => !['version', 'currency', 'accounts', 'categories', 'transactions', 'trash', 'simulation', 'imports', 'bookkeeping', 'organizer', 'obligations', 'incomePlanning', ...(boundaryVersion === SPENDING_PLANNING_VERSION ? ['spendingPlanning'] : [])].includes(key))) fail('INVALID_DATA', '账本含未知字段');
+    const extensionDescriptor = input && typeof input === 'object' ? Object.getOwnPropertyDescriptor(input, 'bookkeeping') : null;
+    const heldVersion = extensionDescriptor && Object.prototype.hasOwnProperty.call(extensionDescriptor, 'value') && extensionDescriptor.value && typeof extensionDescriptor.value === 'object' ? Object.getOwnPropertyDescriptor(extensionDescriptor.value, 'version')?.value : undefined;
+    if (heldVersion === 4) heldBasePreflight(input);
     record(input, '账本');
-    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION && input.version !== IMPORT_VERSION && input.version !== BOOKKEEPING_VERSION) ||
+    // Feature-version gates must inspect data descriptors before reading extension
+    // versions; a forged downlevel wrapper must not execute a version getter.
+    for (const key of ['simulation', 'imports', 'bookkeeping', 'organizer', 'obligations', 'incomePlanning', 'spendingPlanning']) {
+      const descriptor = Object.getOwnPropertyDescriptor(input, key);
+      if (descriptor && (!descriptor.enumerable || !Object.prototype.hasOwnProperty.call(descriptor, 'value'))) fail('INVALID_DATA', '扩展须为普通数据字段');
+      const extension = descriptor?.value;
+      if (extension && typeof extension === 'object') { const version = Object.getOwnPropertyDescriptor(extension, 'version'); if (version && (!version.enumerable || !Object.prototype.hasOwnProperty.call(version, 'value'))) fail('INVALID_DATA', '扩展版本须为普通数据字段'); }
+    }
+    if ((input.version !== VERSION && input.version !== SIMULATION_VERSION && input.version !== IMPORT_VERSION && input.version !== BOOKKEEPING_VERSION && input.version !== ORGANIZER_VERSION && input.version !== OBLIGATIONS_VERSION && input.version !== INCOME_PLANNING_VERSION && input.version !== SPENDING_PLANNING_VERSION) ||
         (input.version === SIMULATION_VERSION && input.simulation === undefined) ||
         (input.version === IMPORT_VERSION && input.imports === undefined) ||
-        (input.version === BOOKKEEPING_VERSION && input.bookkeeping === undefined)) fail('INVALID_VERSION', '不支持此账本版本');
+        (input.version === BOOKKEEPING_VERSION && input.bookkeeping === undefined) ||
+        (input.version === ORGANIZER_VERSION && input.organizer === undefined) ||
+        (input.version === OBLIGATIONS_VERSION && input.obligations === undefined) ||
+        (input.version < OBLIGATIONS_VERSION && input.obligations !== undefined) ||
+        (input.version === INCOME_PLANNING_VERSION && input.incomePlanning === undefined) ||
+        (input.version < INCOME_PLANNING_VERSION && input.incomePlanning !== undefined) ||
+        (input.version === SPENDING_PLANNING_VERSION && input.spendingPlanning === undefined) ||
+        (input.version < SPENDING_PLANNING_VERSION && input.spendingPlanning !== undefined)) fail('INVALID_VERSION', '不支持此账本版本');
+    if (input.bookkeeping?.version >= 3 && input.version < BOOKKEEPING_VERSION || input.organizer?.version >= 3 && input.version < ORGANIZER_VERSION) fail('INVALID_VERSION', '组合关联与冻结证明不能放入旧版账本');
+    if (input.simulation?.version >= 2 && input.version < SIMULATION_VERSION) fail('INVALID_VERSION', '事件排除不能放入旧版账本');
     if (input.currency !== 'CNY') fail('INVALID_CURRENCY', '当前账本仅支持人民币 CNY');
     const accountRows = list(input.accounts, LIMITS.accounts, '账户');
     if (accountRows.length === 0) fail('LAST_ACCOUNT', '至少需要保留一个账户');
@@ -199,7 +367,7 @@
       ids.add(id);
       return id;
     }
-    const state = { version: input.bookkeeping !== undefined ? BOOKKEEPING_VERSION : input.imports !== undefined ? IMPORT_VERSION : input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
+    const state = { version: input.spendingPlanning !== undefined ? SPENDING_PLANNING_VERSION : input.incomePlanning !== undefined ? INCOME_PLANNING_VERSION : input.obligations !== undefined ? OBLIGATIONS_VERSION : input.organizer !== undefined ? ORGANIZER_VERSION : input.bookkeeping !== undefined ? BOOKKEEPING_VERSION : input.imports !== undefined ? IMPORT_VERSION : input.simulation === undefined ? VERSION : SIMULATION_VERSION, currency: 'CNY', accounts: [], categories: [], transactions: [], trash: [] };
     state.accounts = accountRows.map(value => {
       record(value, '账户');
       return { id: unique(identifier(value.id)), name: name(value.name), openingBalanceCents: cents(value.openingBalanceCents, true, true) };
@@ -234,7 +402,16 @@
       state.imports = engine.validateImportState(input.imports, state);
     }
     if (input.bookkeeping !== undefined) state.bookkeeping = relationEngine().validate(input.bookkeeping, state);
+    if (input.organizer !== undefined) state.organizer = organizerEngine().validate(input.organizer, { ...state, organizer: input.organizer, ...(input.incomePlanning !== undefined ? { incomePlanning: input.incomePlanning } : {}), ...(input.spendingPlanning !== undefined ? { spendingPlanning: input.spendingPlanning } : {}), ...(input.obligations !== undefined ? { obligations: input.obligations } : {}) });
+    if (input.obligations !== undefined) state.obligations = obligationsEngine().validate(input.obligations, state);
     compute(state);
+    if (input.incomePlanning !== undefined) state.incomePlanning = incomeCoreEngine().validateExtension(input.incomePlanning);
+    if (input.spendingPlanning !== undefined) state.spendingPlanning = spendingCoreEngine().validateExtension(input.spendingPlanning);
+    if (input.incomePlanning !== undefined || input.spendingPlanning !== undefined) {
+      assertPlanningIdentities(state);
+      const core = input.spendingPlanning !== undefined ? spendingCoreEngine() : incomeCoreEngine();
+      if (core.inspectData(state).jsonBytes > LIMITS.backupBytes) fail('BACKUP_TOO_LARGE', '账本超过 32 MiB 上限');
+    }
     return state;
   }
   function createEmpty() {
@@ -260,7 +437,7 @@
     return new Set([...state.accounts, ...state.categories, ...state.transactions, ...state.trash].map(value => value.id));
   }
   function newId(state, prefix) {
-    const existing = allIds(state);
+    const existing = state.version >= INCOME_PLANNING_VERSION ? new Set(normalizedRetainedIdentities(state).map(row => row.id)) : allIds(state);
     for (let attempt = 0; attempt < 10; attempt++) {
       let random;
       if (root.crypto && typeof root.crypto.randomUUID === 'function') random = root.crypto.randomUUID();
@@ -345,6 +522,7 @@
       index = state.categories.findIndex(value => value.id === id);
       if (index < 0) fail('NOT_FOUND', '要编辑的分类不存在');
     }
+    if (index >= 0 && input.type !== state.categories[index].type && (state.bookkeeping?.heldRecognitions || []).some(row => row.categoryId === id)) fail('CATEGORY_REFERENCED', '此分类仍被押金与预付的消费或损失确认引用，须先撤销相关确认后修改类型');
     const value = { id: id === undefined ? newId(state, 'category') : id, name: input.name, type: input.type };
     if (index < 0) state.categories.push(value);
     else state.categories[index] = value;
@@ -354,13 +532,23 @@
     const state = validateState(inputState);
     identifier(id);
     if (!state.categories.some(value => value.id === id)) fail('NOT_FOUND', '要删除的分类不存在');
-    if (referencedTransactions(state).some(value => value.categoryId === id)) {
+    if (referencedTransactions(state).some(value => value.categoryId === id) || (state.bookkeeping?.heldRecognitions || []).some(row => row.categoryId === id)) {
       fail('CATEGORY_REFERENCED', '此分类仍被交易或已删除交易引用，不能删除');
     }
     state.categories = state.categories.filter(value => value.id !== id);
     return validateState(state);
   }
   function financialView(inputState, month) { return relationEngine().calculate(validateState(inputState), month); }
+  function personalEvents(inputState, month) {
+    if (month !== undefined && (typeof month !== 'string' || !/^\d{4}-\d{2}$/.test(month) || !validDate(month + '-01'))) {
+      fail('INVALID_MONTH', '月份须为 YYYY-MM');
+    }
+    const state = validateState(inputState);
+    if (state.bookkeeping === undefined) return plainPersonalEvents(state, month);
+    const result = relationEngine().calculate(state, month);
+    return Object.freeze({ expenseEvents: result.personalExpenseEvents, incomeEvents: result.personalIncomeEvents });
+  }
+  // Raw-origin compatibility only; aggregate consumers should use personalEvents.
   function expenseAmounts(inputState) {
     const state = validateState(inputState);
     if (state.bookkeeping) return Object.fromEntries(Object.entries(relationEngine().calculate(state).impacts).map(([id, impact]) => [id, impact.personalExpenseCents]));
@@ -403,16 +591,43 @@
   function parseBackup(text) {
     const value = record(parseJSON(text), '备份');
     if (value.format !== 'moneygo-backup') fail('INVALID_BACKUP', '请选择 Moneygo 导出的备份文件');
-    if (value.version !== VERSION && value.version !== 2 && value.version !== IMPORT_VERSION && value.version !== BOOKKEEPING_VERSION) fail('INVALID_VERSION', '不支持此备份版本');
+    if (value.version !== VERSION && value.version !== 2 && value.version !== IMPORT_VERSION && value.version !== BOOKKEEPING_VERSION && value.version !== ORGANIZER_VERSION && value.version !== OBLIGATIONS_VERSION && value.version !== INCOME_PLANNING_VERSION && value.version !== SPENDING_PLANNING_VERSION) fail('INVALID_VERSION', '不支持此备份版本');
     if (value.version === 2 && (!value.data || value.data.simulation === undefined)) fail('INVALID_BACKUP', '沙盘备份缺少方案数据');
     if (value.version === 1 && value.data && value.data.simulation !== undefined) fail('INVALID_BACKUP', '沙盘数据须使用新版备份格式');
     if (value.version === IMPORT_VERSION && (!value.data || value.data.imports === undefined)) fail('INVALID_BACKUP', '导入备份缺少来源与批次数据');
     if (value.version < IMPORT_VERSION && value.data && value.data.imports !== undefined) fail('INVALID_BACKUP', '导入数据须使用新版备份格式');
     if (value.version === BOOKKEEPING_VERSION && (!value.data || value.data.bookkeeping === undefined)) fail('INVALID_BACKUP', '账务关系备份缺少关系数据');
     if (value.version < BOOKKEEPING_VERSION && value.data && value.data.bookkeeping !== undefined) fail('INVALID_BACKUP', '账务关系须使用新版备份格式');
+    if (value.version === ORGANIZER_VERSION && (!value.data || value.data.organizer === undefined)) fail('INVALID_BACKUP', '整理备份缺少规则与复盘数据');
+    if (value.version < ORGANIZER_VERSION && value.data && value.data.organizer !== undefined) fail('INVALID_BACKUP', '整理数据须使用新版备份格式');
+    if (value.version === OBLIGATIONS_VERSION && (!value.data || value.data.obligations === undefined)) fail('INVALID_BACKUP', '信用义务备份缺少义务数据');
+    if (value.version < OBLIGATIONS_VERSION && value.data && value.data.obligations !== undefined) fail('INVALID_BACKUP', '信用义务须使用新版备份格式');
+    if (value.version === INCOME_PLANNING_VERSION && (!value.data || value.data.incomePlanning === undefined)) fail('INVALID_BACKUP', '收入计划备份缺少计划数据');
+    if (value.version < INCOME_PLANNING_VERSION && value.data && value.data.incomePlanning !== undefined) fail('INVALID_BACKUP', '收入计划须使用新版备份格式');
+    if (value.version === SPENDING_PLANNING_VERSION && (!value.data || value.data.spendingPlanning === undefined)) fail('INVALID_BACKUP', '支出计划备份缺少计划数据');
+    if (value.version < SPENDING_PLANNING_VERSION && value.data && value.data.spendingPlanning !== undefined) fail('INVALID_BACKUP', '支出计划须使用新版备份格式');
     if (!value.data || value.data.version !== value.version) fail('INVALID_BACKUP', '备份封装与账本版本不一致');
     timestamp(value.exportedAt);
     return validateState(value.data);
+  }
+  function heldBackupSummary(state) {
+    if (state.bookkeeping?.version !== 4) return {};
+    const financial = relationEngine().calculate(state), data = state.bookkeeping;
+    const range = dates => { dates.sort(); return { start: dates[0] || null, end: dates.at(-1) || null }; };
+    return {
+      dateRanges: { raw: range(state.transactions.concat(state.trash.map(row => row.transaction)).map(row => row.date)), personalEvents: range(financial.personalExpenseEvents.concat(financial.personalIncomeEvents).map(event => event.effectiveDate)) },
+      heldSummary: { basis: 'all-recorded-date-aggregate', fundedCents: financial.held.totals.fundedCents, usedCents: financial.held.totals.usedCents, lostCents: financial.held.totals.lostCents, returnedCents: financial.held.totals.returnedCents, remainingCents: financial.held.totals.remainingCents, recordedPrincipalOnly: true },
+      heldCounts: { positions: data.heldPositions.length, uses: data.heldRecognitions.filter(row => row.kind === 'use').length, losses: data.heldRecognitions.filter(row => row.kind === 'loss').length, returns: data.heldReturns.length, auditOperations: data.audit.filter(row => ['heldPosition', 'heldRecognition', 'heldReturn'].includes(row.kind)).length }
+    };
+  }
+  function spendingBackupSummary(state) {
+    if (state.spendingPlanning === undefined) return {};
+    const metrics = spendingCoreEngine().metricsOf(state.spendingPlanning);
+    return { spendingPlanningCounts: {
+      currentPlans: metrics.currentPlans, cancelledPlans: metrics.cancelledPlans,
+      retiredPlans: metrics.retiredPlans, currentPayments: metrics.currentPayments,
+      reversedPayments: metrics.reversedPayments, auditOperations: metrics.journalOperations
+    } };
   }
   function verifyBackup(text) {
     const restored = parseBackup(text);
@@ -425,10 +640,26 @@
         transactions: roundTrip.transactions.length, trash: roundTrip.trash.length,
         importBatches: roundTrip.imports ? roundTrip.imports.batches.length : 0,
         evidence: roundTrip.imports ? roundTrip.imports.evidence.length : 0,
-        links: roundTrip.bookkeeping?.links.length || 0, refunds: roundTrip.bookkeeping?.refunds.length || 0,
+        composites: roundTrip.bookkeeping?.composites?.length || 0, links: roundTrip.bookkeeping?.links.length || 0, transferPairs: roundTrip.bookkeeping?.transferPairs?.length || 0, refunds: roundTrip.bookkeeping?.refunds.length || 0,
         claims: roundTrip.bookkeeping?.claims.length || 0, settlements: roundTrip.bookkeeping?.settlements.length || 0,
-        snapshots: roundTrip.bookkeeping?.snapshots.length || 0, refundPlans: roundTrip.bookkeeping?.refundPlans.length || 0 },
+        snapshots: roundTrip.bookkeeping?.snapshots.length || 0, refundPlans: roundTrip.bookkeeping?.refundPlans.length || 0,
+        rules: roundTrip.organizer?.rules.length || 0, aliases: roundTrip.organizer?.aliases.length || 0,
+        organizerBatches: roundTrip.organizer?.batches.length || 0, closes: roundTrip.organizer?.closes.length || 0,
+        scopes: roundTrip.organizer?.scopes.length || 0,
+        creditProfiles: roundTrip.obligations?.profiles.length || 0, creditStatements: roundTrip.obligations?.statements.length || 0,
+        installmentContracts: roundTrip.obligations?.contracts.length || 0, creditRepayments: roundTrip.obligations?.repayments.length || 0,
+        billedInstallments: roundTrip.obligations?.inclusions.length || 0, feeEvidence: roundTrip.obligations?.fees.length || 0 },
       balances: compute(roundTrip).accountBalances,
+      ...heldBackupSummary(roundTrip),
+      ...(roundTrip.incomePlanning === undefined ? {} : { incomePlanningCounts: {
+        currentPlans: roundTrip.incomePlanning.plans.length,
+        cancelledPlans: roundTrip.incomePlanning.plans.filter(row => row.status === 'cancelled').length,
+        retiredPlans: roundTrip.incomePlanning.audit.filter(row => row.kind === 'plan' && row.action === 'create').length - roundTrip.incomePlanning.plans.length,
+        currentReceipts: roundTrip.incomePlanning.receipts.length,
+        reversedReceipts: roundTrip.incomePlanning.audit.filter(row => row.kind === 'receipt' && row.action === 'create').length - roundTrip.incomePlanning.receipts.length,
+        auditOperations: roundTrip.incomePlanning.audit.length
+      } }),
+      ...spendingBackupSummary(roundTrip),
       verifiedAt: new Date().toISOString()
     };
   }
@@ -458,8 +689,8 @@
   }
 
   return Object.freeze({
-    VERSION, SIMULATION_VERSION, IMPORT_VERSION, BOOKKEEPING_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
-    createEmpty, parseAmount, validDate, validateState, putTransaction, deleteTransaction, undoDelete,
-    putAccount, removeAccount, putCategory, removeCategory, financialView, expenseAmounts, balances, summary, backup, parseBackup, verifyBackup, load, save
+    VERSION, SIMULATION_VERSION, IMPORT_VERSION, BOOKKEEPING_VERSION, ORGANIZER_VERSION, OBLIGATIONS_VERSION, INCOME_PLANNING_VERSION, SPENDING_PLANNING_VERSION, STORAGE_KEY, MAX_AMOUNT_CENTS, LIMITS, LedgerError,
+    createEmpty, parseAmount, validDate, validateState, collectRetainedIdentities, putTransaction, deleteTransaction, undoDelete,
+    putAccount, removeAccount, putCategory, removeCategory, financialView, personalEvents, expenseAmounts, balances, summary, backup, parseBackup, verifyBackup, load, save
   });
 }));

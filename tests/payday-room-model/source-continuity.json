@@ -1,0 +1,83 @@
+{
+  "format": "moneygo-payday-room-financial-continuity-v1",
+  "modelSha256": "471b34fd0383f12953d4d36d76e12387950a8582abd1d3435806f52c69aec325",
+  "unchangedFinancialModuleCount": 15,
+  "unchangedFinancialModules": [
+    {
+      "path": "dist/backup-safety.js",
+      "bytes": 10085,
+      "sha256": "e07324c30f2f34a66440b8d9e2d2372ce3999d367e181a25cfbb0686d50359e4"
+    },
+    {
+      "path": "dist/cash-basis.js",
+      "bytes": 38454,
+      "sha256": "cd179f123772fd27f89a293449a828402015ec6631941ec048f3f0c936d5eee0"
+    },
+    {
+      "path": "dist/held-core.js",
+      "bytes": 17418,
+      "sha256": "bd6d6efd9ca82b8d5ca69613d3aeb1d0a0b66c8479d312f4eae283fc14e0b26e"
+    },
+    {
+      "path": "dist/held-funds.js",
+      "bytes": 34638,
+      "sha256": "9f5a6a542695717faa669bfb3a2382b773bfc9c7fe668826858e29aa9c65d4dc"
+    },
+    {
+      "path": "dist/importer.js",
+      "bytes": 65729,
+      "sha256": "6779fd0f02b673aecc9c6f82dccb20921e0c21eb42a1697a4bb29a18341152b0"
+    },
+    {
+      "path": "dist/income-core.js",
+      "bytes": 29041,
+      "sha256": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6"
+    },
+    {
+      "path": "dist/income-planning.js",
+      "bytes": 35525,
+      "sha256": "cb7822a2a8ae9a0d362ee876e4c5ff2d52c30e746026aaaf7808a710bc597d58"
+    },
+    {
+      "path": "dist/ledger.js",
+      "bytes": 46393,
+      "sha256": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7"
+    },
+    {
+      "path": "dist/obligations.js",
+      "bytes": 47636,
+      "sha256": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7"
+    },
+    {
+      "path": "dist/organizer.js",
+      "bytes": 123245,
+      "sha256": "1b206b72f043f1989bb8741cfc1a4f31206440579ebcec9fbc50b056aaca0cb2"
+    },
+    {
+      "path": "dist/relations.js",
+      "bytes": 106234,
+      "sha256": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be"
+    },
+    {
+      "path": "dist/retained-identities.js",
+      "bytes": 19564,
+      "sha256": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a"
+    },
+    {
+      "path": "dist/scenario.js",
+      "bytes": 22331,
+      "sha256": "b62f3a7d180bf199ac637821153d9b1d83d2b0bfdc03d17620ad56bd7691ebca"
+    },
+    {
+      "path": "dist/spending-core.js",
+      "bytes": 38792,
+      "sha256": "793ad670a63003a50f62cb891d54301000444b33f083987eaac99a06e76e71d2"
+    },
+    {
+      "path": "dist/spending-planning.js",
+      "bytes": 43671,
+      "sha256": "367250ee6d0eb44548a47b7c8d9c4caef11b3770547fbd5b98b22fd87071164a"
+    }
+  ],
+  "scope": "Only unchanged underlying financial dependencies; daily-cash model and daily-cash UI are intentionally additive room implementation changes."
+}

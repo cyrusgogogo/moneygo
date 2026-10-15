@@ -1,0 +1,17 @@
+'use strict';
+const path=require('node:path'),vm=require('node:vm'),ROOT=process.env.MONEYGO_ROOT||path.resolve(__dirname,'..');
+const H=require(path.join(ROOT,'tests/daily-cash-independent-host-harness.cjs')),F=require('./payday-room-independent-fixtures.cjs');
+const consentKeys=['anchoredFundsOnlyUnderstood','extraFloorsNotExpensesReviewed','exclusionsUnknownsAndBoundaryReviewed','notRealtimeOrPaymentAssurance'];
+function app(personal=true,state=new F.Fixture().snap('a',F.DAY,100000).valid().s){return H.app(personal,state,{beforeScript(file,context){if(file!=='app-runtime-v1.js')return;vm.runInContext(`globalThis.reviewRoomCalls=[];globalThis.reviewRoomOwned=[];globalThis.reviewRoomTransform=null;{const api=window.MoneygoDailyCash;window.MoneygoDailyCash=Object.freeze({...api,createCoordinator(cap){const real=api.createCoordinator(cap),out={};for(const name of Object.keys(real))out[name]=(...args)=>{reviewRoomCalls.push({name,args});const result=real[name](...args);if(['previewRoom','confirmRoom'].includes(name))reviewRoomOwned.push({name,args,result});return reviewRoomTransform?reviewRoomTransform(name,result,args):result;};return Object.freeze(out);}});}globalThis.reviewFinancialReads=0;for(const name of ['MoneygoRelations','MoneygoObligations','MoneygoIncomePlanning','MoneygoSpendingPlanning']){const api=window[name],out={...api};for(const method of ['calculate','reconciliation','view','project'])if(typeof api[method]==='function')out[method]=(...args)=>{reviewFinancialReads++;return api[method](...args);};window[name]=Object.freeze(out);}`,context);}});}
+function daily(a){H.dailyOpen(a);H.dailyReview(a);H.dailyPreview(a);H.dailyApprove(a);return a;}
+function open(a){H.click(a,'#daily-room-open');return a;}
+function inputs(a,{date=F.CUT,state='known',amount='0',purpose='Independent explicit additional cash stock after counted outflows'}={}){H.set(a.node('#daily-room-date'),date,'input');H.set(a.node('#daily-room-floor-state-0'),state);if(state==='known')H.set(a.node('#daily-room-floor-amount-0'),amount,'input');H.set(a.node('#daily-room-floor-purpose-0'),purpose,'input');return a;}
+function preview(a){H.click(a,'#daily-room-preview');H.A.ok(a.node('#daily-room-consent'),a.node('#daily-status')?.textContent);return a.node('#daily-room-consent');}
+function confirm(a,form=a.node('#daily-room-consent')){H.fill(form,F.roomConsent());form.dispatch('submit');H.A.match(a.node('#daily-room-result')?.textContent||'',/本次已确认的逐账户条件余量/,a.node('#daily-status')?.textContent);return a;}
+function ready(personal=true,state){const a=inputs(open(daily(app(personal,state))));preview(a);return confirm(a);}
+const result=a=>a.value('reviewRoomOwned.filter(x=>x.name==="confirmRoom").at(-1).result');
+const directCurrent=a=>a.run('dailySessions.at(-1).real.isRoomCurrent(state,reviewRoomOwned.filter(x=>x.name==="confirmRoom").at(-1).result,reviewRoomOwned.filter(x=>x.name==="confirmRoom").at(-1).args[3])');
+const sourceCurrent=a=>a.run('dailySessions.at(-1).real.isCurrent(state,dailySessions.at(-1).confirmed,dailySessions.at(-1).scenario)');
+const count=(a,name)=>a.run('reviewRoomCalls.filter(x=>x.name==='+JSON.stringify(name)+').length');
+function proof(a,selector='#daily-room-full'){H.click(a,selector);return H.readDailyProof(a);}
+module.exports={...H,F,ROOT,consentKeys,app,daily,open,inputs,preview,confirm,ready,result,directCurrent,sourceCurrent,count,proof};

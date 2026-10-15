@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const local = file => fs.existsSync(path.join(__dirname, file)) ? path.join(__dirname, file) : path.join(__dirname, '../dist', file);
+const local = file => path.join(__dirname, '../dist', file);
 const ledgerPath = path.join(__dirname, '../dist/ledger.js');
 const L = require(ledgerPath), R = require(local('relations.js'));
 const money = n => (n < 0 ? '−' : '') + '¥' + (Math.abs(n) / 100).toFixed(2);
@@ -14,7 +14,7 @@ const decode = s => (s || '').replace(/&quot;/g, '"').replace(/&#39;/g, "'").rep
 const attribute = (s, name) => { const m = s.match(new RegExp('(?:^|\\s)' + name + '="([^"]*)"')); return m ? decode(m[1]) : ''; };
 // Minimal DOM substitute: verifies markup, selection pagination and action wiring.
 // It does not simulate browser layout, native validation, focus traps or accessibility.
-function harness(initial = fixture()) {
+function harness(initial = fixture(), clocks = { today: () => '2026-10-14', now: () => '2026-10-14T12:00:00.000Z' }) {
   let state = initial, writes = 0, html = '', modal = '', title = '', errors = [], form = null;
   const nodes = new Map(), listeners = new Map();
   function node() { const children = new Map(); return { value: '', checked: false, disabled: false, textContent: '', innerHTML: '', dataset: {}, focus(){}, setSelectionRange(){}, addEventListener(){}, querySelector(selector){ if (!children.has(selector)) children.set(selector, node()); return children.get(selector); } }; }
@@ -37,12 +37,14 @@ function harness(initial = fixture()) {
     result.elements = { namedItem(name){ return fields.get(name); } }; result.reportValidity = () => true; return result;
   }
   const document = { addEventListener(type, callback){ listeners.set(type, callback); } }, window = { document, confirm(){ return true; } };
-  const sandbox = { window, console }; vm.runInNewContext(fs.readFileSync(local('relations-ui.js'), 'utf8'), sandbox);
+  const sandbox = { window, console }; window.MoneygoRefundReceipts = require(local('refund-receipts.js'));
+  vm.runInNewContext(fs.readFileSync(local('refund-receipts-ui.js'), 'utf8'), sandbox);
+  vm.runInNewContext(fs.readFileSync(local('relations-ui.js'), 'utf8'), sandbox);
   const UI = window.MoneygoBookkeepingUI;
-  const ctx = { getState: () => state, engine: R, ledger: L, money, amountText: n => (n / 100).toFixed(2), accountName: id => state.accounts.find(a => a.id === id)?.name || '未知账户', categoryName: id => state.categories.find(c => c.id === id)?.name || '', today: () => '2026-10-14', cancel: '<button type="button" data-close>取消</button>',
+  const ctx = { getState: () => state, engine: R, ledger: L, money, amountText: n => (n / 100).toFixed(2), accountName: id => state.accounts.find(a => a.id === id)?.name || '未知账户', categoryName: id => state.categories.find(c => c.id === id)?.name || '', today: clocks.today, now: clocks.now, cancel: '<button type="button" data-close>取消</button>',
     $(selector){ if (selector === '#entry-form') return form; if (!nodes.has(selector)) nodes.set(selector, node()); return nodes.get(selector); },
-    modal(t, body, buttons, ready){ title = t; modal = body + (buttons || ''); form = body.includes('id="entry-form"') ? parseForm(body) : null; if (ready) ready(); },
-    closeModal(){ form = null; modal = ''; }, error(message){ errors.push(message); },
+    modal(t, body, buttons, ready){ window.MoneygoRefundReceiptsUI.invalidate(); title = t; modal = body + (buttons || ''); form = body.includes('id="entry-form"') ? parseForm(body) : null; if (ready) ready(); },
+    closeModal(){ window.MoneygoRefundReceiptsUI.invalidate(); form = null; modal = ''; }, error(message){ errors.push(message); },
     change(fn){ try { state = fn(); writes++; ctx.closeModal(); ctx.render(); return true; } catch(error){ errors.push(error.message); return false; } },
     render(){ html = UI.render(ctx); UI.bind(ctx); }
   };
@@ -83,15 +85,15 @@ test('canonical choice and identity confirmation are explicit, then star evidenc
 });
 
 test('transaction picker reaches all rows and preserves selected transaction while searching or paging',()=>{
- const rows=Array.from({length:67},(_,i)=>transaction('expense-'+String(i).padStart(3,'0')));rows.push(transaction('income','income',10000,'2026-11-01'));const h=harness(fixture(rows));h.click('refund');const picker=h.picker('expenseId');assert.match(picker.count,/1–25 \/ 67/);picker.next();picker.next();assert.match(picker.list.innerHTML,/expense-066/);picker.pick('expense-066');assert.equal(h.form.elements.namedItem('expenseId').value,'expense-066');picker.search('expense-000');assert.doesNotMatch(picker.list.innerHTML,/expense-066/);assert.match(picker.picked.innerHTML,/expense-066/);assert.equal(h.form.elements.namedItem('expenseId').value,'expense-066');picker.search('');picker.prev();assert.equal(h.form.elements.namedItem('expenseId').value,'expense-066');assert.equal(h.writes,0);
+ const rows=Array.from({length:67},(_,i)=>transaction('expense-'+String(i).padStart(3,'0')));rows.push(transaction('income','income',10000,'2026-11-01'));const h=harness(fixture(rows),{today:()=> '2026-12-01',now:()=> '2026-12-01T12:00:00.000Z'});h.click('refund');const picker=h.picker('expenseId');assert.match(picker.count,/1–25 \/ 67/);picker.next();picker.next();assert.match(picker.list.innerHTML,/expense-066/);picker.pick('expense-066');assert.equal(h.form.elements.namedItem('expenseId').value,'expense-066');picker.search('expense-000');assert.doesNotMatch(picker.list.innerHTML,/expense-066/);assert.match(picker.picked.innerHTML,/expense-066/);assert.equal(h.form.elements.namedItem('expenseId').value,'expense-066');picker.search('');picker.prev();assert.equal(h.form.elements.namedItem('expenseId').value,'expense-066');assert.equal(h.writes,0);
 });
 
 test('partial cross-month refunds allocate only existing cash, reject overallocations atomically',()=>{
- const h=harness(fixture([transaction('expense'),transaction('r1','income',3000,'2026-11-01'),transaction('r2','income',2000,'2026-12-01')]));h.click('refund','expense');h.picker('incomeId').pick('r1');h.fields({amount:'30.00',reason:'核对退货到账'});h.submit();assert.equal(h.writes,1);assert.equal(R.calculate(h.state,'2026-10').personal.expenseCents,7000);assert.equal(R.calculate(h.state,'2026-11').cash.incomeCents,3000);assert.equal(R.calculate(h.state,'2026-11').personal.incomeCents,0);h.click('refund','expense');h.picker('incomeId').pick('r2');h.fields({amount:'30.00',reason:'超出测试'});const before=JSON.stringify(h.state);h.submit();assert.match(h.errors.at(-1),/超过这笔实际到账/);assert.equal(JSON.stringify(h.state),before);h.fields({amount:'20.00'});h.submit();assert.equal(R.calculate(h.state).personal.expenseCents,5000);assert.equal(h.state.transactions.length,3);
+ const h=harness(fixture([transaction('expense'),transaction('r1','income',3000,'2026-11-01'),transaction('r2','income',2000,'2026-12-01')]),{today:()=> '2026-12-01',now:()=> '2026-12-01T12:00:00.000Z'});h.click('refund','expense');h.picker('incomeId').pick('r1');h.fields({amount:'30.00',reason:'核对退货到账'});h.submit();assert.equal(h.writes,0,'preview does not write');h.fields({confirmed:true});h.submit();assert.equal(h.writes,1);assert.equal(R.calculate(h.state,'2026-10').personal.expenseCents,7000);assert.equal(R.calculate(h.state,'2026-11').cash.incomeCents,3000);assert.equal(R.calculate(h.state,'2026-11').personal.incomeCents,0);h.click('refund','expense');h.picker('incomeId').pick('r2');h.fields({amount:'30.00',reason:'超出测试'});const before=JSON.stringify(h.state);h.submit();assert.match(h.errors.at(-1),/超过这笔实际到账/);assert.equal(JSON.stringify(h.state),before);h.fields({amount:'20.00'});h.submit();assert.equal(h.writes,1,'second preview does not write');h.fields({confirmed:true});h.submit();assert.equal(R.calculate(h.state).personal.expenseCents,5000);assert.equal(h.state.transactions.length,3);
 });
 
 test('refund plan is nonfinancial, editable, and a received allocation can reference it',()=>{
- const h=harness(fixture([transaction('expense'),transaction('r','income',3000,'2026-11-01')]));h.click('plan','expense');h.fields({amount:'50.00',dueDate:'2026-11-10',status:'waiting',note:'退货中'});h.submit();const p=h.state.bookkeeping.refundPlans[0];assert.equal(R.calculate(h.state).personal.expenseCents,10000);assert.equal(R.calculate(h.state).receivables.outstandingCents,0);h.click('edit-plan',p.id);h.fields({amount:'40.00',reason:'商家确认实际退款额'});h.submit();assert.equal(h.state.bookkeeping.refundPlans[0].expectedAmountCents,4000);h.click('refund','expense',{bkPlan:p.id});assert.equal(h.form.elements.namedItem('planId').value,p.id);h.picker('incomeId').pick('r');h.fields({amount:'30.00',reason:'部分到账'});h.submit();assert.equal(h.state.bookkeeping.refunds[0].planId,p.id);assert.equal(R.calculate(h.state).refundPlans[0].receiptStatus,'partial');h.click('tab','refunds');assert.match(h.html,/部分到账/);
+ const h=harness(fixture([transaction('expense'),transaction('r','income',3000,'2026-11-01')]),{today:()=> '2026-12-01',now:()=> '2026-12-01T12:00:00.000Z'});h.click('plan','expense');h.fields({amount:'50.00',dueDate:'2026-11-10',status:'waiting',note:'退货中'});h.submit();const p=h.state.bookkeeping.refundPlans[0];assert.equal(R.calculate(h.state).personal.expenseCents,10000);assert.equal(R.calculate(h.state).receivables.outstandingCents,0);h.click('edit-plan',p.id);h.fields({amount:'40.00',reason:'商家确认实际退款额'});h.submit();assert.equal(h.state.bookkeeping.refundPlans[0].expectedAmountCents,4000);h.click('refund','expense',{bkPlan:p.id});assert.equal(h.form.elements.namedItem('planId').value,p.id);h.picker('incomeId').pick('r');h.fields({amount:'30.00',reason:'部分到账'});const writesBeforeReview=h.writes;h.submit();assert.equal(h.writes,writesBeforeReview,'plan-linked preview does not write');h.fields({confirmed:true});h.submit();assert.equal(h.state.bookkeeping.refunds[0].planId,p.id);assert.equal(R.calculate(h.state).refundPlans[0].receiptStatus,'partial');h.click('tab','refunds');assert.match(h.html,/部分到账/);
 });
 
 test('claim statuses, partial receipts and personal-versus-cash totals work end to end',()=>{

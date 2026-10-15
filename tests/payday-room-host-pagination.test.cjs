@@ -1,0 +1,25 @@
+'use strict';
+// H08 bounded mounted rows and reconstructible exact proof, H01/H10 no recomputation.
+const test=require('node:test'),assert=require('node:assert/strict');
+const H=require('./payday-room-host-harness.cjs');
+const rows=(a,kind)=>a.doc.querySelectorAll('[data-daily-row]').filter(n=>n.dataset.dailyRow===kind);
+function budget(a){const all=a.doc.querySelectorAll('[data-daily-row]'),cash=a.doc.querySelectorAll('[data-cash-row]');assert.ok(all.length+cash.length<=200,'Whole owned workflow shares 200-row mount budget');for(const kind of new Set(all.map(n=>n.dataset.dailyRow)))assert.ok(rows(a,kind).length<=50,kind+' collection capped at50');const ids=a.doc.querySelectorAll('[id]').map(n=>n.id);assert.equal(new Set(ids).size,ids.length);}
+function pages(a,selector,rowKind){let seen=0,pages=0;for(;;){budget(a);seen+=rows(a,rowKind).length;pages++;assert.ok(pages<100,'Finite collection');const next=a.node(selector);assert.ok(next);if(next.disabled)break;H.click(a,selector);}return seen;}
+const economicCounts=a=>({financial:{...a.financial},preview:a.counts.preview,confirm:a.counts.confirm,previewRoom:a.counts.previewRoom,confirmRoom:a.counts.confirmRoom});
+for(const personal of [true,false])test('room host H08 '+(personal?'index':'demo')+': every event collection pages exact reference membership without financial recomputation',()=>{
+ const a=H.roomReady({personal,state:H.fixture({outflows:51,inflows:52,checkpoint:2,later:3}).state}),r=H.roomReport(a),before=H.snapshot(a),calls=economicCounts(a);
+ for(const kind of ['accounts','beforeCheckpoint','checkpoint','afterCheckpoint','includedOutflows','omittedInflows','unplacedResidualIds','outsideCashScopeFixedIds','zeroResidualIds','beforeCheckpointBlockerIds','checkpointOrLaterBlockerIds']){
+  H.field(a,'#daily-room-kind',kind);const value=kind==='accounts'?r.accounts:r.partitions[kind]||r.sourceWarnings[kind],count=Array.isArray(value)?value.length:value.fixedIds.length+value.residualIds.length;assert.equal(pages(a,'#daily-room-results-next','room-result'),count,kind+' exact count');assert.deepEqual(economicCounts(a),calls);
+ }
+ for(const kind of ['fixed','movements','catalog','tail','excluded','coverage','proof','basis-proof']){H.field(a,'#daily-inventory-kind',kind);pages(a,'#daily-inventory-next','inventory');assert.deepEqual(economicCounts(a),calls);}
+ H.quiet(a,before);
+});
+for(const personal of [true,false])test('room host H08 '+(personal?'index':'demo')+': 51 included cash accounts and explicit floors share mount budget and need no new financial instance',()=>{
+ const a=H.ready({personal,state:H.fixture({accounts:51}).state}),constructors={...a.constructors};H.openRoom(a);assert.equal(rows(a,'room-floor').length,50);assert.equal(a.node('#daily-room-floor-state-50'),null);H.roomInputs(a,{amount:'0',purpose:'Explicit zero extra reserve'});assert.equal(rows(a,'room-floor').length,1);assert.equal(a.node('#daily-room-floor-state-50').value,'known');H.roomConfirm(H.roomPreview(a));const r=H.roomReport(a);assert.equal(r.accounts.length,51);assert.ok(r.accounts.every(x=>x.conditionalRoomCents===100000));const before=economicCounts(a);assert.equal(pages(a,'#daily-room-results-next','room-result'),51);H.click(a,'#daily-room-floors-prev');budget(a);assert.equal(rows(a,'room-floor').length,50);assert.equal(a.node('#daily-room-floor-state-0').value,'known');assert.equal(a.node('#daily-room-floor-purpose-0').value,'Explicit zero extra reserve');assert.deepEqual(economicCounts(a),before);assert.deepEqual(a.constructors,constructors);H.quiet(a);
+});
+for(const personal of [true,false])test('room host H08 '+(personal?'index':'demo')+': all full proof pages reconstruct complete room and exact original source with Unicode-safe4000 bounds',()=>{
+ const a=H.roomReady({personal,state:H.fixture({outflows:51,inflows:2,checkpoint:1,later:1}).state},{purpose:'Synthetic extra stock 😀'.repeat(12)}),r=H.roomReport(a),d=H.report(a),before=H.snapshot(a),calls=economicCounts(a);H.click(a,'#daily-room-full');assert.equal(a.node('#daily-proof-prev').disabled,true);const text=H.readProof(a);assert.ok(text.length>8000);assert.deepEqual(JSON.parse(text),H.copy(r));assert.equal((text.match(/"sourceReport"\s*:/g)||[]).length,1);assert.equal(a.node('#daily-proof-next').disabled,true);assert.deepEqual(economicCounts(a),calls);budget(a);H.click(a,'#daily-room-source-full');assert.deepEqual(JSON.parse(H.readProof(a)),H.copy(d));assert.deepEqual(economicCounts(a),calls);H.click(a,'#daily-proof-close');assert.equal(a.node('#daily-proof-text'),null);H.quiet(a,before);
+});
+test('room host H01: personal and isolated demo expose deeply equal room output from identical public-writer state',()=>{
+ const {state}=H.fixture({outflows:2,inflows:5,checkpoint:1,later:1}),p=H.roomReady({personal:true,state},{amount:'2.34'}),d=H.roomReady({personal:false,state},{amount:'2.34'});assert.deepEqual(H.copy(H.roomReport(p)),H.copy(H.roomReport(d)));assert.deepEqual(p.scriptNames.filter(x=>!x.includes('bootstrap')&&x!=='synthetic-samples.js'),d.scriptNames.filter(x=>!x.includes('bootstrap')&&x!=='synthetic-samples.js'));H.quiet(p);H.quiet(d);
+});

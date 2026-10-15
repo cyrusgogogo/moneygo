@@ -1,0 +1,56 @@
+'use strict';
+// Actual entry scripts in literal production order, genuine public-writer fixtures,
+// and pass-through model instrumentation. Node/VM markup host, not browser evidence.
+const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),crypto=require('node:crypto');
+const ROOT=path.resolve(__dirname,'..'),{host}=require('./actual-entry-host.cjs');
+const L=require('../dist/ledger.js'),R=require('../dist/relations.js'),O=require('../dist/obligations.js');
+const DAY='2026-10-14',NOW='2026-10-14T12:00:00.000Z',KEY=L.STORAGE_KEY;
+const ROOM_CONSENT=['anchoredFundsOnlyUnderstood','extraFloorsNotExpensesReviewed','exclusionsUnknownsAndBoundaryReviewed','notRealtimeOrPaymentAssurance'];
+class FixedDate extends Date{constructor(...args){super(...(args.length?args:[NOW]));}static now(){return Date.parse(NOW);}}
+const copy=v=>JSON.parse(JSON.stringify(v));
+function fixture({accounts=1,opening=100000,outflows=0,inflows=0,checkpoint=0,later=0,past=0}={}){
+ let state=L.putAccount(L.createEmpty(),{name:'Synthetic room cash 000',openingBalanceCents:opening},'account-cash');
+ for(let i=1;i<accounts;i++)state=L.putAccount(state,{name:'Synthetic room cash '+String(i).padStart(3,'0'),openingBalanceCents:opening});
+ for(const a of state.accounts){state=O.putProfile(state,{accountId:a.id,role:'cash',creditLimitCents:null,note:'Synthetic public-writer cash scope'},{confirmed:true,expectedRevision:state.obligations?.revision||0,reason:'Explicit synthetic role'});state=R.addSnapshot(state,{accountId:a.id,date:DAY,actualBalanceCents:opening,note:'Synthetic current-day observed day-end assumption'});}
+ for(const [count,type,date,prefix]of [[outflows,'expense','2026-10-15','Before outgoing'],[inflows,'income','2026-10-15','Before incoming'],[checkpoint,'expense','2026-10-20','Checkpoint'],[later,'expense','2027-02-01','Beyond source horizon'],[past,'income','2026-10-01','Historical proof']])for(let i=0;i<count;i++)state=L.putTransaction(state,{type,date,amountCents:100,accountId:'account-cash',categoryId:type==='income'?'income-other':'expense-other',note:prefix+' '+i+' 😀 literal <svg onload=roomAttack()> & proof'});
+ return {state:L.validateState(state)};
+}
+function app(options={}){
+ const state=options.state||fixture().state,counts={},owned=[],sessions=[],constructors={daily:0,basis:0,basisUI:0},financial={},writes=[];
+ const a=host(ROOT,{entry:options.personal===false?'demo.html':'index.html',personal:{[KEY]:JSON.stringify(state)},globals:{Date:options.Date||FixedDate},beforeLoad:options.beforeLoad,beforeScript(file,context,window,doc){
+  if(file==='app-runtime-v1.js'){
+   const api=window.MoneygoDailyCash;window.MoneygoDailyCash=Object.freeze({...api,createCoordinator(cap){constructors.daily++;const real=api.createCoordinator(cap),wrapped={};sessions.push(real);for(const name of Object.keys(real))wrapped[name]=(...args)=>{counts[name]=(counts[name]||0)+1;const out=real[name](...args);if(['confirmBasis','preview','confirm','previewRoom','confirmRoom'].includes(name))owned.push({name,real,args,out});return options.transform?options.transform(name,out,{context,window,doc,real,args}):out;};return Object.freeze(wrapped);}});
+   const basis=window.MoneygoCashBasis;window.MoneygoCashBasis=Object.freeze({...basis,createCoordinator(...args){constructors.basis++;return basis.createCoordinator(...args);}});
+   const ui=window.MoneygoCashBasisUI;window.MoneygoCashBasisUI=Object.freeze({...ui,createInstance(...args){constructors.basisUI++;return ui.createInstance(...args);}});
+   for(const [name,methods]of [['MoneygoRelations',['calculate','reconciliation']],['MoneygoIncomePlanning',['view']],['MoneygoSpendingPlanning',['view']],['MoneygoObligations',['view']]]){const api=window[name],wrapped={...api};for(const method of methods)wrapped[method]=(...args)=>{const key=name+'.'+method;financial[key]=(financial[key]||0)+1;return api[method](...args);};window[name]=Object.freeze(wrapped);}
+   for(const name of ['MoneygoLedger','MoneygoRelations','MoneygoObligations','MoneygoIncomePlanning','MoneygoSpendingPlanning','MoneygoHeldFunds','MoneygoOrganizer','MoneygoImporter']){const api=window[name],wrapped={...api};for(const [method,fn]of Object.entries(api)){if(typeof fn!=='function')continue;if(/^(put|add|remove|delete|pair|unpair|allocate|unallocate|include|exclude|commit|apply|restore|reset|save)/.test(method))wrapped[method]=(...args)=>{writes.push(name+'.'+method);return fn(...args);};}window[name]=Object.freeze(wrapped);}
+  }
+  options.beforeScript?.(file,context,window,doc);
+ },afterScript:options.afterScript});
+ assert.deepEqual(a.errors.map(e=>[e.file,e.message]),[]);assert.equal(a.run('active()'),true);
+ if(options.personal===false){a.put('roomFixtureText',JSON.stringify(state));a.run('state=L.validateState(JSON.parse(roomFixtureText));savedRaw=JSON.stringify(state);storage.setItem(L.STORAGE_KEY,savedRaw)');}
+ a.run('globalThis.roomWrites=[];globalThis.roomOriginalStorage=storage;storage=Object.freeze({getItem:key=>roomOriginalStorage.getItem(key),setItem(key,value){roomWrites.push([key,String(value)]);return roomOriginalStorage.setItem(key,value)},removeItem(key){roomWrites.push([key,null]);return roomOriginalStorage.removeItem(key)}})');
+ a.run('globalThis.roomStateReads=0;globalThis.roomOriginalContext=dailyCashContext;dailyCashContext=()=>{const c=roomOriginalContext();return {...c,getState(){roomStateReads++;return c.getState();}}}');
+ Object.assign(a,{counts,owned,sessions,constructors,financial,financialWrites:writes,storageAcquisitions:{localStorage:a.counters.localStorage,sessionStorage:a.counters.sessionStorage}});if(options.open!==false)click(a,'[data-page="daily-cash"]');return a;
+}
+function click(a,selector){const n=a.node(selector);assert.ok(n,'Rendered '+selector);assert.equal(n.disabled,false,'Enabled '+selector);n.click();return n;}
+function field(a,selector,value,event='change'){const n=a.node(selector);assert.ok(n,'Field '+selector);if(typeof value==='boolean')n.checked=value;else n.value=value;n.dispatch(event);return n;}
+function fill(form,values){assert.ok(form);for(const [key,value]of Object.entries(values)){const n=form.elements.namedItem(key);assert.ok(n,'Form field '+key);if(typeof value==='boolean')n.checked=value;else n.value=value;}return form;}
+function basis(a){for(const kind of ['accounts','sources']){do{field(a,'#cash-daily-'+kind+'-batch','include');click(a,'#cash-daily-'+kind+'-apply-page');const next=a.node('#cash-daily-'+kind+'-next');if(!next||next.disabled)break;click(a,'#cash-daily-'+kind+'-next');}while(true);}click(a,'#cash-daily-preview');const form=a.node('#cash-daily-consent');assert.ok(form,a.node('#cash-daily-status')?.textContent);fill(form,{accountUniverseReviewed:true,sourceUniverseReviewed:true,userDeclarationsNotBankVerification:true,dayEndNotRealtime:true,reason:'Synthetic actual-entry day-end scope review'});form.dispatch('submit');assert.equal(a.node('#daily-review-sources').disabled,false,a.node('#cash-daily-status')?.textContent);return a;}
+function inventory(a){basis(a);click(a,'#daily-review-sources');assert.ok(a.node('#daily-preview'),a.node('#daily-status')?.textContent);return a;}
+function preview(a){click(a,'#daily-preview');assert.ok(a.node('#daily-consent'),a.node('#daily-status')?.textContent);return a;}
+function confirm(a,patch={}){const form=a.node('#daily-consent');fill(form,{futureRecordedLegsReviewed:true,residualNonOverlapReviewed:true,exclusionsUnknownsTailReviewed:true,dayEndSelectedScopeUnderstood:true,reason:'Synthetic confirmed daily source',...patch});form.dispatch('submit');return a;}
+const ready=options=>confirm(preview(inventory(app(options))));
+function add(a,event={}){click(a,'#daily-event-add');const values={direction:'out',amount:'10.00',date:'2026-10-15',account:'account-cash',label:'Synthetic extra movement',reason:'Explicit nonoverlap assumption',...event};for(const [name,value]of Object.entries(values))field(a,'#daily-event-'+name,value,['account','direction','unknownAmount','unknownDate'].includes(name)?'change':'input');field(a,'#daily-event-reviewed',true);a.node('#daily-event-form').dispatch('submit');assert.equal(a.node('#daily-event-form'),null,a.node('#daily-status')?.textContent);return a;}
+function openRoom(a){click(a,'#daily-room-open');assert.ok(a.node('#daily-room-date'),a.node('#daily-status')?.textContent);return a;}
+function roomInputs(a,{date='2026-10-20',state='known',amount='0',purpose='Synthetic additional stock floor',floors=null}={}){field(a,'#daily-room-date',date,'input');for(;;){for(const n of a.doc.querySelectorAll('select').filter(n=>/^daily-room-floor-state-\d+$/.test(n.id||''))){const i=Number(n.id.split('-').at(-1)),row=floors?.[i]||{state,amount,purpose};field(a,'#daily-room-floor-state-'+i,row.state);if(row.state==='known')field(a,'#daily-room-floor-amount-'+i,row.amount,'input');field(a,'#daily-room-floor-purpose-'+i,row.purpose,'input');}const next=a.node('#daily-room-floors-next');if(!next||next.disabled)break;click(a,'#daily-room-floors-next');}return a;}
+function roomPreview(a){click(a,'#daily-room-preview');assert.ok(a.node('#daily-room-consent'),a.node('#daily-status')?.textContent);return a;}
+function roomConfirm(a,patch={}){const form=a.node('#daily-room-consent');fill(form,{...Object.fromEntries(ROOM_CONSENT.map(k=>[k,true])),reason:'Explicit anchored-funds-only synthetic review',...patch});form.dispatch('submit');return a;}
+const roomReady=(options,inputs)=>roomConfirm(roomPreview(roomInputs(openRoom(ready(options)),inputs)));
+const latest=(a,name)=>a.owned.filter(x=>x.name===name).at(-1);
+const report=a=>latest(a,'confirm')?.out,roomReport=a=>latest(a,'confirmRoom')?.out;
+function snapshot(a){return a.value('({state:JSON.stringify(state),raw:savedRaw,stored:storage.getItem(L.STORAGE_KEY),rollback:storage.getItem(ROLLBACK_KEY),backup:L.backup(state,{exportedAt:"2026-10-14T12:00:00.000Z"}),financial:L.financialView(state),balances:L.balances(state),summary:L.summary(state,"2026-10"),writes:roomWrites})');}
+function quiet(a,before){assert.deepEqual({localStorage:a.counters.localStorage,sessionStorage:a.counters.sessionStorage},a.storageAcquisitions,'No new browser storage acquisition after host initialization');assert.deepEqual(a.value('roomWrites'),[]);assert.deepEqual(a.financialWrites,[]);assert.deepEqual(a.counters.forbidden,[]);if(before)assert.deepEqual(snapshot(a),before);if(a.entry==='demo.html'){assert.equal(a.counters.localStorage,0);assert.equal(a.counters.sessionStorage,0);assert.deepEqual(a.counters.personalIO,[]);}}
+function readProof(a){const chunks=[];for(;;){const n=a.node('#daily-proof-text');assert.ok(n);assert.ok(n.textContent.length<=4000);assert.ok(!/[\uD800-\uDBFF]$/.test(n.textContent));assert.ok(!/^[\uDC00-\uDFFF]/.test(n.textContent));chunks.push(n.textContent);if(a.node('#daily-proof-next').disabled)break;click(a,'#daily-proof-next');}return chunks.join('');}
+function hashes(a){return{entry:a.entry,htmlSha256:crypto.createHash('sha256').update(a.html).digest('hex'),scripts:a.hashes};}
+module.exports={ROOT,host,L,R,O,DAY,NOW,KEY,FixedDate,ROOM_CONSENT,copy,fixture,app,click,field,fill,basis,inventory,preview,confirm,ready,add,openRoom,roomInputs,roomPreview,roomConfirm,roomReady,latest,report,roomReport,snapshot,quiet,readProof,hashes};

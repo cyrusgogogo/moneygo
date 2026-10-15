@@ -1,0 +1,41 @@
+{
+  "sourceRelease": "0.14.0",
+  "purpose": "Exact immutable original readers for genuine new-format rejection; not recreated with candidate code.",
+  "files": [
+    {
+      "file": "ledger.js",
+      "sha256": "36ad7bbe4a3e9fa204e33190b59fb2fbad720cb6ccbd1e2ede3d92920e009351",
+      "bytes": 30379
+    },
+    {
+      "file": "relations.js",
+      "sha256": "356a6e2bde3ce94af15ad4b3c685638eb2c2d154bc9e20d78e70c6fc1651b9d1",
+      "bytes": 84508
+    },
+    {
+      "file": "organizer.js",
+      "sha256": "12ca09a19812c6ac795f1589ecbef953725f8121e0650b6ce205e501abb6bdba",
+      "bytes": 76411
+    },
+    {
+      "file": "obligations.js",
+      "sha256": "2df4fa9c91280091f49c94ff8970dcf1eee97dad087290523d3b44b772d16124",
+      "bytes": 42866
+    },
+    {
+      "file": "scenario.js",
+      "sha256": "e887ab860097be197f832e70eb1517db7e65462de74bda9d72180da4d3b66eac",
+      "bytes": 18025
+    },
+    {
+      "file": "importer.js",
+      "sha256": "df4d370f1e1d66d04808c704d847375dea09b818514695121378023c5515fb75",
+      "bytes": 61955
+    },
+    {
+      "file": "personal-events.js",
+      "sha256": "a6ff5581f7dda0d526a9d35d9a7676d841f91f950b7d73dd898560c1adfc6323",
+      "bytes": 15295
+    }
+  ]
+}

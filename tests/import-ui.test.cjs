@@ -1,4 +1,5 @@
 'use strict';
+const {readEntryManifest,applyBodyAttributes,addListener,removeListener}=require('./entry-manifest.cjs');
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -11,12 +12,14 @@ const {memoryStorage}=require('./ui.test.cjs');
 // guards. It does not claim browser layout, native file dialog or accessibility QA.
 function loadImportApp(storage=memoryStorage()) {
  const nodes=new Map(),documentListeners=new Map(),windowListeners=new Map();
- const document={body:{style:{},append(){}},activeElement:null,addEventListener(type,cb){documentListeners.set(type,cb);},createElement(){return {click(){},remove(){}};}};
+ const document={body:{style:{},append(){}},activeElement:null,addEventListener(type,cb){addListener(documentListeners,type,cb);},removeEventListener(type,cb){removeListener(documentListeners,type,cb);},createElement(){return {click(){},remove(){}};}};
  function node(selector){if(!nodes.has(selector))nodes.set(selector,{innerHTML:'',textContent:'',value:'',disabled:false,checked:false,hidden:false,isConnected:true,dataset:{},style:{},elements:{},classList:{add(){},remove(){}},focus(){document.activeElement=this;},addEventListener(){},setSelectionRange(){},querySelectorAll(){return [];},closest(){return null;}});return nodes.get(selector);}
+ document.querySelectorAll=()=>[...nodes.values()];
  document.querySelector=selector=>selector==='.modal'&&!node('#modal-root').innerHTML?null:selector==='#entry-form'&&!node('#modal-root').innerHTML.includes('id="entry-form"')?null:node(selector);
- const window={localStorage:storage,confirm(){return true;},scrollTo(){},addEventListener(type,cb){windowListeners.set(type,cb);}};
+ const window={document,localStorage:storage,confirm(){return true;},scrollTo(){},addEventListener(type,cb){addListener(windowListeners,type,cb);},removeEventListener(type,cb){removeListener(windowListeners,type,cb);}};
  const context=vm.createContext({document,window,console,TextDecoder,TextEncoder,Blob,URL:{createObjectURL(){return 'blob:test';},revokeObjectURL(){}},setTimeout(){return 1;},clearTimeout(){}});
- for(const file of ['ledger.js','importer.js','scenario.js','relations.js','relations-ui.js','app.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../dist',file),'utf8'),context,{filename:file});
+ const entry=readEntryManifest();applyBodyAttributes(document.body,entry);
+ for(const file of entry.scripts)vm.runInContext(fs.readFileSync(path.join(__dirname,'../dist',file),'utf8'),context,{filename:file});
  return {node,storage,documentListeners,windowListeners,run(code){return vm.runInContext(code,context);},value(code){return JSON.parse(vm.runInContext('JSON.stringify('+code+')',context));},put(key,value){context[key]=value;}};
 }
 function configure(app,text,extra={}) {
@@ -31,7 +34,7 @@ module.exports={loadImportApp};
 test('real import navigation and source-local disclosure exist with correct script order',()=>{
  const app=loadImportApp();app.run("page='import';render()");const html=app.node('#app').innerHTML;
  assert.match(html,/账单导入/);assert.match(html,/不承诺.*官方格式兼容/);assert.match(html,/accept="\.csv,\.tsv/);assert.match(html,/下载合成 CSV 样例/);assert.equal(app.storage.writes.length,0);
- const index=fs.readFileSync(path.join(__dirname,'../dist/index.html'),'utf8');assert.ok(index.indexOf('importer.js')<index.indexOf('app.js'));
+ const index=fs.readFileSync(path.join(__dirname,'../dist/index.html'),'utf8');assert.ok(index.indexOf('importer.js')<index.indexOf('app-runtime-v1.js'));
 });
 
 test('UTF-8 decode is strict; BOM preserved for inspection and explicit UTF-16 works',()=>{
@@ -123,12 +126,16 @@ test('safe rollback reports post-import edit conflicts without overwriting edits
  const app=loadImportApp();preview(app,csv);app.run('importDraft.selected.add(importDraft.preview.rows[0].key);commitImportSelection();persist(L.putTransaction(state,{...state.transactions[0],note:"manual edit"},state.transactions[0].id));confirmImportRollback(state.imports.batches[0].id)');const writes=app.storage.writes.length;app.node('#confirm-import-rollback').onclick();assert.equal(app.storage.writes.length,writes);assert.equal(app.run('state.transactions[0].note'),'manual edit');assert.match(app.node('#modal-root').innerHTML,/回滚遇到冲突/);
 });
 
-test('isolated backup verification validates imports without any ledger write',async()=>{
- const app=loadImportApp();preview(app,csv);app.run('importDraft.selected.add(importDraft.preview.rows[0].key);commitImportSelection()');const backup=app.run('L.backup(state)'),before=app.storage.getItem(L.STORAGE_KEY),writes=app.storage.writes.length;app.run('verifyBackupFile()');await app.node('#verify-backup-file').onchange({target:{files:[{size:backup.length,text:async()=>backup}]}});assert.match(app.node('#verify-backup-result').innerHTML,/备份验证通过/);assert.equal(app.storage.getItem(L.STORAGE_KEY),before);assert.equal(app.storage.writes.length,writes);
+test('isolated backup verification validates imports with no financial writes',async()=>{
+ const app=loadImportApp();preview(app,csv);app.run('importDraft.selected.add(importDraft.preview.rows[0].key);commitImportSelection()');
+ const backup=app.run('L.backup(state)'),before=app.storage.getItem(L.STORAGE_KEY),rollbackKey='moneygo.ledger.beforeRestore.v1',beforeRollback=app.storage.getItem(rollbackKey),writes=app.storage.writes.length,financialWrites=app.storage.writes.filter(([key])=>key===L.STORAGE_KEY||key===rollbackKey);
+ app.run('verifyBackupFile()');await app.node('#verify-backup-file').onchange({target:{files:[{size:backup.length,text:async()=>backup}]}});
+ assert.match(app.node('#verify-backup-result').innerHTML,/备份验证通过/);assert.equal(app.storage.getItem(L.STORAGE_KEY),before);assert.equal(app.storage.getItem(rollbackKey),beforeRollback);assert.deepEqual(app.storage.writes.filter(([key])=>key===L.STORAGE_KEY||key===rollbackKey),financialWrites);
+ const noteKey=require('../dist/backup-safety.js').NOTE_KEY;assert.equal(app.storage.writes.length,writes+1);assert.deepEqual(app.storage.writes.slice(writes).map(([key])=>key),[noteKey]);const noteRaw=app.storage.getItem(noteKey),note=JSON.parse(noteRaw);assert.ok(noteRaw.length<=512);assert.deepEqual(Object.keys(note).sort(),['backupVersion','completedAt','kind','verifierRevision','version']);assert.equal(note.kind,'moneygo-backup-verification-note');assert.equal(note.version,1);assert.equal(note.verifierRevision,1);assert.equal(note.backupVersion,app.run('state.version'));assert.equal(new Date(note.completedAt).toISOString(),note.completedAt);
 });
 
-test('changing encoding during a file read cancels stale decoding',async()=>{
- const app=loadImportApp();app.run("page='import';render()");let finish;app.put('file',{name:'waiting.csv',size:1,arrayBuffer:()=>new Promise(resolve=>finish=resolve)});const pending=app.run('readImportFile(file)');app.node('#import-encoding').onchange({target:{value:'utf-16le'}});finish(new TextEncoder().encode(csv).buffer);await pending;
+test('legacy single-file helper cancels stale decoding when its matching encoding handler changes',async()=>{
+ const app=loadImportApp();app.run("page='import';render()");let finish;app.put('file',{name:'waiting.csv',size:1,arrayBuffer:()=>new Promise(resolve=>finish=resolve)});const pending=app.run('readImportFile(file)');app.run('bindImportPage()');app.node('#import-encoding').onchange({target:{value:'utf-16le'}});finish(new TextEncoder().encode(csv).buffer);await pending;
  assert.equal(app.run('importDraft.text'),'');assert.equal(app.run('importDraft.encoding'),'utf-16le');assert.match(app.run('importDraft.error'),/重新选择/);
 });
 

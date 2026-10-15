@@ -1,0 +1,19 @@
+{
+  "baseline": "moneygo v0.11.0 frozen, 857 existing tests",
+  "applicationSourceChanged": false,
+  "copiedInputsMatchFrozenBaseline": true,
+  "sha256": {
+    "BACKUP_FORMAT.md": "dd10a528171d1cedec4ca30003c00af2857932eabf08cbd35a6d388edab2a6ec",
+    "dist/ledger.js": "98da6da9ebac09aeedddf7f2aeec20677b45a04e04676aff5d6d61f2659ddeb1",
+    "dist/importer.js": "df4d370f1e1d66d04808c704d847375dea09b818514695121378023c5515fb75",
+    "dist/scenario.js": "93563d71eeb585ae15b1914f990211839b6432f0f704cf43c2842c17ece737ec",
+    "dist/relations.js": "fa25322599ba112e6fdd0d11507f597a2518d65face126bb3bd80a8bbc3dc2ea",
+    "dist/organizer.js": "1c39fc09f7e36e60b0db387758f2b062f672f8f49707bccc44b2a5f389b076f6",
+    "dist/obligations.js": "b3cfe94c1c910e9bac90db2e1873e4938a8be96390cb374e7bae4d3f4d07e826",
+    "tests/fixtures/legacy-outer-v1-v5.json": "740809fce25c883489f69fcd8df6676c02b41119822e8e45f8dfbafecf9167a1",
+    "tests/fixtures/legacy-relations-v4.json": "af1520b4a8d1845bf5c595d26dafc6547bc714c0d5335e8f804917297bc20701",
+    "tests/fixtures/legacy-relations-v5.json": "8025ca5a4a37182f4667f244bcc122fbf8e9d4a888dbcac3881cd29afe8c8f81",
+    "tests/fixtures/organizer-v1-close.json": "33403806d65d2f0b740937e83136ce77e4ee11d5774a13f799a1f761a385fe34",
+    "tests/fixtures/imports-v1-frozen-v08.json": "decc880611103f57df7ce55ef500092f5c886b3780041f3412122c9b389174ce"
+  }
+}

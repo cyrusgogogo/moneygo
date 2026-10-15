@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "approvedRelease": "0.22.0",
+  "acceptedBaselineManifestSha256": "861d5a032b82f072952ed0b0c80ee28fac2084355cb0e2f5e8bf6572534bf074",
+  "inheritedPinFileSha256": "280d48e55a9669a4835c3ed027004bb255a955c838caeb6f14c751930f51d22c",
+  "scope": "Four explicitly reviewed integration adaptations only. Original217 pin entries and every unrelated source assertion remain. Two release-only files still compare to original normalized pins. Exactly two practice guide artifacts are separately pinned for the current-date eligibility and preview/consent correction; all six raw downloads remain at original pins.",
+  "files": [
+    {
+      "path": "tests/independent-runtime.test.cjs",
+      "historicalNormalizedSha256": "61e4b864036f3ea1cee8fbfb10e4a4eb193d955ec7cfe2aa5c1b557d34dfa6ca",
+      "acceptedV021RawSha256": "6d650ee7963f086428edad79458aef9d18492814f30849dba93c9c9d66d44348",
+      "v022RawSha256": "bf3f7b8510c0bd408eead61ab2c9961076fabfa274234255d45a195d76e629dc",
+      "v022NormalizedSha256": "f6f2a6360c2146ead0e7f1278ecc7e5182a2a789d0a2a30b9c6912c4deeece14",
+      "reason": "Exact v0.22 release literal and two new refund coordinator/UI loader entries; every original source assertion retained."
+    },
+    {
+      "path": "tests/relations-ui.test.cjs",
+      "historicalNormalizedSha256": "4f034168d3d31951293be8e4ad37d5a0f9f15c709e63cc09c420aa1f364bd253",
+      "acceptedV021RawSha256": "4f034168d3d31951293be8e4ad37d5a0f9f15c709e63cc09c420aa1f364bd253",
+      "v022RawSha256": "7af86ba55e2d76070560df238150ab369a4b4ad2b4b800a861cdb0258a6dfdcd",
+      "v022NormalizedSha256": "7af86ba55e2d76070560df238150ab369a4b4ad2b4b800a861cdb0258a6dfdcd",
+      "reason": "Actual new modules/controlled clocks/modal invalidation in harness; only three independently reviewed original cases add draft/review/confirm with original economics, dates, selection and assertions retained."
+    },
+    {
+      "path": "tests/transfer-ui-harness.cjs",
+      "historicalNormalizedSha256": "20a5adbc869c187b7f89404e8ce3280bf522c5cb90cec3c487cc631fd4ed1467",
+      "acceptedV021RawSha256": "20a5adbc869c187b7f89404e8ce3280bf522c5cb90cec3c487cc631fd4ed1467",
+      "v022RawSha256": "7817b341e251c1059628954a37f0e9e3b497497ba7b2050b5e52baa4e8c853ce",
+      "v022NormalizedSha256": "7817b341e251c1059628954a37f0e9e3b497497ba7b2050b5e52baa4e8c853ce",
+      "reason": "Load actual refund dependencies and controlled clocks/modal lifecycle so unchanged transfer-ui.test.cjs exercises the new refund picker."
+    },
+    {
+      "path": "tests/independent-practice-ui.test.cjs",
+      "historicalNormalizedSha256": "f6fcc3a8e19e1b789b9fb872aefea4c9291e4e4c4f8dc8cc100a8f410dd5abfa",
+      "acceptedV021RawSha256": "f6fcc3a8e19e1b789b9fb872aefea4c9291e4e4c4f8dc8cc100a8f410dd5abfa",
+      "v022RawSha256": "a97c5a6a17d02ce15a4a0868adf2d5189675139716ded2c123ec388b218eaded",
+      "v022NormalizedSha256": "a97c5a6a17d02ce15a4a0868adf2d5189675139716ded2c123ec388b218eaded",
+      "reason": "Test-only existing bookkeepingContext clock at the fixed practice reference 2026-11-02; actual preview and fresh consent with extra no-write checks. Original fixture dates, amounts, entire financial/backup/session-isolation assertions and case name retained."
+    }
+  ],
+  "authoredGuideAdaptations": [
+    {
+      "path": "SAMPLE_GUIDE.md",
+      "historicalRawSha256": "c3cdf59f104478f6cdd4997ff9de1f6d0c846995e919afda1d5f1a1dc4fb9ad5",
+      "v022RawSha256": "cdc95bfcd1dcfb8ab0b175e2f522d453eaeba945666fe6ac3afe14d470331da0",
+      "reason": "Explicit real-day eligibility prevents November receipt allocation before its date; document actual draft, complete review, fresh consent and resulting-total preconditions. Generated HTML is an exact deterministic rendering; six raw downloads unchanged."
+    },
+    {
+      "path": "dist/synthetic-practice.html",
+      "historicalRawSha256": "508c51c6ac9029d715bae33747a8b0184b157a68cbc529238665a36a376daa2a",
+      "v022RawSha256": "174a436ce8eb0bfe58d9c033412e1904f37dd999297f082d665ac39408b8a9c0",
+      "reason": "Explicit real-day eligibility prevents November receipt allocation before its date; document actual draft, complete review, fresh consent and resulting-total preconditions. Generated HTML is an exact deterministic rendering; six raw downloads unchanged."
+    }
+  ]
+}

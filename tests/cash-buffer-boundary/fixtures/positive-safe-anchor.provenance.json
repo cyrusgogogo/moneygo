@@ -1,0 +1,21 @@
+{
+  "name": "positive-safe-anchor",
+  "construction": "Genuine Ledger.putAccount, Obligations.putProfile, Relations.addSnapshot; 9008 distinct Ledger.putTransaction(type income) outputs assembled unchanged and full state/backup validated",
+  "deterministicIdProvider": "Temporary synthetic crypto.randomUUID sequence restored in finally",
+  "publicTransactionWriterCalls": 9008,
+  "rawSha256": "8f43d954cdab6015d54daa893d60b61eb0b523494d43d4f56b5969601e7f468c",
+  "rawBytes": 1388405,
+  "writerPins": {
+    "ledger.js": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+    "relations.js": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+    "obligations.js": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+    "retained-identities.js": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+    "personal-events.js": "8bfead2ceeab8fccaf49bae135e63004efe91c870d2c7f1e8660d474ac2241a4",
+    "held-core.js": "bd6d6efd9ca82b8d5ca69613d3aeb1d0a0b66c8479d312f4eae283fc14e0b26e"
+  },
+  "generatorSha256": "6785ef0983753511954f50d30bf40858261a4a767d79e6386796c68e9ed8dd7c",
+  "validated": true,
+  "backupRoundtripVerified": true,
+  "constructedAt": "2026-10-14T22:36:37.193Z",
+  "constructionElapsedMs": 28445.271721
+}

@@ -6,9 +6,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const source = fs.readFileSync(path.join(__dirname, '../dist/demo.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, './fixtures/historical-prototype/demo-v0.js'), 'utf8');
 
-// Keep the shipped source unchanged. This harness tests domain logic only;
+// Keep the retired, nonshipped historical source unchanged. This harness tests domain logic only;
 // it deliberately does not pretend to implement a browser or layout engine.
 function loadPrototype() {
   const nodes = new Map();
@@ -34,7 +34,7 @@ function loadPrototype() {
     setTimeout(fn, delay) { timers.push({ fn, delay }); return timers.length; },
     clearTimeout() {}
   });
-  vm.runInContext(source, context, { filename: 'dist/app.js' });
+  vm.runInContext(source, context, { filename: 'historical-prototype/demo-v0.js' });
   return {
     debug: context.window.moneygoDebug,
     run(code) { return vm.runInContext(code, context); },
@@ -152,8 +152,8 @@ test('reset clears reviews, imports, filters and selected month', () => {
   assert.equal(app.run('month'), '09');
 });
 
-test('shipped HTML points to local assets and clearly labels demo data', () => {
-  const html = fs.readFileSync(path.join(__dirname, '../dist/demo.html'), 'utf8');
+test('historical prototype HTML pointed to local assets and labelled demo data', () => {
+  const html = fs.readFileSync(path.join(__dirname, './fixtures/historical-prototype/demo-v0.html'), 'utf8');
   assert.match(html, /lang="zh-CN"/);
   assert.match(html, /href="styles\.css"/);
   assert.match(html, /src="demo\.js"/);

@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "approvedRelease": "0.23.0",
+  "acceptedBaselineManifestSha256": "2e9f1ecc010ea8d3dab63fd2286c20b4b14d332404ceb16b7a69f16145c121b7",
+  "inheritedPinFileSha256": "280d48e55a9669a4835c3ed027004bb255a955c838caeb6f14c751930f51d22c",
+  "inheritedRefundPinFileSha256": "e870f6db7bcdc59f38d9ef86c2aa79ea6d4f44cd64e260cba9cc4a196719cffd",
+  "files": [
+    {
+      "path": "tests/backup-storage-independent.test.cjs",
+      "v022RawSha256": "c9574bde4f7e21f6d53b30353746f171aac9e343e63a95e958a78aeb8f3b4a54",
+      "v022Bytes": 15945,
+      "v022NormalizedSha256": "c9574bde4f7e21f6d53b30353746f171aac9e343e63a95e958a78aeb8f3b4a54",
+      "v023RawSha256": "c2d6d66ec0059a76c55e8944fd46fff0fcb74074dd55dea820a3d4cb035830e1",
+      "v023Bytes": 15965,
+      "v023NormalizedSha256": "c2d6d66ec0059a76c55e8944fd46fff0fcb74074dd55dea820a3d4cb035830e1",
+      "historicalNormalizedSha256": "c9574bde4f7e21f6d53b30353746f171aac9e343e63a95e958a78aeb8f3b4a54",
+      "reason": "Exactly two ordinary-save operation arrays gain the final raw guard read; original recovery/fault/economic assertions retained."
+    },
+    {
+      "path": "tests/refund-receipts-host-workflow.test.cjs",
+      "v022RawSha256": "84516570c3e10ced6f5f541a4badb6ac67588eeb911d69d3f96cd25a1c390a1d",
+      "v022Bytes": 6230,
+      "v022NormalizedSha256": "84516570c3e10ced6f5f541a4badb6ac67588eeb911d69d3f96cd25a1c390a1d",
+      "v023RawSha256": "37c52e779b86a37ab453c958f4e9838f5dd9d94b641f71d9ec8c64c440525de0",
+      "v023Bytes": 8226,
+      "v023NormalizedSha256": "37c52e779b86a37ab453c958f4e9838f5dd9d94b641f71d9ec8c64c440525de0",
+      "historicalNormalizedSha256": null,
+      "reason": "Six actual refund workflow cases replace commit-result identity with full normalized equality and original content/prior-frozen-status preservation; original economics retained."
+    },
+    {
+      "path": "tests/refund-receipts-host-storage.test.cjs",
+      "v022RawSha256": "5abc1189c42467051c49f7bd031177336235f0846939f7e4bba6e38282cb0b4f",
+      "v022Bytes": 5718,
+      "v022NormalizedSha256": "5abc1189c42467051c49f7bd031177336235f0846939f7e4bba6e38282cb0b4f",
+      "v023RawSha256": "fd7866662daa071896cbee7fc3e3bbd8efcaa3f3fedd6cced765061735940822",
+      "v023Bytes": 7714,
+      "v023NormalizedSha256": "fd7866662daa071896cbee7fc3e3bbd8efcaa3f3fedd6cced765061735940822",
+      "historicalNormalizedSha256": null,
+      "reason": "Quota case replaces commit-result identity with full normalized equality and original content/prior-frozen-status preservation; same prepared object identity across retries retained."
+    },
+    {
+      "path": "tests/independent-runtime.test.cjs",
+      "v022RawSha256": "bf3f7b8510c0bd408eead61ab2c9961076fabfa274234255d45a195d76e629dc",
+      "v022Bytes": 30937,
+      "v022NormalizedSha256": "f6f2a6360c2146ead0e7f1278ecc7e5182a2a789d0a2a30b9c6912c4deeece14",
+      "v023RawSha256": "8ee902588bafce90526fffdae5d7805c2c40c342ac1be261be1d7c14babe3538",
+      "v023Bytes": 30957,
+      "v023NormalizedSha256": "3f3a6cdcfd765140bccbe285adcee16044fe8fd3c37e5d593039aff16942f2e1",
+      "historicalNormalizedSha256": "61e4b864036f3ea1cee8fbfb10e4a4eb193d955ec7cfe2aa5c1b557d34dfa6ca",
+      "reason": "Exact save-preflight.js loader insertion and named release fixture literal; original isolation and all capability assertions retained."
+    },
+    {
+      "path": "tests/spending-entry-capabilities.test.cjs",
+      "v022RawSha256": "617ed692a595f0f312bc84389f5285c5540ba62b8f9e05e0501ce6e23cbf01ef",
+      "v022Bytes": 4087,
+      "v022NormalizedSha256": "bce46f9d5509c009edf5b27b1aa16931f31b0887e174172f74c09ceaccc3b55e",
+      "v023RawSha256": "2966c80cfc3c76a8dba854dbf3e6d43c9bfcfd5a3a676eafbccd41abfd2b25ff",
+      "v023Bytes": 4087,
+      "v023NormalizedSha256": "bce46f9d5509c009edf5b27b1aa16931f31b0887e174172f74c09ceaccc3b55e",
+      "historicalNormalizedSha256": "bce46f9d5509c009edf5b27b1aa16931f31b0887e174172f74c09ceaccc3b55e",
+      "reason": "Exact selected 0.23.0 release expectation only."
+    },
+    {
+      "path": "tests/synthetic-samples.test.cjs",
+      "v022RawSha256": "fdf107330f506aa5a7eb332b8ea5dd2110ec60ce09c60c515288c95e8b38b35d",
+      "v022Bytes": 20845,
+      "v022NormalizedSha256": "caa7081ad65405cc0624dd660d2192d25b00afa82cfc755bb9036764fd3c0d08",
+      "v023RawSha256": "52673e97b353b21634e10cc381fce9450705dbddb49435c14ad641f4fdf5b38c",
+      "v023Bytes": 20845,
+      "v023NormalizedSha256": "caa7081ad65405cc0624dd660d2192d25b00afa82cfc755bb9036764fd3c0d08",
+      "historicalNormalizedSha256": "caa7081ad65405cc0624dd660d2192d25b00afa82cfc755bb9036764fd3c0d08",
+      "reason": "Exact selected 0.23.0 release expectation only."
+    },
+    {
+      "path": "tests/refund-receipts-continuity.test.cjs",
+      "v022RawSha256": "5475ace424b336cedc10115b18b02c4b2fc192b6835638c6f7344da9b0c2c0dd",
+      "v022Bytes": 4016,
+      "v022NormalizedSha256": "5475ace424b336cedc10115b18b02c4b2fc192b6835638c6f7344da9b0c2c0dd",
+      "v023RawSha256": "bd8b69c945478a92f37339a8358c02ced576ff7cc7abcc46e952077e2d536043",
+      "v023Bytes": 4331,
+      "v023NormalizedSha256": "bd8b69c945478a92f37339a8358c02ced576ff7cc7abcc46e952077e2d536043",
+      "historicalNormalizedSha256": null,
+      "reason": "Exact new JSON dependency and named 0.23.0 to 0.24.0 negative sentinel with mutation occurrence asserted before expected guard failure."
+    }
+  ]
+}

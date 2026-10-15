@@ -1,0 +1,980 @@
+{
+  "fixtureVersion": 1,
+  "status": "Deterministic acceptance inputs and expected results, not an executed test suite or an implementation. Harness must translate descriptive operations to the exact reviewed API.",
+  "currency": "CNY",
+  "clock": "2026-04-15T12:00:00.000Z",
+  "asOfDate": "2026-04-15",
+  "defaultExpenseCategoryId": "category-personal",
+  "defaultIncomeCategoryId": "category-income",
+  "accounts": [
+    "cash-a",
+    "cash-b"
+  ],
+  "defaults": {
+    "positionKind": "deposit",
+    "recognitionCategoryType": "expense",
+    "merchant": null,
+    "expiry": {
+      "kind": "unknown",
+      "date": null
+    },
+    "refundability": "unknown",
+    "positionConfirmations": {
+      "paidPrincipalOnly": true,
+      "noTrackedWalletOverlap": true
+    },
+    "recognitionConfirmations": {
+      "notAlreadyRecordedAsExpense": true
+    },
+    "reason": "Synthetic deterministic fixture"
+  },
+  "economicVectors": [
+    {
+      "id": "E01",
+      "label": "Original #30",
+      "raw": [
+        {
+          "id": "pay30",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 100000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt30",
+          "type": "income",
+          "date": "2026-03-10",
+          "amountCents": 30000,
+          "accountId": "cash-b"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p30",
+          "expenseId": "pay30",
+          "amountCents": 100000
+        },
+        {
+          "action": "use",
+          "id": "use30",
+          "positionId": "p30",
+          "effectiveDate": "2026-02-10",
+          "amountCents": 20000
+        },
+        {
+          "action": "return",
+          "id": "ret30",
+          "positionId": "p30",
+          "incomeId": "receipt30",
+          "amountCents": 30000
+        }
+      ],
+      "expected": {
+        "remainingCents": 50000,
+        "usedCents": 20000,
+        "lostCents": 0,
+        "returnedCents": 30000,
+        "monthly": {
+          "2026-01": {
+            "personalExpenseCents": 0,
+            "ordinaryIncomeCents": 0,
+            "actualNetCents": -100000
+          },
+          "2026-02": {
+            "personalExpenseCents": 20000,
+            "ordinaryIncomeCents": 0,
+            "actualNetCents": 0
+          },
+          "2026-03": {
+            "personalExpenseCents": 0,
+            "ordinaryIncomeCents": 0,
+            "actualNetCents": 30000
+          }
+        }
+      }
+    },
+    {
+      "id": "E02",
+      "label": "Original #106, expiry is warning",
+      "raw": [
+        {
+          "id": "pay106",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 100000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt106",
+          "type": "income",
+          "date": "2026-03-10",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p106",
+          "expenseId": "pay106",
+          "amountCents": 100000,
+          "kind": "stored-value",
+          "expiry": {
+            "kind": "date",
+            "date": "2026-03-31"
+          }
+        },
+        {
+          "action": "use",
+          "id": "use106",
+          "positionId": "p106",
+          "effectiveDate": "2026-02-10",
+          "amountCents": 30000
+        },
+        {
+          "action": "return",
+          "id": "ret106",
+          "positionId": "p106",
+          "incomeId": "receipt106",
+          "amountCents": 10000
+        }
+      ],
+      "expected": {
+        "remainingCents": 60000,
+        "usedCents": 30000,
+        "lostCents": 0,
+        "returnedCents": 10000,
+        "expiredUnconsumedRecordedPrincipalCents": 60000,
+        "actualNetCents": -90000,
+        "personalExpenseCents": 30000,
+        "ordinaryIncomeCents": 0,
+        "automaticLossCents": 0
+      }
+    },
+    {
+      "id": "E03",
+      "label": "Deposit return then explicit loss",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 100000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt",
+          "type": "income",
+          "date": "2026-02-10",
+          "amountCents": 40000,
+          "accountId": "cash-b"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 100000
+        },
+        {
+          "action": "return",
+          "id": "ret",
+          "positionId": "p",
+          "incomeId": "receipt",
+          "amountCents": 40000
+        },
+        {
+          "action": "loss",
+          "id": "loss",
+          "positionId": "p",
+          "effectiveDate": "2026-03-20",
+          "amountCents": 20000
+        }
+      ],
+      "expected": {
+        "remainingCents": 40000,
+        "usedCents": 0,
+        "lostCents": 20000,
+        "returnedCents": 40000,
+        "personalExpenseByMonth": {
+          "2026-01": 0,
+          "2026-02": 0,
+          "2026-03": 20000
+        },
+        "ordinaryIncomeCents": 0,
+        "actualNetCents": -60000
+      }
+    },
+    {
+      "id": "E04",
+      "label": "Prepayment use then return",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-27",
+          "amountCents": 50000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt",
+          "type": "income",
+          "date": "2026-03-05",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 50000
+        },
+        {
+          "action": "use",
+          "id": "use",
+          "positionId": "p",
+          "effectiveDate": "2026-02-03",
+          "amountCents": 15000
+        },
+        {
+          "action": "return",
+          "id": "ret",
+          "positionId": "p",
+          "incomeId": "receipt",
+          "amountCents": 10000
+        }
+      ],
+      "expected": {
+        "remainingCents": 25000,
+        "personalExpenseByMonth": {
+          "2026-01": 0,
+          "2026-02": 15000,
+          "2026-03": 0
+        },
+        "ordinaryIncomeCents": 0,
+        "actualNetCents": -40000
+      }
+    },
+    {
+      "id": "E05",
+      "label": "Partial allocation exact residual cents",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 12001,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt",
+          "type": "income",
+          "date": "2026-03-10",
+          "amountCents": 2222,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 10000
+        },
+        {
+          "action": "use",
+          "id": "use",
+          "positionId": "p",
+          "effectiveDate": "2026-02-10",
+          "amountCents": 3333
+        },
+        {
+          "action": "return",
+          "id": "ret",
+          "positionId": "p",
+          "incomeId": "receipt",
+          "amountCents": 2222
+        }
+      ],
+      "expected": {
+        "rawExpenseResidualCents": 2001,
+        "remainingCents": 4445,
+        "personalExpenseCents": 5334,
+        "ordinaryIncomeCents": 0,
+        "actualNetCents": -9779
+      }
+    },
+    {
+      "id": "E06",
+      "label": "Same-day funding/use/return",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-03-10",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt",
+          "type": "income",
+          "date": "2026-03-10",
+          "amountCents": 5000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 10000
+        },
+        {
+          "action": "use",
+          "id": "use",
+          "positionId": "p",
+          "effectiveDate": "2026-03-10",
+          "amountCents": 5000
+        },
+        {
+          "action": "return",
+          "id": "ret",
+          "positionId": "p",
+          "incomeId": "receipt",
+          "amountCents": 5000
+        }
+      ],
+      "expected": {
+        "remainingCents": 0,
+        "sourceReservedCents": 10000,
+        "receiptReservedCents": 5000,
+        "personalExpenseCents": 5000,
+        "actualNetCents": -5000
+      }
+    },
+    {
+      "id": "E07",
+      "label": "Receipt ordinary remainder",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt",
+          "type": "income",
+          "date": "2026-02-10",
+          "amountCents": 11000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 10000
+        },
+        {
+          "action": "return",
+          "id": "ret",
+          "positionId": "p",
+          "incomeId": "receipt",
+          "amountCents": 10000
+        }
+      ],
+      "expected": {
+        "remainingCents": 0,
+        "ordinaryIncomeCents": 1000,
+        "personalExpenseCents": 0,
+        "actualNetCents": 1000
+      }
+    },
+    {
+      "id": "E08",
+      "label": "Shared source and split receipt valid",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        },
+        {
+          "id": "receipt",
+          "type": "income",
+          "date": "2026-03-10",
+          "amountCents": 5000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "pa",
+          "expenseId": "pay",
+          "amountCents": 6000
+        },
+        {
+          "action": "fund",
+          "positionId": "pb",
+          "expenseId": "pay",
+          "amountCents": 4000
+        },
+        {
+          "action": "return",
+          "id": "ra",
+          "positionId": "pa",
+          "incomeId": "receipt",
+          "amountCents": 3000
+        },
+        {
+          "action": "return",
+          "id": "rb",
+          "positionId": "pb",
+          "incomeId": "receipt",
+          "amountCents": 2000
+        }
+      ],
+      "expected": {
+        "remainingByPosition": {
+          "pa": 3000,
+          "pb": 2000
+        },
+        "sourceReservedCents": 10000,
+        "receiptReservedCents": 5000,
+        "ordinaryIncomeCents": 0
+      }
+    },
+    {
+      "id": "E09",
+      "label": "One-cent explicit loss",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-01",
+          "amountCents": 1,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 1
+        },
+        {
+          "action": "loss",
+          "id": "loss",
+          "positionId": "p",
+          "effectiveDate": "2026-02-01",
+          "amountCents": 1
+        }
+      ],
+      "expected": {
+        "remainingCents": 0,
+        "personalExpenseCents": 1,
+        "lostCents": 1,
+        "sourceReservedCents": 1
+      }
+    },
+    {
+      "id": "E10",
+      "label": "Recognition-only March",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-01",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 10000
+        },
+        {
+          "action": "use",
+          "id": "march-use",
+          "positionId": "p",
+          "effectiveDate": "2026-03-15",
+          "amountCents": 2000
+        }
+      ],
+      "expected": {
+        "marchRawTransactionCount": 0,
+        "marchPositivePersonalEventCount": 1,
+        "marchPersonalExpenseCents": 2000,
+        "marchCashExpenseCents": 0,
+        "marchOpeningRightCents": 10000,
+        "marchClosingRightCents": 8000,
+        "marchEventKey": {
+          "kind": "held-recognition",
+          "id": "march-use"
+        }
+      }
+    },
+    {
+      "id": "E11",
+      "label": "Backdate restates proper month",
+      "raw": [
+        {
+          "id": "pay",
+          "type": "expense",
+          "date": "2026-01-10",
+          "amountCents": 10000,
+          "accountId": "cash-a"
+        }
+      ],
+      "operations": [
+        {
+          "action": "fund",
+          "positionId": "p",
+          "expenseId": "pay",
+          "amountCents": 10000
+        },
+        {
+          "action": "use",
+          "id": "march",
+          "positionId": "p",
+          "effectiveDate": "2026-03-10",
+          "amountCents": 3000
+        },
+        {
+          "action": "use",
+          "id": "feb",
+          "positionId": "p",
+          "effectiveDate": "2026-02-10",
+          "amountCents": 2000
+        }
+      ],
+      "expected": {
+        "remainingCents": 5000,
+        "personalExpenseByMonth": {
+          "2026-01": 0,
+          "2026-02": 2000,
+          "2026-03": 3000
+        },
+        "auditCreateOrder": [
+          "p",
+          "march",
+          "feb"
+        ],
+        "economicOrder": [
+          "p",
+          "feb",
+          "march"
+        ]
+      }
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "C01",
+      "group": "capacity",
+      "setup": "Expense10000; positionA8000 active",
+      "action": "Create positionB8000 on same expense",
+      "expected": "Reject aggregate16000; original unchanged"
+    },
+    {
+      "id": "C02",
+      "group": "capacity",
+      "setup": "Expense10000; positionA10000 completely used",
+      "action": "Create another position1 on same expense",
+      "expected": "Reject; exhausted reservation stays10000"
+    },
+    {
+      "id": "C03",
+      "group": "capacity",
+      "setup": "Receipt10000, active return6000",
+      "action": "Allocate5000 to another position",
+      "expected": "Reject receipt11000 even if each position individually funded"
+    },
+    {
+      "id": "C04",
+      "group": "capacity",
+      "setup": "Position10000; use7000; return3000",
+      "action": "Recognize loss1",
+      "expected": "Reject negative right; cannot clamp"
+    },
+    {
+      "id": "C05",
+      "group": "dates",
+      "setup": "Funding2026-03-10; final principal sufficient",
+      "action": "Use2026-03-01 or return receipt2026-03-05",
+      "expected": "Reject date before funding even with nonnegative final total"
+    },
+    {
+      "id": "C06",
+      "group": "dates",
+      "setup": "asOfDate2026-04-15",
+      "action": "Use/fund/return dated2026-04-16",
+      "expected": "Reject; future expiry metadata still allowed"
+    },
+    {
+      "id": "C07",
+      "group": "dates",
+      "setup": "FundingJan; active childApr10; position creation asOfJan31",
+      "action": "Metadata update reviewedApr01",
+      "expected": "Reject; reviewedApr15 succeeds, original creation asOf staysJan31"
+    },
+    {
+      "id": "C08",
+      "group": "dates",
+      "setup": "Two valid operations with equal or backward UTC audit at",
+      "action": "Replay in revision order",
+      "expected": "Accept if revisions/capacities/date proofs valid; timestamps do not reorder journal"
+    },
+    {
+      "id": "C09",
+      "group": "dates",
+      "setup": "Historical backup each event<=its capturedasOf",
+      "action": "Restore with different current clock/timezone",
+      "expected": "Same normalized financial result; do not consult wall clock"
+    },
+    {
+      "id": "C10",
+      "group": "metadata",
+      "setup": "Remaining7000, entered expiry2026-03-31, reviewApr15",
+      "action": "View unknown/refundable/nonrefundable variants",
+      "expected": "Remaining7000 in all; warning only; no auto loss/refund promise"
+    },
+    {
+      "id": "C11",
+      "group": "history",
+      "setup": "Refund/create then unlink; no other dependent roles",
+      "action": "Create held position on old source",
+      "expected": "Accept sequential reuse within shared Relations journal"
+    },
+    {
+      "id": "C12",
+      "group": "history",
+      "setup": "Forge refund/held overlap in a retired historical revision; final arrays disjoint",
+      "action": "Validate/restore",
+      "expected": "Reject earlier overlap"
+    },
+    {
+      "id": "C13",
+      "group": "exclusivity",
+      "setup": "Expense12001, position10000, raw residual2001",
+      "action": "Refund/claim/refundPlan1 on residual; reverse operation order too",
+      "expected": "Reject whole source, not only held portion"
+    },
+    {
+      "id": "C14",
+      "group": "exclusivity",
+      "setup": "Active held source or return receipt",
+      "action": "Link as duplicate primary/shadow, pair transfer, composite member, refund/settlement source; reverse orders",
+      "expected": "Reject every pair; no ID-retarget/cloning workaround"
+    },
+    {
+      "id": "C15",
+      "group": "credit-history",
+      "setup": "Any fee/contract purchase/repayment-leg current or retired history references sourceID",
+      "action": "Create held funding/return using sourceID; reverse sequence and combine backup histories",
+      "expected": "Reject lifetime source intersection even with no active credit rows"
+    },
+    {
+      "id": "C16",
+      "group": "credit-role",
+      "setup": "Credit-role account; genuine expense with no prohibited referenced history",
+      "action": "Fund eligible position",
+      "expected": "Account debt and actual movements unchanged; remaining right not liquid cash"
+    },
+    {
+      "id": "C17",
+      "group": "unsupported",
+      "setup": "Wallet already tracked or funding includes bonus face value",
+      "action": "Create with known overlap/bonus",
+      "expected": "UI blocks/defer; no fabricated assurance, separate asset or income"
+    },
+    {
+      "id": "C18",
+      "group": "unsupported",
+      "setup": "Correct valid loss exhausted right; later actual receipt2500",
+      "action": "Allocate as returned outstanding principal",
+      "expected": "Reject capacity; keep actual receipt existing classification, do not force loss reversal"
+    },
+    {
+      "id": "C19",
+      "group": "unsupported",
+      "setup": "Raw imported expense already represents same card consumption",
+      "action": "Create duplicate held use",
+      "expected": "No automatic resolution; cannot truthfully supply notAlreadyRecordedAsExpense assertion"
+    },
+    {
+      "id": "C20",
+      "group": "reversal",
+      "setup": "Position with active use/loss/return",
+      "action": "Reverse position",
+      "expected": "Reject until every child individually reversed; no cascade"
+    },
+    {
+      "id": "C21",
+      "group": "reversal",
+      "setup": "Return allocation on real income",
+      "action": "Reverse allocation",
+      "expected": "Receipt unchanged; ordinary income restored; right and receipt available capacity increase"
+    },
+    {
+      "id": "C22",
+      "group": "reversal",
+      "setup": "All children reversed, frozen close still references position",
+      "action": "Reverse position then edit/delete eligible original source",
+      "expected": "Accept if no other active dependencies; frozen remains valid, comparison shows zero-cash classification change"
+    },
+    {
+      "id": "C23",
+      "group": "locks",
+      "setup": "Active funding or return",
+      "action": "Edit type/date/amount/account/destination or delete raw source, import repair or rollback",
+      "expected": "Reject; unchanged state/storage; show held dependency IDs"
+    },
+    {
+      "id": "C24",
+      "group": "classification",
+      "setup": "Active recognition with expense category only used by recognition",
+      "action": "Delete category/change type",
+      "expected": "Reject; rename allowed; creation categoryProof and frozen labels unchanged"
+    },
+    {
+      "id": "C25",
+      "group": "classification",
+      "setup": "Funding raw category changed housing→travel; use independently education",
+      "action": "Recalculate",
+      "expected": "Only raw residual category changes; use remains education"
+    },
+    {
+      "id": "C26",
+      "group": "events",
+      "setup": "10000 raw facts plus5000 recognitions within other limits",
+      "action": "projectHeld/select/reduce",
+      "expected": "Accept combined15000; expense not income; no double-subtraction"
+    },
+    {
+      "id": "C27",
+      "group": "events",
+      "setup": "10001 legacy-only events or raw facts",
+      "action": "Legacy projection/select/reduce",
+      "expected": "Retain old limit rejection; mixed feature does not broaden legacy input"
+    },
+    {
+      "id": "C28",
+      "group": "events",
+      "setup": "Same raw ID text and recognition ID, malformed route/account correspondence",
+      "action": "Project/select",
+      "expected": "Reject invalid raw reference or duplicate/conflicting identity as specified"
+    },
+    {
+      "id": "C29",
+      "group": "events",
+      "setup": "Raw residual2001 and recognized3333 from E05",
+      "action": "Filter by original transactionIds only; by fundingAccountId; by eventKeys",
+      "expected": "Raw-only2001; provenance includes both5334; exact event selection totals match visible rows"
+    },
+    {
+      "id": "C30",
+      "group": "scenario",
+      "setup": "January funding raw ID excluded in v1; March use2000",
+      "action": "Calculate then exclude March use",
+      "expected": "Initial March still2000 and no schema write; explicit held exclusion upgradesv2 and March becomes0"
+    },
+    {
+      "id": "C31",
+      "group": "scenario",
+      "setup": "Held exclusion exists; recognition reversed and replaced newID",
+      "action": "Calculate",
+      "expected": "Old typed exclusion stale; replacement included, no retarget; raw trash exclusion retains undo behavior"
+    },
+    {
+      "id": "C32",
+      "group": "frozen",
+      "setup": "All-month close with E10 and full graph",
+      "action": "Remove personalRows March use and repair totals/manifest",
+      "expected": "Reject graph-derived membership omission"
+    },
+    {
+      "id": "C33",
+      "group": "frozen",
+      "setup": "Close contains sibling positions and returns sharing sources",
+      "action": "Remove sibling proof or change shared signature/capacity",
+      "expected": "Reject internal mismatch/over-capacity; no duplicate-source cash summing"
+    },
+    {
+      "id": "C34",
+      "group": "frozen",
+      "setup": "Selected close chooses recognition only; funding/receipt out-of-month proof",
+      "action": "Compute totals",
+      "expected": "Selected cash0; personal recognition only; rights cover full graph with explicit scope"
+    },
+    {
+      "id": "C35",
+      "group": "frozen",
+      "setup": "Position unchanged/no activity in selected month",
+      "action": "Capture opening/closing rights",
+      "expected": "Include it; dates determine boundaries, not current remaining or createdAt"
+    },
+    {
+      "id": "C36",
+      "group": "frozen",
+      "setup": "Frozen new close; allowed live source/category/merchant edits after dependencies removed",
+      "action": "Validate saved close with upper live APIs replaced by throwing stubs",
+      "expected": "Captured proof remains valid without current sources"
+    },
+    {
+      "id": "C37",
+      "group": "frozen",
+      "setup": "Ordinary expense raw proof",
+      "action": "Set receivedRefundCents=1 or settlement/heldReturn nonzero",
+      "expected": "Reject impossible direction fields even if expense equation still balances"
+    },
+    {
+      "id": "C38",
+      "group": "frozen",
+      "setup": "All-month pair/composite counterpart same month only in proof",
+      "action": "Omit from actualRows; add unrelated proof row",
+      "expected": "Reject counterpart membership and exact closure violations"
+    },
+    {
+      "id": "C39",
+      "group": "frozen",
+      "setup": "Month0001-01; valid same-month funding",
+      "action": "Capture rights",
+      "expected": "Opening0; no year0000 construction"
+    },
+    {
+      "id": "C40",
+      "group": "version",
+      "setup": "Legacy v1/v2/v3 Relations book",
+      "action": "Read/view/preview/cancel/unrelated edit",
+      "expected": "Legacy financial/normalized bytes exact; no held arrays/history/version activation"
+    },
+    {
+      "id": "C41",
+      "group": "version",
+      "setup": "Relationsv4 then all held rows reversed",
+      "action": "Create/unlink composite; export",
+      "expected": "Remainv4 with history; realv0.14/v0.11 old readers reject"
+    },
+    {
+      "id": "C42",
+      "group": "version",
+      "setup": "Valid new state",
+      "action": "Downgrade inner/outer/wrapper, hide held data only in retired snapshots, omit required arrays",
+      "expected": "Reject before normalization/save; valid independent Relations4/Organizer4/Scenario2 exports reject in old readers"
+    },
+    {
+      "id": "C43",
+      "group": "journal",
+      "setup": "Valid active/retired records",
+      "action": "Corrupt before/after equality, reuse ID, wrong reverses, child parent, timestamps/dates/categoryProof; later rows restore totals",
+      "expected": "Reject; later operations cannot repair invalid historical revision"
+    },
+    {
+      "id": "C44",
+      "group": "journal",
+      "setup": "Journal mostly legacy with held events",
+      "action": "Instrument timeline rebuild on each entry",
+      "expected": "At most one affected bounded position per held operation; no whole graph scan/sort per row"
+    },
+    {
+      "id": "C45",
+      "group": "bounds",
+      "setup": "Largest below-limit histories/graphs",
+      "action": "Validate, preview, capture and restore; measure time/memory",
+      "expected": "Accept if every cell/byte/amount bound holds; record measurements without promised latency"
+    },
+    {
+      "id": "C46",
+      "group": "bounds",
+      "setup": "Oversized nested held or frozen audit before/after; excessive cells/bytes",
+      "action": "Validate/restore",
+      "expected": "Reject before large cloned normalized histories; original and recovery unchanged"
+    },
+    {
+      "id": "C47",
+      "group": "bounds",
+      "setup": "1cent,max999999999999,aggregate unsafe,zero,fraction,NaN,Infinity,invalid leap date",
+      "action": "Normalize/mutate",
+      "expected": "Accept valid exact cents; reject invalid/unsafe independent gross even if net safe"
+    },
+    {
+      "id": "C48",
+      "group": "structure",
+      "setup": "Accessor/prototype/sparse/symbol/extra field input in current or retired held proof",
+      "action": "Normalize/restore",
+      "expected": "Reject without invoking accessor side effects or silent omission"
+    },
+    {
+      "id": "C49",
+      "group": "review",
+      "setup": "Valid ticket; unrelated Organizer/Scenario/import/trash/category/credit mutation",
+      "action": "Commit original ticket",
+      "expected": "Reject full-state stale ticket; not merely Relations revision"
+    },
+    {
+      "id": "C50",
+      "group": "review",
+      "setup": "Cloned/reused ticket, cancelled flow, repeated submit, stale stored state, quota failure",
+      "action": "Commit/save UI",
+      "expected": "At most one valid journal append/save; failure leaves memory/current/recovery unchanged"
+    },
+    {
+      "id": "C51",
+      "group": "backup",
+      "setup": "Full mixed imports/old+new Relations/old+new Organizer/Obligations/Scenariov2",
+      "action": "Export→isolated restore→export normalized compare",
+      "expected": "Exact state and money/views; old payloads/oracles retained; recognition date range/count disclosed"
+    },
+    {
+      "id": "C52",
+      "group": "ui",
+      "setup": "March E10 no raw transactions",
+      "action": "Reports/categories/drilldowns/merchant/personal list/Scenario/month close",
+      "expected": "All show March2000 noncash event; raw ledger remains zero transactions; event route never opens raw edit"
+    },
+    {
+      "id": "C53",
+      "group": "ui",
+      "setup": "Every use/loss/return/metadata/reversal form",
+      "action": "Cancel/back/close/reopen/repeated clicks/invalid input",
+      "expected": "No stale dialog writes; reason/asOf/confirmation required; clear exact residual and zero movement preview"
+    },
+    {
+      "id": "C54",
+      "group": "regression",
+      "setup": "Every frozen legacy fixture and acceptedv0.14 oracle",
+      "action": "Run full existing financial/error/equivalence suite after merge",
+      "expected": "Exact legacy results/bytes; only enumerated newly-supported leaf API assertions may change with replacement negatives"
+    },
+    {
+      "id": "C55",
+      "group": "review-performance",
+      "setup": "Same valid graph with one then36 retained closes and one then many affected months",
+      "action": "Instrument full Relations audit traversal counts across preview/commit; run real and near-limit inputs",
+      "expected": "Fixed pipeline replay count independent of closes/months/events; bulk comparisons and Scenario review reuse supplied financial/event results; record observed time/memory without promising maximum-size latency"
+    }
+  ],
+  "universalAssertions": [
+    "Every classification/use/loss/reversal action changes no actual raw transaction or account movement.",
+    "Every rejection preserves input, current storage, recovery copy, format and journal length.",
+    "Every pure/view/preview operation writes no storage.",
+    "All fixture IDs/data are synthetic, not real user financial history.",
+    "No current suite has been run by this contract author; implementation acceptance must record actual results."
+  ]
+}

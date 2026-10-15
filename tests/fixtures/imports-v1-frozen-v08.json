@@ -1,0 +1,510 @@
+{
+  "version": 3,
+  "currency": "CNY",
+  "accounts": [
+    {
+      "id": "account-cash",
+      "name": "现金",
+      "openingBalanceCents": 0
+    }
+  ],
+  "categories": [
+    {
+      "id": "expense-food",
+      "name": "餐饮",
+      "type": "expense"
+    },
+    {
+      "id": "expense-transport",
+      "name": "交通",
+      "type": "expense"
+    },
+    {
+      "id": "expense-shopping",
+      "name": "购物",
+      "type": "expense"
+    },
+    {
+      "id": "expense-housing",
+      "name": "居住",
+      "type": "expense"
+    },
+    {
+      "id": "expense-entertainment",
+      "name": "娱乐",
+      "type": "expense"
+    },
+    {
+      "id": "expense-health",
+      "name": "医疗",
+      "type": "expense"
+    },
+    {
+      "id": "expense-other",
+      "name": "其他支出",
+      "type": "expense"
+    },
+    {
+      "id": "income-salary",
+      "name": "工资",
+      "type": "income"
+    },
+    {
+      "id": "income-bonus",
+      "name": "奖金",
+      "type": "income"
+    },
+    {
+      "id": "income-other",
+      "name": "其他收入",
+      "type": "income"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "transaction-import-9fee65ca87b800a4d1719d847dac3e24",
+      "type": "expense",
+      "date": "2026-09-01",
+      "amountCents": 100,
+      "accountId": "account-cash",
+      "categoryId": "expense-other",
+      "note": ""
+    },
+    {
+      "id": "transaction-import-fa55e6f6852856f8d91b080c4dfdba08",
+      "type": "expense",
+      "date": "2026-09-02",
+      "amountCents": 400,
+      "accountId": "account-cash",
+      "categoryId": "expense-other",
+      "note": ""
+    }
+  ],
+  "trash": [],
+  "imports": {
+    "version": 1,
+    "revision": 2,
+    "templates": [
+      {
+        "id": "template-23851dba1a06ebf89303c6f0639506f8",
+        "name": "frozen-v08-source",
+        "version": 1,
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "headers": [
+          "date",
+          "amount",
+          "id",
+          "status"
+        ],
+        "config": {
+          "sourceKey": "frozen-v08-source",
+          "accountId": "account-cash",
+          "delimiter": ",",
+          "header": true,
+          "columns": {
+            "date": 0,
+            "amount": 1,
+            "stableId": 2,
+            "status": 3
+          },
+          "dateFormat": "YYYY-MM-DD",
+          "amountMode": "absolute",
+          "defaultType": "expense",
+          "categoryIds": {
+            "expense": "expense-other",
+            "income": "income-other"
+          },
+          "directionMap": {
+            "income": "income",
+            "expense": "expense",
+            "transfer": "transfer",
+            "收入": "income",
+            "支出": "expense",
+            "转账": "transfer"
+          },
+          "statusMap": {
+            "completed": "completed",
+            "complete": "completed",
+            "success": "completed",
+            "pending": "pending",
+            "cancelled": "cancelled",
+            "canceled": "cancelled",
+            "已完成": "completed",
+            "交易成功": "completed",
+            "支付成功": "completed",
+            "处理中": "pending",
+            "待支付": "pending",
+            "已取消": "cancelled",
+            "已关闭": "cancelled",
+            "交易关闭": "cancelled"
+          }
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "id": "evidence-2f627f91b696e7a3b9180cd5e782a41b",
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "stableId": "first",
+        "status": "completed",
+        "transactionId": "transaction-import-9fee65ca87b800a4d1719d847dac3e24",
+        "normalized": {
+          "type": "expense",
+          "date": "2026-09-01",
+          "amountCents": 100,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        },
+        "mapped": {
+          "date": "2026-09-01",
+          "amount": "1.00",
+          "stableId": "first",
+          "status": "completed"
+        },
+        "fingerprint": "c555a85768d5c3216537bb81ad035ff1",
+        "expectedLocation": "active",
+        "expectedTransaction": {
+          "id": "transaction-import-9fee65ca87b800a4d1719d847dac3e24",
+          "type": "expense",
+          "date": "2026-09-01",
+          "amountCents": 100,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        },
+        "firstBatchId": "batch-0f063db47c984cf25d3262cc240843ba",
+        "lastBatchId": "batch-0f063db47c984cf25d3262cc240843ba"
+      },
+      {
+        "id": "evidence-a0c27d132e735a95d33cd89f4011a29d",
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "stableId": "second",
+        "status": "completed",
+        "transactionId": "transaction-import-fa55e6f6852856f8d91b080c4dfdba08",
+        "normalized": {
+          "type": "expense",
+          "date": "2026-09-02",
+          "amountCents": 400,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        },
+        "mapped": {
+          "date": "2026-09-02",
+          "amount": "4.00",
+          "stableId": "second",
+          "status": "completed"
+        },
+        "fingerprint": "04d1f1c797b1dd1d3624810d5b31b15d",
+        "expectedLocation": "active",
+        "expectedTransaction": {
+          "id": "transaction-import-fa55e6f6852856f8d91b080c4dfdba08",
+          "type": "expense",
+          "date": "2026-09-02",
+          "amountCents": 400,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        },
+        "firstBatchId": "batch-0f063db47c984cf25d3262cc240843ba",
+        "lastBatchId": "batch-d51165af0423dc2d23f4cb81165e554d"
+      }
+    ],
+    "batches": [
+      {
+        "id": "batch-0f063db47c984cf25d3262cc240843ba",
+        "createdAt": "2026-10-14T11:34:06.826Z",
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "templateId": "template-23851dba1a06ebf89303c6f0639506f8",
+        "fileFingerprint": "73d31cfa8edbe9787fcaf04a38108990",
+        "selectedRowKeys": [
+          "row-73d31cfa8edbe9787fcaf04a38108990-1",
+          "row-73d31cfa8edbe9787fcaf04a38108990-2"
+        ],
+        "changes": [
+          {
+            "rowKey": "row-73d31cfa8edbe9787fcaf04a38108990-1",
+            "evidenceId": "evidence-2f627f91b696e7a3b9180cd5e782a41b",
+            "before": null,
+            "after": {
+              "id": "evidence-2f627f91b696e7a3b9180cd5e782a41b",
+              "sourceKey": "frozen-v08-source",
+              "accountId": "account-cash",
+              "stableId": "first",
+              "status": "completed",
+              "transactionId": "transaction-import-9fee65ca87b800a4d1719d847dac3e24",
+              "normalized": {
+                "type": "expense",
+                "date": "2026-09-01",
+                "amountCents": 100,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "mapped": {
+                "date": "2026-09-01",
+                "amount": "1.00",
+                "stableId": "first",
+                "status": "completed"
+              },
+              "fingerprint": "c555a85768d5c3216537bb81ad035ff1",
+              "expectedLocation": "active",
+              "expectedTransaction": {
+                "id": "transaction-import-9fee65ca87b800a4d1719d847dac3e24",
+                "type": "expense",
+                "date": "2026-09-01",
+                "amountCents": 100,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "firstBatchId": "batch-0f063db47c984cf25d3262cc240843ba",
+              "lastBatchId": "batch-0f063db47c984cf25d3262cc240843ba"
+            },
+            "transactionBefore": {
+              "location": null,
+              "transaction": null,
+              "deletedAt": null
+            },
+            "transactionAfter": {
+              "location": "active",
+              "transaction": {
+                "id": "transaction-import-9fee65ca87b800a4d1719d847dac3e24",
+                "type": "expense",
+                "date": "2026-09-01",
+                "amountCents": 100,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "deletedAt": null
+            }
+          },
+          {
+            "rowKey": "row-73d31cfa8edbe9787fcaf04a38108990-2",
+            "evidenceId": "evidence-a0c27d132e735a95d33cd89f4011a29d",
+            "before": null,
+            "after": {
+              "id": "evidence-a0c27d132e735a95d33cd89f4011a29d",
+              "sourceKey": "frozen-v08-source",
+              "accountId": "account-cash",
+              "stableId": "second",
+              "status": "pending",
+              "transactionId": null,
+              "normalized": {
+                "type": "expense",
+                "date": "2026-09-02",
+                "amountCents": 200,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "mapped": {
+                "date": "2026-09-02",
+                "amount": "2.00",
+                "stableId": "second",
+                "status": "pending"
+              },
+              "fingerprint": "425347ab404560f10d2e0f296125a151",
+              "expectedLocation": null,
+              "expectedTransaction": null,
+              "firstBatchId": "batch-0f063db47c984cf25d3262cc240843ba",
+              "lastBatchId": "batch-0f063db47c984cf25d3262cc240843ba"
+            },
+            "transactionBefore": {
+              "location": null,
+              "transaction": null,
+              "deletedAt": null
+            },
+            "transactionAfter": {
+              "location": null,
+              "transaction": null,
+              "deletedAt": null
+            }
+          }
+        ],
+        "quarantineIds": [
+          "quarantine-b66386c4702f0a12f44d441e710d4642"
+        ],
+        "coverageIds": [],
+        "resolvedQuarantineIds": [],
+        "rolledBack": false,
+        "repair": null
+      },
+      {
+        "id": "batch-d51165af0423dc2d23f4cb81165e554d",
+        "createdAt": "2026-10-14T11:34:06.847Z",
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "templateId": "template-23851dba1a06ebf89303c6f0639506f8",
+        "fileFingerprint": "801617cf9135aee5e985650b210be50d",
+        "selectedRowKeys": [
+          "row-801617cf9135aee5e985650b210be50d-2"
+        ],
+        "changes": [
+          {
+            "rowKey": "row-801617cf9135aee5e985650b210be50d-2",
+            "evidenceId": "evidence-a0c27d132e735a95d33cd89f4011a29d",
+            "before": {
+              "id": "evidence-a0c27d132e735a95d33cd89f4011a29d",
+              "sourceKey": "frozen-v08-source",
+              "accountId": "account-cash",
+              "stableId": "second",
+              "status": "pending",
+              "transactionId": null,
+              "normalized": {
+                "type": "expense",
+                "date": "2026-09-02",
+                "amountCents": 200,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "mapped": {
+                "date": "2026-09-02",
+                "amount": "2.00",
+                "stableId": "second",
+                "status": "pending"
+              },
+              "fingerprint": "425347ab404560f10d2e0f296125a151",
+              "expectedLocation": null,
+              "expectedTransaction": null,
+              "firstBatchId": "batch-0f063db47c984cf25d3262cc240843ba",
+              "lastBatchId": "batch-0f063db47c984cf25d3262cc240843ba"
+            },
+            "after": {
+              "id": "evidence-a0c27d132e735a95d33cd89f4011a29d",
+              "sourceKey": "frozen-v08-source",
+              "accountId": "account-cash",
+              "stableId": "second",
+              "status": "completed",
+              "transactionId": "transaction-import-fa55e6f6852856f8d91b080c4dfdba08",
+              "normalized": {
+                "type": "expense",
+                "date": "2026-09-02",
+                "amountCents": 400,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "mapped": {
+                "date": "2026-09-02",
+                "amount": "4.00",
+                "stableId": "second",
+                "status": "completed"
+              },
+              "fingerprint": "04d1f1c797b1dd1d3624810d5b31b15d",
+              "expectedLocation": "active",
+              "expectedTransaction": {
+                "id": "transaction-import-fa55e6f6852856f8d91b080c4dfdba08",
+                "type": "expense",
+                "date": "2026-09-02",
+                "amountCents": 400,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "firstBatchId": "batch-0f063db47c984cf25d3262cc240843ba",
+              "lastBatchId": "batch-d51165af0423dc2d23f4cb81165e554d"
+            },
+            "transactionBefore": {
+              "location": null,
+              "transaction": null,
+              "deletedAt": null
+            },
+            "transactionAfter": {
+              "location": "active",
+              "transaction": {
+                "id": "transaction-import-fa55e6f6852856f8d91b080c4dfdba08",
+                "type": "expense",
+                "date": "2026-09-02",
+                "amountCents": 400,
+                "accountId": "account-cash",
+                "categoryId": "expense-other",
+                "note": ""
+              },
+              "deletedAt": null
+            }
+          }
+        ],
+        "quarantineIds": [
+          "quarantine-4d7913dd243d29a3ecf6e8711c475e5b"
+        ],
+        "coverageIds": [],
+        "resolvedQuarantineIds": [],
+        "rolledBack": false,
+        "repair": null
+      }
+    ],
+    "quarantine": [
+      {
+        "id": "quarantine-b66386c4702f0a12f44d441e710d4642",
+        "batchId": "batch-0f063db47c984cf25d3262cc240843ba",
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "rowKey": "row-73d31cfa8edbe9787fcaf04a38108990-3",
+        "line": 4,
+        "mapped": {
+          "date": "invalid",
+          "amount": "3.00",
+          "stableId": "bad",
+          "status": "completed"
+        },
+        "errors": [
+          {
+            "code": "INVALID_DATE",
+            "message": "日期无效或不符合所选格式"
+          }
+        ],
+        "rawTruncated": [],
+        "resolvedByBatchId": null
+      },
+      {
+        "id": "quarantine-4d7913dd243d29a3ecf6e8711c475e5b",
+        "batchId": "batch-d51165af0423dc2d23f4cb81165e554d",
+        "sourceKey": "frozen-v08-source",
+        "accountId": "account-cash",
+        "rowKey": "row-801617cf9135aee5e985650b210be50d-3",
+        "line": 4,
+        "mapped": {
+          "date": "invalid",
+          "amount": "3.00",
+          "stableId": "bad",
+          "status": "completed"
+        },
+        "errors": [
+          {
+            "code": "INVALID_DATE",
+            "message": "日期无效或不符合所选格式"
+          }
+        ],
+        "rawTruncated": [],
+        "resolvedByBatchId": null
+      }
+    ],
+    "coverage": [],
+    "audit": [
+      {
+        "id": "audit-b96222187e4464b62c69d7424afcc726",
+        "batchId": "batch-0f063db47c984cf25d3262cc240843ba",
+        "action": "commit",
+        "at": "2026-10-14T11:34:06.826Z",
+        "selectedCount": 2,
+        "quarantineCount": 1
+      },
+      {
+        "id": "audit-eff715fc874391621a6a17f6982618f2",
+        "batchId": "batch-d51165af0423dc2d23f4cb81165e554d",
+        "action": "commit",
+        "at": "2026-10-14T11:34:06.847Z",
+        "selectedCount": 1,
+        "quarantineCount": 1
+      }
+    ]
+  }
+}

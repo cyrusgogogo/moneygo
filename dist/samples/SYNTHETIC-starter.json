@@ -1,0 +1,75 @@
+{
+  "format": "moneygo-backup",
+  "version": 1,
+  "exportedAt": "2026-10-14T12:54:43.679Z",
+  "data": {
+    "version": 1,
+    "currency": "CNY",
+    "accounts": [
+      {
+        "id": "account-cash",
+        "name": "SYNTHETIC practice bank",
+        "openingBalanceCents": 200000
+      },
+      {
+        "id": "account-37f62a8f-3361-4568-897f-c20a70dc643d",
+        "name": "SYNTHETIC practice credit",
+        "openingBalanceCents": 0
+      }
+    ],
+    "categories": [
+      {
+        "id": "expense-food",
+        "name": "餐饮",
+        "type": "expense"
+      },
+      {
+        "id": "expense-transport",
+        "name": "交通",
+        "type": "expense"
+      },
+      {
+        "id": "expense-shopping",
+        "name": "购物",
+        "type": "expense"
+      },
+      {
+        "id": "expense-housing",
+        "name": "居住",
+        "type": "expense"
+      },
+      {
+        "id": "expense-entertainment",
+        "name": "娱乐",
+        "type": "expense"
+      },
+      {
+        "id": "expense-health",
+        "name": "医疗",
+        "type": "expense"
+      },
+      {
+        "id": "expense-other",
+        "name": "其他支出",
+        "type": "expense"
+      },
+      {
+        "id": "income-salary",
+        "name": "工资",
+        "type": "income"
+      },
+      {
+        "id": "income-bonus",
+        "name": "奖金",
+        "type": "income"
+      },
+      {
+        "id": "income-other",
+        "name": "其他收入",
+        "type": "income"
+      }
+    ],
+    "transactions": [],
+    "trash": []
+  }
+}

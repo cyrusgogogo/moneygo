@@ -1,0 +1,28 @@
+'use strict';
+// Actual index/demo literal scripts, genuine financial modules and owned coordinator.
+// Synthetic public-writer data only. Node VM/markup host is NOT native-browser evidence.
+const assert=require('node:assert/strict');
+const Base=require('./payday-room-host-harness.cjs');
+const BUFFER_CONSENT=['selectedCostsAreHypotheticalReviewed','unavailableStockAdditionalToAllOutflows','allOutflowsAndOriginalConstraintsReviewed','finiteDayEndWindowNotAssurance'];
+function app(options={}){const owned=[],extraFinancial={},a=Base.app({...options,beforeScript(file,context,window,doc){if(file==='app-runtime-v1.js')for(const [name,methods]of [['MoneygoIncomePlanning',['project']],['MoneygoHeldFunds',['view']],['MoneygoScenario',['calculate']]]){const api=window[name];if(!api)continue;const wrapped={...api};for(const method of methods)if(typeof api[method]==='function')wrapped[method]=(...args)=>{const key=name+'.'+method;extraFinancial[key]=(extraFinancial[key]||0)+1;return api[method](...args);};window[name]=Object.freeze(wrapped);}options.beforeScript?.(file,context,window,doc);},transform(name,out,context){if(['previewBuffer','confirmBuffer'].includes(name))owned.push({name,out,...context});return options.transform?options.transform(name,out,context):out;}});const baseFinancial=a.financial;Object.defineProperty(a,'financial',{get(){return {...baseFinancial,...extraFinancial};}});a.bufferOwned=owned;return a;}
+const latest=(a,name)=>['previewBuffer','confirmBuffer'].includes(name)?a.bufferOwned.filter(x=>x.name===name).at(-1):Base.latest(a,name);
+const ready=options=>Base.confirm(Base.preview(Base.inventory(app(options))));
+function openBuffer(a){Base.click(a,'#daily-buffer-open');assert.ok(a.node('#daily-buffer-stock-state-0'),a.node('#daily-status')?.textContent);return a;}
+function bufferInputs(a,{state='known',amount='0',reason='Synthetic explicit unavailable stock, additional to every modeled outflow',stocks=null,choice='necessary',choices=null,choiceReason='Synthetic event-by-event necessity selection'}={}){
+ for(;;){for(const n of a.doc.querySelectorAll('select').filter(n=>/^daily-buffer-stock-state-\d+$/.test(n.id||''))){const i=Number(n.id.split('-').at(-1)),row=stocks?.[i]||{state,amount,reason};Base.field(a,'#daily-buffer-stock-state-'+i,row.state);if(row.state==='known')Base.field(a,'#daily-buffer-stock-amount-'+i,row.amount,'input');Base.field(a,'#daily-buffer-stock-reason-'+i,row.reason,'input');}const next=a.node('#daily-buffer-stocks-next');if(!next||next.disabled)break;Base.click(a,'#daily-buffer-stocks-next');}
+ for(;;){for(const n of a.doc.querySelectorAll('select').filter(n=>/^daily-buffer-choice-\d+$/.test(n.id||''))){const i=Number(n.id.split('-').at(-1)),row=choices?.[i]||{choice,reason:choiceReason};if(row.choice!==undefined)Base.field(a,'#daily-buffer-choice-'+i,row.choice);if(row.reason!==undefined)Base.field(a,'#daily-buffer-choice-reason-'+i,row.reason,'input');}const next=a.node('#daily-buffer-choices-next');if(!next||next.disabled)break;Base.click(a,'#daily-buffer-choices-next');}return a;
+}
+function bufferPreview(a){Base.click(a,'#daily-buffer-preview');assert.ok(a.node('#daily-buffer-consent'),a.node('#daily-status')?.textContent);return a;}
+function bufferConfirm(a,patch={}){const form=a.node('#daily-buffer-consent');Base.fill(form,{...Object.fromEntries(BUFFER_CONSENT.map(k=>[k,true])),reason:'Explicit synthetic finite-window two-track review',...patch});form.dispatch('submit');return a;}
+const bufferReady=(options,inputs)=>bufferConfirm(bufferPreview(bufferInputs(openBuffer(ready(options)),inputs)));
+const bufferReport=a=>latest(a,'confirmBuffer')?.out;
+const currentDaily=a=>{const d=latest(a,'confirm');return d.real.isCurrent(a.run('state'),d.out,d.args[3]);};
+const currentBuffer=(a,r=latest(a,'confirmBuffer'))=>r.real.isBufferCurrent(a.run('state'),r.out,r.args[3]);
+const currentRoom=(a,r=latest(a,'confirmRoom'))=>r.real.isRoomCurrent(a.run('state'),r.out,r.args[3]);
+const rows=(a,kind)=>a.doc.querySelectorAll('[data-daily-row]').filter(n=>n.dataset.dailyRow===kind);
+function budget(a){const all=a.doc.querySelectorAll('[data-daily-row]'),cash=a.doc.querySelectorAll('[data-cash-row]');assert.ok(all.length+cash.length<=200,'Mounted workflow rows <=200');for(const kind of new Set(all.map(n=>n.dataset.dailyRow)))assert.ok(rows(a,kind).length<=50,kind+' rows <=50');const ids=a.doc.querySelectorAll('[id]').map(n=>n.id);assert.equal(new Set(ids).size,ids.length,'Unique mounted IDs');}
+function pages(a,selector,rowKind){let seen=0,n=0;for(;;){budget(a);seen+=rows(a,rowKind).length;assert.ok(++n<1000,'Finite complete pagination');const next=a.node(selector);assert.ok(next);if(next.disabled)break;a.run('roomStateReads=0');Base.click(a,selector);assert.equal(a.run('roomStateReads'),1,'Collection page captures raw state once');}return seen;}
+const economicCounts=a=>({financial:{...a.financial},preview:a.counts.preview,confirm:a.counts.confirm,previewRoom:a.counts.previewRoom,confirmRoom:a.counts.confirmRoom,previewBuffer:a.counts.previewBuffer,confirmBuffer:a.counts.confirmBuffer});
+function unchecked(a){const f=a.node('#daily-buffer-consent');assert.ok(f);for(const k of BUFFER_CONSENT)assert.equal(f.elements.namedItem(k).checked,false,k);assert.equal(f.elements.namedItem('reason').value,'');}
+function residual(a,event={}){Base.add(a,event);if(a.node('#daily-standalone-reviewed'))Base.field(a,'#daily-standalone-reviewed',true);return a;}
+module.exports={...Base,BUFFER_CONSENT,app,latest,ready,openBuffer,bufferInputs,bufferPreview,bufferConfirm,bufferReady,bufferReport,currentDaily,currentBuffer,currentRoom,rows,budget,pages,economicCounts,unchecked,residual};

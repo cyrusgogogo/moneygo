@@ -1,0 +1,47 @@
+{
+  "sourceRelease": "0.15.0",
+  "purpose": "Exact immutable complete final v0.15 reader dependency closure for genuine v7 rejection and old-format compatibility.",
+  "sourceManifestSha256": "b2524e4d42589d449613221a31ca6e271269c439ea45da7dea0f892d484d60f8",
+  "files": [
+    {
+      "file": "ledger.js",
+      "sha256": "b45e51865b1966185dedd161de890412b47b9c191b733179bd79f633836e1912",
+      "bytes": 36027
+    },
+    {
+      "file": "relations.js",
+      "sha256": "daade98d3e6b6f7fbc0f4a02f8d843ef9b7b7d6df8407b2b3080750deaedeae8",
+      "bytes": 103761
+    },
+    {
+      "file": "organizer.js",
+      "sha256": "6e148feb27d3a13d58b523b10eead6d847c48b4a52ba45d48549fce5b53289c8",
+      "bytes": 120643
+    },
+    {
+      "file": "obligations.js",
+      "sha256": "0e160b68f42fd205198503a98a9ab910e49b0e416ed80abd377c80e5ada036c3",
+      "bytes": 44927
+    },
+    {
+      "file": "scenario.js",
+      "sha256": "b62f3a7d180bf199ac637821153d9b1d83d2b0bfdc03d17620ad56bd7691ebca",
+      "bytes": 22331
+    },
+    {
+      "file": "importer.js",
+      "sha256": "47904b66c8aebfcface5e3e9563f66dc68c352c55728a2982f89ca560ff94f69",
+      "bytes": 63602
+    },
+    {
+      "file": "personal-events.js",
+      "sha256": "8bfead2ceeab8fccaf49bae135e63004efe91c870d2c7f1e8660d474ac2241a4",
+      "bytes": 21659
+    },
+    {
+      "file": "held-core.js",
+      "sha256": "bd6d6efd9ca82b8d5ca69613d3aeb1d0a0b66c8479d312f4eae283fc14e0b26e",
+      "bytes": 17418
+    }
+  ]
+}

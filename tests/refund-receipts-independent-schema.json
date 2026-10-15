@@ -1,0 +1,3408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:moneygo:refund-receipts:design:1",
+  "title": "Moneygo #22 bounded refund receipt coordinator contract",
+  "description": "Design only. Structural schema plus mandatory semantic rules; this file is not an implementation or persisted-data schema. All newly owned object fields are closed. Legacy proof leaves are closed by their existing authoritative validators and exact-source equality, not by an invented mirror schema. JSON schema alone does not validate a ticket or authorize a write.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/overview"
+    },
+    {
+      "$ref": "#/$defs/candidatePage"
+    },
+    {
+      "$ref": "#/$defs/inspection"
+    },
+    {
+      "$ref": "#/$defs/ticket"
+    },
+    {
+      "$ref": "#/$defs/cancelResult"
+    },
+    {
+      "$ref": "#/$defs/error"
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+      "not": {
+        "enum": [
+          "constructor",
+          "prototype"
+        ]
+      }
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "x-semantic-validator": "Ledger.validDate; years 0001 through 9999 inclusive"
+    },
+    "month": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$",
+      "x-semantic-validator": "month of a valid source civil date"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "x-semantic-validator": "Valid civil date, finite instant, exact toISOString round trip"
+    },
+    "cents": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "signedCents": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "amount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999999999999
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]*$",
+      "x-semantic-validator": "Nonempty after trim; normalize exactly Relations.allocateRefund reason() and show normalized final reason"
+    },
+    "proofRef": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "role": {
+      "enum": [
+        "cash",
+        "credit",
+        "restricted",
+        "other",
+        "unknown"
+      ]
+    },
+    "plainData": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/plainData"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/plainData"
+          }
+        }
+      ],
+      "x-use": "Output-only exact legacy snapshots; never a new free-form API field or accepted caller proof"
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expenseId": {
+          "$ref": "#/$defs/id"
+        },
+        "incomeId": {
+          "$ref": "#/$defs/id"
+        },
+        "planId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "amountCents": {
+          "$ref": "#/$defs/amount"
+        },
+        "reason": {
+          "$ref": "#/$defs/reason"
+        }
+      },
+      "required": [
+        "expenseId",
+        "incomeId",
+        "planId",
+        "amountCents",
+        "reason"
+      ]
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expenseId": {
+          "$ref": "#/$defs/id"
+        },
+        "incomeId": {
+          "$ref": "#/$defs/id"
+        },
+        "planId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "expenseId",
+        "incomeId",
+        "planId"
+      ]
+    },
+    "confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "confirmed": {
+          "const": true
+        }
+      },
+      "required": [
+        "confirmed"
+      ]
+    },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expenseId": {
+          "$ref": "#/$defs/id"
+        },
+        "planId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "classification": {
+          "enum": [
+            "eligible",
+            "blocked",
+            "all"
+          ]
+        },
+        "search": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "expenseId",
+        "planId",
+        "classification",
+        "search",
+        "offset",
+        "limit"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scan": {
+          "const": "active-recorded-income"
+        },
+        "knowledgeBasis": {
+          "const": "current-state-not-historical-knowledge"
+        },
+        "asOfDate": {
+          "$ref": "#/$defs/date"
+        },
+        "bankVerified": {
+          "const": false
+        },
+        "overallCoverage": {
+          "const": "unknown"
+        },
+        "excludedPopulations": {
+          "const": [
+            "native-transfer-rows",
+            "trash",
+            "uncommitted-imports",
+            "quarantined-imports"
+          ]
+        },
+        "coverageDeclarationRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "scan",
+        "knowledgeBasis",
+        "asOfDate",
+        "bankVerified",
+        "overallCoverage",
+        "excludedPopulations",
+        "coverageDeclarationRefs"
+      ]
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "income",
+            "expense",
+            "transfer"
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/date"
+        },
+        "amountCents": {
+          "$ref": "#/$defs/amount"
+        },
+        "accountId": {
+          "$ref": "#/$defs/id"
+        },
+        "toAccountId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "date",
+        "amountCents",
+        "accountId",
+        "toAccountId"
+      ]
+    },
+    "blockingReason": {
+      "enum": [
+        "income-duplicate-shadow",
+        "income-internal-transfer",
+        "income-held-return",
+        "income-after-today",
+        "income-before-expense",
+        "income-capacity-exhausted",
+        "expense-duplicate-shadow",
+        "expense-internal-transfer",
+        "expense-held-position",
+        "expense-composite-funding-only",
+        "expense-capacity-exhausted",
+        "plan-capacity-exhausted"
+      ]
+    },
+    "warningCode": {
+      "enum": [
+        "ledger-not-bank-verified",
+        "coverage-unknown",
+        "merchant-unknown",
+        "account-role-unknown",
+        "recorded-account-credit-not-new-cash",
+        "future-linked-capacity",
+        "inactive-plan-manual-allocation",
+        "before-expense-model-date-rule",
+        "ambiguous-ranking",
+        "rank-is-not-proof",
+        "planning-attribution-currentness-changed",
+        "planning-proof-unknown",
+        "frozen-month-close-retained",
+        "legacy-version-materialization",
+        "no-new-transaction-or-payment",
+        "no-plan-selected"
+      ]
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/warningCode"
+        },
+        "message": {
+          "type": "string"
+        },
+        "recordIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "proofRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "recordIds",
+        "proofRefs"
+      ]
+    },
+    "planProgress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planId": {
+          "$ref": "#/$defs/id"
+        },
+        "expenseId": {
+          "$ref": "#/$defs/id"
+        },
+        "lifecycle": {
+          "enum": [
+            "waiting",
+            "cancelled",
+            "closed"
+          ]
+        },
+        "expectedAmountCents": {
+          "$ref": "#/$defs/amount"
+        },
+        "dueDate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allLinkedCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "recordedThroughTodayCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "futureLinkedCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "notEvidencedByTodayCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "planCapacityCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expenseCapacityCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "recordedProgress": {
+          "enum": [
+            "none",
+            "partial",
+            "full"
+          ]
+        },
+        "dueState": {
+          "enum": [
+            "unknown",
+            "past-expected-date",
+            "today",
+            "future"
+          ]
+        },
+        "needsCheck": {
+          "type": "boolean"
+        },
+        "linkedRefundIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "planId",
+        "expenseId",
+        "lifecycle",
+        "expectedAmountCents",
+        "dueDate",
+        "allLinkedCents",
+        "recordedThroughTodayCents",
+        "futureLinkedCents",
+        "notEvidencedByTodayCents",
+        "planCapacityCents",
+        "expenseCapacityCents",
+        "recordedProgress",
+        "dueState",
+        "needsCheck",
+        "linkedRefundIds"
+      ]
+    },
+    "accountSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/role"
+        },
+        "profileId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "role",
+        "profileId"
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "incomeId": {
+          "$ref": "#/$defs/id"
+        },
+        "expenseId": {
+          "$ref": "#/$defs/id"
+        },
+        "planId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/date"
+        },
+        "originalAmountCents": {
+          "$ref": "#/$defs/amount"
+        },
+        "note": {
+          "type": "string"
+        },
+        "account": {
+          "$ref": "#/$defs/accountSummary"
+        },
+        "confirmedMerchant": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "availableIncomeCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expenseCapacityCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "planCapacityCents": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxAllocatableCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/blockingReason"
+          },
+          "uniqueItems": true
+        },
+        "sourceEvidenceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "duplicateLinkIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "ranking": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confirmedMerchantMatch": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "exactAvailableAmountMatch": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sameAccount": {
+              "type": "boolean"
+            },
+            "basisDate": {
+              "$ref": "#/$defs/date"
+            },
+            "distanceDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "substantiveTieCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "ambiguous": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "confirmedMerchantMatch",
+            "exactAvailableAmountMatch",
+            "sameAccount",
+            "basisDate",
+            "distanceDays",
+            "substantiveTieCount",
+            "ambiguous"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/summaryWarning"
+          }
+        }
+      },
+      "required": [
+        "incomeId",
+        "expenseId",
+        "planId",
+        "date",
+        "originalAmountCents",
+        "note",
+        "account",
+        "confirmedMerchant",
+        "availableIncomeCents",
+        "expenseCapacityCents",
+        "planCapacityCents",
+        "maxAllocatableCents",
+        "eligible",
+        "reasonCodes",
+        "sourceEvidenceIds",
+        "duplicateLinkIds",
+        "ranking",
+        "warnings"
+      ]
+    },
+    "overview": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "refund-receipts-overview"
+        },
+        "version": {
+          "const": 1
+        },
+        "asOfDate": {
+          "$ref": "#/$defs/date"
+        },
+        "scope": {
+          "$ref": "#/$defs/summaryScope"
+        },
+        "planCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "plans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/planProgress"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/summaryWarning"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "version",
+        "asOfDate",
+        "scope",
+        "planCount",
+        "plans",
+        "warnings"
+      ]
+    },
+    "candidatePage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "refund-receipt-candidates"
+        },
+        "version": {
+          "const": 1
+        },
+        "asOfDate": {
+          "$ref": "#/$defs/date"
+        },
+        "query": {
+          "$ref": "#/$defs/query"
+        },
+        "scope": {
+          "$ref": "#/$defs/summaryScope"
+        },
+        "plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/planProgress"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scannedIncomeCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "eligibleCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "blockedCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "matchingCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "shownCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completeScan": {
+          "const": true
+        },
+        "reasonCountsOverlap": {
+          "const": true
+        },
+        "blockedReasonCounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "income-duplicate-shadow": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "income-internal-transfer": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "income-held-return": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "income-after-today": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "income-before-expense": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "income-capacity-exhausted": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expense-duplicate-shadow": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expense-internal-transfer": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expense-held-position": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expense-composite-funding-only": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expense-capacity-exhausted": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "plan-capacity-exhausted": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "income-duplicate-shadow",
+            "income-internal-transfer",
+            "income-held-return",
+            "income-after-today",
+            "income-before-expense",
+            "income-capacity-exhausted",
+            "expense-duplicate-shadow",
+            "expense-internal-transfer",
+            "expense-held-position",
+            "expense-composite-funding-only",
+            "expense-capacity-exhausted",
+            "plan-capacity-exhausted"
+          ]
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          },
+          "maxItems": 100
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/summaryWarning"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "version",
+        "asOfDate",
+        "query",
+        "scope",
+        "plan",
+        "scannedIncomeCount",
+        "eligibleCount",
+        "blockedCount",
+        "matchingCount",
+        "shownCount",
+        "offset",
+        "nextOffset",
+        "completeScan",
+        "reasonCountsOverlap",
+        "blockedReasonCounts",
+        "rows",
+        "warnings"
+      ]
+    },
+    "proofEntry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "transaction"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Ledger.validateState",
+          "x-selection": "transactions and selected linked active source rows"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "account"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Ledger.validateState",
+          "x-selection": "accounts"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "category"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Ledger.validateState",
+          "x-selection": "categories"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "refund"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.refunds"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "settlement"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.settlements"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "claim"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.claims"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "refund-plan"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.refundPlans"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "duplicate-link"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.links"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "transfer-pair"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.transferPairs"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "composite"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.composites"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "held-position"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate / HeldCore.validateGraph",
+          "x-selection": "bookkeeping.heldPositions"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "held-return"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate / HeldCore.validateGraph",
+          "x-selection": "bookkeeping.heldReturns"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "held-recognition"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate / HeldCore.validateGraph",
+          "x-selection": "bookkeeping.heldRecognitions"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "account-profile"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Obligations.validate",
+          "x-selection": "obligations.profiles"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "import-evidence"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Importer.validateImportState",
+          "x-selection": "imports.evidence"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "import-batch"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Importer.validateImportState",
+          "x-selection": "imports.batches"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "import-coverage"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Importer.validateImportState",
+          "x-selection": "imports.coverage"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "organizer-merchant"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Organizer.validate",
+          "x-selection": "organizer.merchants"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "organizer-batch"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Organizer.validate",
+          "x-selection": "organizer.batches"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "income-plan"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "IncomeCore.validateExtension",
+          "x-selection": "incomePlanning.plans"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "income-receipt"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "IncomeCore.validateExtension",
+          "x-selection": "incomePlanning.receipts"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "spending-plan"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "SpendingCore.validateExtension",
+          "x-selection": "spendingPlanning.plans"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "spending-payment"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "SpendingCore.validateExtension",
+          "x-selection": "spendingPlanning.payments"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "relation-audit"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.validate",
+          "x-selection": "bookkeeping.audit"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "income-plan-view"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "IncomePlanning.view(state,{asOfDate})",
+          "x-selection": "plans[plan.id]"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "income-receipt-view"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "IncomePlanning.view(state,{asOfDate})",
+          "x-selection": "receipts[receiptId]"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "income-source-view"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "IncomePlanning.view(state,{asOfDate})",
+          "x-selection": "sources[transactionId]"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "spending-plan-view"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "SpendingPlanning.view(state,{asOfDate})",
+          "x-selection": "plans[plan.id]"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "spending-payment-view"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "SpendingPlanning.view(state,{asOfDate})",
+          "x-selection": "payments[paymentId]"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "spending-source-view"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "SpendingPlanning.source(state,{asOfDate,transactionId})",
+          "x-selection": "entire public source return"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ref": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "kind": {
+              "const": "financial-projection"
+            },
+            "phase": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "recordId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourcePath": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/plainData"
+            }
+          },
+          "required": [
+            "ref",
+            "kind",
+            "phase",
+            "recordId",
+            "sourcePath",
+            "value"
+          ],
+          "x-authority": "Relations.calculate(state[,month])",
+          "x-selection": "exact cash, personal, accountFlows, accountBalances and selected drilldown rows specified by effects closure"
+        }
+      ]
+    },
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "complete": {
+          "const": true
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofEntry"
+          }
+        },
+        "closure": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "selectedSourceRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "receiptReductionRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "expenseReductionRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "planAllocationRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "eligibilityRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "provenanceRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "planningRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            },
+            "financialRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "selectedSourceRefs",
+            "receiptReductionRefs",
+            "expenseReductionRefs",
+            "planAllocationRefs",
+            "eligibilityRefs",
+            "provenanceRefs",
+            "planningRefs",
+            "financialRefs"
+          ]
+        }
+      },
+      "required": [
+        "complete",
+        "entries",
+        "closure"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "transactionId": {
+          "$ref": "#/$defs/id"
+        },
+        "transactionRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "signature": {
+          "$ref": "#/$defs/signature"
+        },
+        "account": {
+          "$ref": "#/$defs/accountSummary"
+        },
+        "accountRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "accountProfileRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/proofRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "categoryRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "confirmedMerchant": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "merchantRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/proofRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "merchantBatchRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/proofRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "linkedSourceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "duplicateLinkRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true
+        },
+        "importBatchRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true
+        },
+        "roleRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "transactionId",
+        "transactionRef",
+        "signature",
+        "account",
+        "accountRef",
+        "accountProfileRef",
+        "categoryRef",
+        "confirmedMerchant",
+        "merchantRef",
+        "merchantBatchRef",
+        "linkedSourceIds",
+        "duplicateLinkRefs",
+        "evidenceRefs",
+        "importBatchRefs",
+        "roleRefs"
+      ]
+    },
+    "capacity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "receiptAvailableCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expenseRefundableCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "planAvailableCents": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maximumCents": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "receiptAvailableCents",
+        "expenseRefundableCents",
+        "planAvailableCents",
+        "maximumCents"
+      ]
+    },
+    "inspection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "refund-receipt-inspection"
+        },
+        "version": {
+          "const": 1
+        },
+        "asOfDate": {
+          "$ref": "#/$defs/date"
+        },
+        "selection": {
+          "$ref": "#/$defs/selection"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "expense": {
+          "$ref": "#/$defs/source"
+        },
+        "receipt": {
+          "$ref": "#/$defs/source"
+        },
+        "plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/planProgress"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "planRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/proofRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/blockingReason"
+          },
+          "uniqueItems": true
+        },
+        "capacity": {
+          "$ref": "#/$defs/capacity"
+        },
+        "proof": {
+          "$ref": "#/$defs/proof"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/warning"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "version",
+        "asOfDate",
+        "selection",
+        "scope",
+        "expense",
+        "receipt",
+        "plan",
+        "planRef",
+        "eligible",
+        "reasonCodes",
+        "capacity",
+        "proof",
+        "warnings"
+      ]
+    },
+    "planningChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "enum": [
+            "income",
+            "spending"
+          ]
+        },
+        "attributionId": {
+          "$ref": "#/$defs/id"
+        },
+        "planId": {
+          "$ref": "#/$defs/id"
+        },
+        "transactionId": {
+          "$ref": "#/$defs/id"
+        },
+        "storedProofRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "beforeViewRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "afterViewRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "beforePlanViewRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "afterPlanViewRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "beforeSourceViewRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "afterSourceViewRef": {
+          "$ref": "#/$defs/proofRef"
+        },
+        "beforeApplicability": {
+          "type": "string"
+        },
+        "afterApplicability": {
+          "type": "string"
+        },
+        "storedBytesUnchanged": {
+          "const": true
+        },
+        "viewChanged": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "planner",
+        "attributionId",
+        "planId",
+        "transactionId",
+        "storedProofRef",
+        "beforeViewRef",
+        "afterViewRef",
+        "beforePlanViewRef",
+        "afterPlanViewRef",
+        "beforeSourceViewRef",
+        "afterSourceViewRef",
+        "beforeApplicability",
+        "afterApplicability",
+        "storedBytesUnchanged",
+        "viewChanged"
+      ]
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "personalIncomeCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "personalExpenseCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "personalNetCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "recordedExternalIncomeCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "recordedExternalExpenseCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "recordedExternalNetCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "accountInflowCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "accountOutflowCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "accountNetCents": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "personalIncomeCents",
+        "personalExpenseCents",
+        "personalNetCents",
+        "recordedExternalIncomeCents",
+        "recordedExternalExpenseCents",
+        "recordedExternalNetCents",
+        "accountInflowCents",
+        "accountOutflowCents",
+        "accountNetCents"
+      ]
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allDateTotals": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "before": {
+              "$ref": "#/$defs/totals"
+            },
+            "after": {
+              "$ref": "#/$defs/totals"
+            }
+          },
+          "required": [
+            "before",
+            "after"
+          ]
+        },
+        "affectedMonths": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "month": {
+                "$ref": "#/$defs/month"
+              },
+              "totals": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "before": {
+                    "$ref": "#/$defs/totals"
+                  },
+                  "after": {
+                    "$ref": "#/$defs/totals"
+                  }
+                },
+                "required": [
+                  "before",
+                  "after"
+                ]
+              },
+              "beforeProjectionRef": {
+                "$ref": "#/$defs/proofRef"
+              },
+              "afterProjectionRef": {
+                "$ref": "#/$defs/proofRef"
+              }
+            },
+            "required": [
+              "month",
+              "totals",
+              "beforeProjectionRef",
+              "afterProjectionRef"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "accountBalances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "accountId": {
+                "$ref": "#/$defs/id"
+              },
+              "beforeCents": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "afterCents": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "deltaCents": {
+                "const": 0
+              }
+            },
+            "required": [
+              "accountId",
+              "beforeCents",
+              "afterCents",
+              "deltaCents"
+            ]
+          },
+          "maxItems": 100
+        },
+        "sourceAccountMovementsUnchanged": {
+          "const": true
+        },
+        "allRecordedFlowsUnchanged": {
+          "const": true
+        },
+        "noNewTransaction": {
+          "const": true
+        },
+        "noPayment": {
+          "const": true
+        },
+        "noAutomaticPlanClose": {
+          "const": true
+        },
+        "planningAttributions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/planningChange"
+          }
+        },
+        "affectedSavedCloses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "closeId": {
+                "$ref": "#/$defs/id"
+              },
+              "month": {
+                "$ref": "#/$defs/month"
+              },
+              "storedBytesUnchanged": {
+                "const": true
+              }
+            },
+            "required": [
+              "closeId",
+              "month",
+              "storedBytesUnchanged"
+            ]
+          }
+        }
+      },
+      "required": [
+        "allDateTotals",
+        "affectedMonths",
+        "accountBalances",
+        "sourceAccountMovementsUnchanged",
+        "allRecordedFlowsUnchanged",
+        "noNewTransaction",
+        "noPayment",
+        "noAutomaticPlanClose",
+        "planningAttributions",
+        "affectedSavedCloses"
+      ]
+    },
+    "preservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rawInputUnchanged": {
+          "const": true
+        },
+        "normalizedUnrelatedSubtreesUnchanged": {
+          "const": true
+        },
+        "oldRefundRowsUnchanged": {
+          "const": true
+        },
+        "oldAuditPrefixUnchanged": {
+          "const": true
+        },
+        "transactionsAccountsCategoriesUnchanged": {
+          "const": true
+        },
+        "planningSubtreesUnchanged": {
+          "const": true
+        },
+        "versionBefore": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "versionAfter": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "relationVersionBefore": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "relationVersionAfter": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "materializedPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "changedPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "rawInputUnchanged",
+        "normalizedUnrelatedSubtreesUnchanged",
+        "oldRefundRowsUnchanged",
+        "oldAuditPrefixUnchanged",
+        "transactionsAccountsCategoriesUnchanged",
+        "planningSubtreesUnchanged",
+        "versionBefore",
+        "versionAfter",
+        "relationVersionBefore",
+        "relationVersionAfter",
+        "materializedPaths",
+        "changedPaths"
+      ]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "refund-receipt-review"
+        },
+        "version": {
+          "const": 1
+        },
+        "status": {
+          "const": "pending"
+        },
+        "asOfDate": {
+          "$ref": "#/$defs/date"
+        },
+        "command": {
+          "$ref": "#/$defs/command"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "expense": {
+          "$ref": "#/$defs/source"
+        },
+        "receipt": {
+          "$ref": "#/$defs/source"
+        },
+        "planRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/proofRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "before": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/planProgress"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "after": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/planProgress"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "before",
+            "after"
+          ]
+        },
+        "capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "before": {
+              "$ref": "#/$defs/capacity"
+            },
+            "after": {
+              "$ref": "#/$defs/capacity"
+            }
+          },
+          "required": [
+            "before",
+            "after"
+          ]
+        },
+        "generated": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "refundId": {
+              "$ref": "#/$defs/id"
+            },
+            "auditId": {
+              "$ref": "#/$defs/id"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "refundRef": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/proofRef"
+            },
+            "timestampsProvisionalUntilSave": {
+              "const": true
+            }
+          },
+          "required": [
+            "refundId",
+            "auditId",
+            "revision",
+            "refundRef",
+            "auditRef",
+            "timestampsProvisionalUntilSave"
+          ]
+        },
+        "effects": {
+          "$ref": "#/$defs/effects"
+        },
+        "preservation": {
+          "$ref": "#/$defs/preservation"
+        },
+        "proof": {
+          "$ref": "#/$defs/proof"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/warning"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "version",
+        "status",
+        "asOfDate",
+        "command",
+        "scope",
+        "expense",
+        "receipt",
+        "planRef",
+        "plan",
+        "capacity",
+        "generated",
+        "effects",
+        "preservation",
+        "proof",
+        "warnings"
+      ]
+    },
+    "ticket": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "review": {
+          "$ref": "#/$defs/review"
+        }
+      },
+      "required": [
+        "review"
+      ]
+    },
+    "cancelResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cancelled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cancelled"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "RefundReceiptsError"
+        },
+        "code": {
+          "enum": [
+            "RR_INVALID_INPUT",
+            "RR_LIMIT",
+            "RR_INVALID_CLOCK",
+            "RR_INVALID_TICKET",
+            "RR_CONFIRMATION_REQUIRED",
+            "RR_STALE_REVIEW",
+            "RR_INELIGIBLE",
+            "RR_PROOF_UNAVAILABLE",
+            "RR_REPLAY_MISMATCH",
+            "RR_MODULE_UNAVAILABLE",
+            "RR_INVARIANT",
+            "RR_WRITER_REJECTED"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "downstreamCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "code",
+        "message",
+        "downstreamCode"
+      ]
+    },
+    "summaryScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scan": {
+          "const": "active-recorded-income"
+        },
+        "knowledgeBasis": {
+          "const": "current-state-not-historical-knowledge"
+        },
+        "asOfDate": {
+          "$ref": "#/$defs/date"
+        },
+        "bankVerified": {
+          "const": false
+        },
+        "overallCoverage": {
+          "const": "unknown"
+        },
+        "excludedPopulations": {
+          "const": [
+            "native-transfer-rows",
+            "trash",
+            "uncommitted-imports",
+            "quarantined-imports"
+          ]
+        },
+        "coverageDeclarationRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true,
+          "maxItems": 0
+        }
+      },
+      "required": [
+        "scan",
+        "knowledgeBasis",
+        "asOfDate",
+        "bankVerified",
+        "overallCoverage",
+        "excludedPopulations",
+        "coverageDeclarationRefs"
+      ]
+    },
+    "summaryWarning": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/warningCode"
+        },
+        "message": {
+          "type": "string"
+        },
+        "recordIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "proofRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proofRef"
+          },
+          "uniqueItems": true,
+          "maxItems": 0
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "recordIds",
+        "proofRefs"
+      ]
+    }
+  },
+  "x-api": {
+    "module": "dist/refund-receipts.js",
+    "umd": "MoneygoRefundReceipts",
+    "exports": [
+      "VERSION",
+      "LIMITS",
+      "createCoordinator"
+    ],
+    "coordinator": {
+      "createCoordinator(capabilities)": {
+        "keys": [
+          "today",
+          "now"
+        ],
+        "required": [
+          "today",
+          "now"
+        ],
+        "semantics": "Host-owned zero-argument functions; no user-overridable state, writer, storage, date argument or public test seam. Fixed production dependencies. Callbacks are the sole non-JSON input exception."
+      },
+      "overview(raw)": {
+        "result": "overview",
+        "mutation": "none"
+      },
+      "candidates(raw,query)": {
+        "input": "query",
+        "result": "candidatePage",
+        "mutation": "none"
+      },
+      "inspect(raw,selection)": {
+        "input": "selection",
+        "result": "inspection",
+        "mutation": "none",
+        "purpose": "Complete readonly proof for any extant chosen income, including every blocked row; cannot authorize allocation."
+      },
+      "preview(raw,command)": {
+        "input": "command",
+        "result": "ticket",
+        "mutation": "private one-use ticket only"
+      },
+      "commit(raw,ticket,confirmation)": {
+        "input": "live identity plus confirmation",
+        "result": "Frozen complete Ledger.validateState-valid candidate state, not persisted; maximum 32 MiB ledger. Its rebuilt review must fit 8 MiB. Host owns saving.",
+        "mutation": "Consumes recognized ticket before any validation failure; returned candidate alone is not success"
+      },
+      "isCurrent(raw,ticket)": {
+        "result": "boolean",
+        "mutation": "Nonconsuming; false must make UI retire consent; detects observed clock rollback and stale raw/validated basis"
+      },
+      "cancel(ticket)": {
+        "result": "cancelResult",
+        "mutation": "Idempotent private invalidation, no ledger write"
+      },
+      "invalidateAll()": {
+        "result": "undefined",
+        "mutation": "Increment private generation and retire tickets, no ledger write"
+      }
+    }
+  },
+  "x-limits": {
+    "ledgerCanonicalUtf8Bytes": 33554432,
+    "commandOrQueryCanonicalUtf8Bytes": 65536,
+    "completeReportOrReviewCanonicalUtf8Bytes": 8388608,
+    "searchCodeUnits": 500,
+    "pageSizeMinimum": 1,
+    "pageSizeMaximum": 100,
+    "offsetMaximum": 9007199254740991,
+    "inheritedLedgerRows": 10000,
+    "inheritedRelationAudit": 50000,
+    "boundaryRule": "Exact boundary passes only if the whole inherited state/proof also validates; one-over fails before write. No silent truncation. Report byte count is canonical JSON UTF-8 without whitespace."
+  },
+  "x-semantic-rules": [
+    "All JSON inputs require descriptor-first ordinary-data capture before getters, serialization, validator calls or finance. Cross-realm plain objects/arrays supported; reject accessors, symbols, cycles, custom prototypes/toJSON, array holes/extras, nonfinite/unsafe integers; fail safely on proxies or hostile thrown errors.",
+    "Full raw canonical binding preserves absence versus explicit values, array order, every source/history field; object key insertion order is immaterial. Also bind full validated state. Retained-identity side metadata must be reconstructed by the existing validator/writer, never dropped or invented.",
+    "Only current host civil date accepted; no asOf input. Samples before/after each operation; date stable throughout and since preview; instant nondecreasing within operation and relative to prior observation. No timeout or unobservable clock-history claim.",
+    "E = expected; L = all linked; R = linked with income date <= today; F = L-R; U=E-R; P=E-L. Enforce R+F=L, U=P+F, 0<=L<=E, X>=0 with BigInt accumulation. none/partial/full uses R against E. due<today is past; needsCheck exactly waiting && U>0 && known due<today.",
+    "Capacity uses Relations.calculate current impacts. Plan capacity null means not applicable only. Eligible iff no blocking reasons and min(receipt, expense, optional plan)>0. Blocked maxAllocatableCents is zero. Plan status is never a blocking reason. Wrong/missing IDs, wrong transaction types and mismatched plan/expense reject the query/selection instead of inventing a row.",
+    "Candidate classification and literal case-insensitive search filter only after complete scan/ranking. Search fields are ID, date, note, account name/ID, confirmed merchant and indexed source key/stable ID. No fuzzy matching, source-note merchant fallback, regex execution or arbitrary lookback. Count semantics: eligible+blocked=scanned; matching is after classification+search; rows is matching slice; nextOffset is null exactly at exhaustion; offset beyond end returns empty page.",
+    "Rank eligible and blocked views by the same stable tuple: confirmed nonempty merchant match desc, available amount == P desc when P>0, same account desc, absolute civil-day distance asc, receipt date asc, ID code-unit asc. Unknown match is null, sorts as false, never equals unknown. SubstantiveTieCount is measured over the same classification population before search and paging on the first four facts; no tie creates consent. Exact-amount fact null without a positive plan cap.",
+    "Every proofRef resolves exactly once inside this immutable proof; no duplicate or dangling reference; no live mutable drilldown as a substitute. Proof entry values must equal complete existing-authority snapshots for their kind, phase and sourcePath. Snapshot leaves are not extensible bags; unknown keys rejected by the relevant existing schema and state validation. Public API view snapshots must equal freshly produced complete rows.",
+    "Closure includes selected source transactions/accounts/categories/profiles; canonical duplicate links and linked source snapshots; all own and linked import evidence plus referenced first/last batches; confirmed canonical merchant row and its application batch; applicable coverage declarations with unknown completeness; relevant held/composite/transfer exclusion proofs. No merchant from a shadow becomes the canonical match.",
+    "Capacity closure includes every active refund/settlement consuming selected income, every refund/claim consuming selected expense, every refund linked to selected plan, their endpoint transaction signatures/snapshots and linked receipt dates. Store each record once per phase and reference it in all relevant groups. Never sum a duplicated reference twice.",
+    "Planning closure compares complete public before/after view rows for all existing attributions, selects every changed attribution plus selected-source attributions and their plan/source rows, includes stored proof records and dependent plan attributions needed to explain totals. Respect unsupported/unknown proof states. No planning reservation is subtracted from refund capacity. Missing modules or incomplete proof block preview.",
+    "Effects include exact Relations.calculate all-date and unique expense/receipt month totals, unchanged per-account balances and full selected source account-flow legs. Preserve all existing old closes and expose IDs in affected months. Do not recompute forecasts or rewrite frozen closes.",
+    "Only unchanged public allocateRefund constructs preview/replay candidates. After confirming exactly one new refund and one matching create/refund audit, correct fresh IDs/revision/reason/signatures, and refund.createdAt == audit.at == audit.after.createdAt, compare candidate states masking only /bookkeeping/refunds/<new-index>/createdAt, /bookkeeping/audit/<new-index>/at and /bookkeeping/audit/<new-index>/after/createdAt. Prior rows/timestamps and all other bytes remain exact. Compare reviews deterministically derived from those already-checked masked candidates; do not mask additional independently supplied review fields.",
+    "Output is detached and deeply frozen. Ticket identity is private WeakMap authority; reconstructed JSON, copied/foreign ticket, caller-mutated review, or raw supplied candidate has no authority. Recognized commit attempt consumes identity even on malformed consent, stale state, clock failure, writer/replay error or host save failure.",
+    "Host raw storage-byte guard remains independent. Host may retry exactly the same returned candidate once for existing optional-history quota cleanup. Never rerun commit for save retry, never show success or discard draft until change() returns true.",
+    "Lifecycle invalidations are mandatory: draft edits, close/Escape/backdrop/back-to-draft, target switch/new dialog, live details/navigation/pagehide/BFCache, restore/reset, unrelated save, storage conflict, stale currentness and runtime disposal. Immutable-review-only paging/search may retain ticket; draft or navigation changes cannot.",
+    "No overview/candidate/inspection/preview failure changes caller state or storage; no persisted review/ticket/rank/rejection registry, dependency, version, storage key, income row, payment or automatic lifecycle change is introduced. Core schemas and public allocator remain byte-identical.",
+    "Overview and candidate-page summary scopes/warnings have empty proofRefs by schema; their evidence/record IDs are summaries only. Full scoped coverage declaration references and proof-bearing warnings exist only in inspect/review, whose immutable proof registries must resolve them. No summary claims an absent full proof."
+  ],
+  "x-error-policy": {
+    "candidateReasons": "Stable explanations; not a promise of downstream error ordering or code equality. Historical audit errors can precede role-specific errors.",
+    "writer": "Actual writer remains authoritative. RR_WRITER_REJECTED may expose a bounded own-data downstreamCode/message only; hostile errors use a generic safe message.",
+    "invalidTicket": "No identity recognized means nothing consumed; a recognized ticket is consumed before malformed confirmation is reported.",
+    "inputMutation": "Every failure is atomic with respect to caller state and stored financial bytes."
+  }
+}

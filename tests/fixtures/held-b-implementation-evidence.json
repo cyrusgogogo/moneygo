@@ -1,0 +1,114 @@
+{
+  "scope": "Owner B held-funds coordinator and mutation barriers; synthetic local Node model tests, not native browser/storage-host acceptance",
+  "contractManifestSha256": "8549ad727641c5af034398f18179586818990d1c3d8ba6dcb7a9188a3a7e7eaa",
+  "tests": [
+    {
+      "command": "node --test tests/held-b-coordinator.test.cjs",
+      "passed": 31,
+      "skipped": 0
+    },
+    {
+      "command": "node --test tests/held-b-coordinator.test.cjs tests/held-b-barriers.test.cjs",
+      "passed": 62,
+      "skipped": 0,
+      "durationMilliseconds": 25610,
+      "note": "Final focused run after held-only Ledger descriptor hardening; 31 coordinator and31 barrier tests."
+    },
+    {
+      "command": "node --test tests/held-b-review-integration.test.cjs",
+      "passed": 5,
+      "skipped": 0
+    },
+    {
+      "command": "node --test tests/held-b-capacity.test.cjs",
+      "passed": 2,
+      "skipped": 0
+    },
+    {
+      "command": "node --test tests/importer.test.cjs tests/import-integration.test.cjs tests/obligations.test.cjs tests/backup-verification.test.cjs",
+      "passed": 106,
+      "skipped": 0,
+      "note": "Initial focused legacy run before final whole-feature merge."
+    },
+    {
+      "command": "node --test --test-name-pattern='multiline' tests/held-ui.test.cjs",
+      "passed": 1,
+      "skipped": 0,
+      "note": "Owner D real UI test after free-text alignment."
+    }
+  ],
+  "fixedPipeline": {
+    "previewRelationsTraversals": 8,
+    "commitRelationsTraversals": 8,
+    "variants": [
+      {
+        "retainedCloses": 1,
+        "recognitionMonths": 1
+      },
+      {
+        "retainedCloses": 36,
+        "recognitionMonths": 1
+      },
+      {
+        "retainedCloses": 1,
+        "recognitionMonths": 12
+      },
+      {
+        "retainedCloses": 36,
+        "recognitionMonths": 12
+      }
+    ],
+    "observedPreviewMilliseconds": [
+      3540,
+      2993,
+      333,
+      3603
+    ],
+    "observedCommitMilliseconds": [
+      151,
+      1370,
+      265,
+      12928
+    ]
+  },
+  "nearLimit": {
+    "positions": 500,
+    "children": 5000,
+    "auditEntries": 5500,
+    "inputBytes": 6508234,
+    "reviewBytes": 14732435,
+    "validationMilliseconds": 6625,
+    "previewMilliseconds": 41278,
+    "commitMilliseconds": 61276,
+    "sampledRssBytes": 754393088,
+    "sampledHeapUsedBytes": 364268576
+  },
+  "limitations": [
+    "Timings were measured with other local tests active and are not a maximum-size latency guarantee.",
+    "Final merged aggregate and independent review are integration-owner gates.",
+    "Native browser, keyboard, assistive technology, real download and user-device persistence were not exercised.",
+    "No storage writer or diagnostic-note schema changes. Backup-safety persisted note remains content-free.",
+    "No browser, network, user computer, saved environment, access change or publication performed."
+  ],
+  "sha256": {
+    "dist/held-funds.js": "9f5a6a542695717faa669bfb3a2382b773bfc9c7fe668826858e29aa9c65d4dc",
+    "dist/ledger.js": "b45e51865b1966185dedd161de890412b47b9c191b733179bd79f633836e1912",
+    "dist/importer.js": "47904b66c8aebfcface5e3e9563f66dc68c352c55728a2982f89ca560ff94f69",
+    "dist/obligations.js": "0e160b68f42fd205198503a98a9ab910e49b0e416ed80abd377c80e5ada036c3",
+    "tests/held-b-coordinator.test.cjs": "e3da121a328e78973e9de5268f011803c16748aa34edf379e3e2ec2f09dfd345",
+    "tests/held-b-barriers.test.cjs": "5a02d44176489ddf033fe8bffd4137ae3ae0098260e32dd5406f2cf8946178b5",
+    "tests/held-b-review-integration.test.cjs": "f57090354c75ec85e7d34c02fd20c6200f16fcc185662272e1886ed129a2681e",
+    "tests/held-b-capacity.test.cjs": "169b4e378f9ac6a119688e6881cfdd6912509b3e995d1e19fd00df67cb31a6db",
+    "tests/held-b-fixture.cjs": "b2394e3a3dbcb2c0ef682d541a9d9bf991f747268f4810ab43096b467121a048",
+    "tests/held-b-performance-fixture.cjs": "ec42711c209ce947480408992545b18d36ef179cf0f3b9d65a389e39bdfd1b52",
+    "tests/fixtures/held-b-contract-vectors.json": "87b9173092c57eb142daaa41a2e241ec93dacf81cc7961fa9e8ca744dc5b4aa4"
+  },
+  "ownerTestCount": 69,
+  "finalProductionSha256": {
+    "dist/held-funds.js": "9f5a6a542695717faa669bfb3a2382b773bfc9c7fe668826858e29aa9c65d4dc",
+    "dist/ledger.js": "b45e51865b1966185dedd161de890412b47b9c191b733179bd79f633836e1912",
+    "dist/importer.js": "47904b66c8aebfcface5e3e9563f66dc68c352c55728a2982f89ca560ff94f69",
+    "dist/obligations.js": "0e160b68f42fd205198503a98a9ab910e49b0e416ed80abd377c80e5ada036c3"
+  },
+  "sourceStatus": "B source pinned after final focused 62/62; final integration aggregate and independent review pending."
+}

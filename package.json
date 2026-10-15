@@ -1,11 +1,12 @@
 {
   "name": "moneygo",
-  "version": "0.5.0",
+  "version": "0.23.0",
   "private": true,
   "description": "本地个人账本：真实 CSV 映射导入、证据与批次、可恢复备份、收支账户和消费沙盘。",
   "scripts": {
-    "check": "node --check dist/app.js && node --check dist/ledger.js && node --check dist/importer.js && node --check dist/scenario.js && node --check dist/demo.js && node --check dist/relations.js && node --check dist/relations-ui.js",
-    "test": "node --test tests/*.test.cjs"
+    "check": "node --check dist/app-runtime-v1.js && node --check dist/backup-safety.js && node --check dist/composites-ui.js && node --check dist/import-workflow.js && node --check dist/importer.js && node --check dist/ledger.js && node --check dist/obligations-ui.js && node --check dist/obligations.js && node --check dist/organizer-ui.js && node --check dist/organizer.js && node --check dist/personal-events.js && node --check dist/personal-bootstrap-v1.js && node --check dist/relations-ui.js && node --check dist/relations.js && node --check dist/runtime-capability-v1.js && node --check dist/scenario.js && node --check dist/synthetic-bootstrap-v1.js && node --check dist/synthetic-samples.js && node --check dist/held-core.js && node --check dist/held-funds.js && node --check dist/held-funds-ui.js && node --check dist/income-core.js && node --check dist/retained-identities.js && node --check dist/income-planning.js && node --check dist/income-planning-ui.js && node --check dist/spending-core.js && node --check dist/spending-planning.js && node --check dist/spending-planning-ui.js && node --check dist/cash-basis.js && node --check dist/cash-basis-ui.js && node --check dist/daily-cash.js && node --check dist/daily-cash-ui.js && node --check dist/refund-receipts.js && node --check dist/refund-receipts-ui.js && node --check dist/save-preflight.js",
+    "test": "node --test --test-concurrency=2 tests/*.test.cjs",
+    "test:save-capacity": "node tests/save-preflight-resource.cjs"
   },
   "engines": {
     "node": ">=22"

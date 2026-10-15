@@ -1,0 +1,202 @@
+{
+  "designManifestSha256": "18cfe6732f3644faeb0e6b4a62308e899ce10d455f6f0edf4507a9f47ae5a3b5",
+  "scope": "Test mapping only; not a test-run or final acceptance claim",
+  "requirements": [
+    {
+      "id": "B01",
+      "title": "Opaque source authority",
+      "testPrefix": "CB B01",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B02",
+      "title": "Single-use attempt consumes ticket",
+      "testPrefix": "CB B02",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B03",
+      "title": "Frozen source exactness",
+      "testPrefix": "CB B03",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B04",
+      "title": "Query-only retirement",
+      "testPrefix": "CB B04",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B05",
+      "title": "Ancestor cascade and sibling isolation",
+      "testPrefix": "CB B05",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B06",
+      "title": "Clock and day",
+      "testPrefix": "CB B06",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B07",
+      "title": "Descriptor-first hostile data",
+      "testPrefix": "CB B07",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B08",
+      "title": "Closed stock schema",
+      "testPrefix": "CB B08",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs",
+        "tests/cash-buffer-boundary/resources.cjs"
+      ]
+    },
+    {
+      "id": "B09",
+      "title": "Closed cost schema",
+      "testPrefix": "CB B09",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B10",
+      "title": "No source aggregate ingress",
+      "testPrefix": "CB B10",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B11",
+      "title": "No conditional preview leak",
+      "testPrefix": "CB B11",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B12",
+      "title": "Confirmation frozen derivation",
+      "testPrefix": "CB B12",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B13",
+      "title": "Entire result exact byte bound",
+      "testPrefix": "CB B13",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/resources.cjs"
+      ]
+    },
+    {
+      "id": "B14",
+      "title": "Raw and query byte bounds",
+      "testPrefix": "CB B14",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/resources.cjs"
+      ]
+    },
+    {
+      "id": "B15",
+      "title": "100 account 93 day compact maximum",
+      "testPrefix": "CB B15",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/resources.cjs"
+      ]
+    },
+    {
+      "id": "B16",
+      "title": "1000 residual maximum and 21000 choice bound",
+      "testPrefix": "CB B16",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/resources.cjs"
+      ]
+    },
+    {
+      "id": "B17",
+      "title": "Potential effects bound and reference closure",
+      "testPrefix": "CB B17",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs",
+        "tests/cash-buffer-boundary/resources.cjs",
+        "tests/cash-buffer-boundary/count-caps.cjs"
+      ]
+    },
+    {
+      "id": "B18",
+      "title": "Complete source identity/aliases",
+      "testPrefix": "CB B18",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B19",
+      "title": "Read-only financial invariants",
+      "testPrefix": "CB B19",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B20",
+      "title": "No storage/network capability",
+      "testPrefix": "CB B20",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary.test.cjs"
+      ]
+    },
+    {
+      "id": "B21",
+      "title": "Reference direction classifier closed evidence",
+      "testPrefix": "CB B21",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/classifier.cjs"
+      ]
+    },
+    {
+      "id": "B22",
+      "title": "Original guard is no debit",
+      "testPrefix": "CB B22",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/classifier.cjs"
+      ]
+    },
+    {
+      "id": "B23",
+      "title": "Exact old-test compatibility",
+      "testPrefix": "CB B23",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/compatibility.cjs"
+      ]
+    },
+    {
+      "id": "B24",
+      "title": "Resource freshness and unchanged deliverables",
+      "testPrefix": "CB B24",
+      "implementationFiles": [
+        "tests/cash-buffer-boundary/compatibility.cjs",
+        "tests/cash-buffer-boundary/verify-resources.cjs"
+      ]
+    }
+  ]
+}

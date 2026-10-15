@@ -1,0 +1,1434 @@
+[
+  {
+    "format": "moneygo-backup",
+    "version": 1,
+    "exportedAt": "2026-10-14T11:36:18.306Z",
+    "data": {
+      "version": 1,
+      "currency": "CNY",
+      "accounts": [
+        {
+          "id": "account-cash",
+          "name": "现金",
+          "openingBalanceCents": 0
+        },
+        {
+          "id": "credit",
+          "name": "Synthetic credit",
+          "openingBalanceCents": 0
+        }
+      ],
+      "categories": [
+        {
+          "id": "expense-food",
+          "name": "餐饮",
+          "type": "expense"
+        },
+        {
+          "id": "expense-transport",
+          "name": "交通",
+          "type": "expense"
+        },
+        {
+          "id": "expense-shopping",
+          "name": "购物",
+          "type": "expense"
+        },
+        {
+          "id": "expense-housing",
+          "name": "居住",
+          "type": "expense"
+        },
+        {
+          "id": "expense-entertainment",
+          "name": "娱乐",
+          "type": "expense"
+        },
+        {
+          "id": "expense-health",
+          "name": "医疗",
+          "type": "expense"
+        },
+        {
+          "id": "expense-other",
+          "name": "其他支出",
+          "type": "expense"
+        },
+        {
+          "id": "income-salary",
+          "name": "工资",
+          "type": "income"
+        },
+        {
+          "id": "income-bonus",
+          "name": "奖金",
+          "type": "income"
+        },
+        {
+          "id": "income-other",
+          "name": "其他收入",
+          "type": "income"
+        }
+      ],
+      "transactions": [],
+      "trash": []
+    }
+  },
+  {
+    "format": "moneygo-backup",
+    "version": 2,
+    "exportedAt": "2026-10-14T11:36:18.307Z",
+    "data": {
+      "version": 2,
+      "currency": "CNY",
+      "accounts": [
+        {
+          "id": "account-cash",
+          "name": "现金",
+          "openingBalanceCents": 0
+        },
+        {
+          "id": "credit",
+          "name": "Synthetic credit",
+          "openingBalanceCents": 0
+        }
+      ],
+      "categories": [
+        {
+          "id": "expense-food",
+          "name": "餐饮",
+          "type": "expense"
+        },
+        {
+          "id": "expense-transport",
+          "name": "交通",
+          "type": "expense"
+        },
+        {
+          "id": "expense-shopping",
+          "name": "购物",
+          "type": "expense"
+        },
+        {
+          "id": "expense-housing",
+          "name": "居住",
+          "type": "expense"
+        },
+        {
+          "id": "expense-entertainment",
+          "name": "娱乐",
+          "type": "expense"
+        },
+        {
+          "id": "expense-health",
+          "name": "医疗",
+          "type": "expense"
+        },
+        {
+          "id": "expense-other",
+          "name": "其他支出",
+          "type": "expense"
+        },
+        {
+          "id": "income-salary",
+          "name": "工资",
+          "type": "income"
+        },
+        {
+          "id": "income-bonus",
+          "name": "奖金",
+          "type": "income"
+        },
+        {
+          "id": "income-other",
+          "name": "其他收入",
+          "type": "income"
+        }
+      ],
+      "transactions": [],
+      "trash": [],
+      "simulation": {
+        "version": 1,
+        "completeMonths": [],
+        "exclusions": [],
+        "scenarios": [
+          {
+            "id": "scenario-main",
+            "name": "我的方案",
+            "adjustments": [],
+            "oneOffs": []
+          }
+        ],
+        "activeId": "scenario-main"
+      }
+    }
+  },
+  {
+    "format": "moneygo-backup",
+    "version": 3,
+    "exportedAt": "2026-10-14T11:36:18.309Z",
+    "data": {
+      "version": 3,
+      "currency": "CNY",
+      "accounts": [
+        {
+          "id": "account-cash",
+          "name": "现金",
+          "openingBalanceCents": 0
+        },
+        {
+          "id": "credit",
+          "name": "Synthetic credit",
+          "openingBalanceCents": 0
+        }
+      ],
+      "categories": [
+        {
+          "id": "expense-food",
+          "name": "餐饮",
+          "type": "expense"
+        },
+        {
+          "id": "expense-transport",
+          "name": "交通",
+          "type": "expense"
+        },
+        {
+          "id": "expense-shopping",
+          "name": "购物",
+          "type": "expense"
+        },
+        {
+          "id": "expense-housing",
+          "name": "居住",
+          "type": "expense"
+        },
+        {
+          "id": "expense-entertainment",
+          "name": "娱乐",
+          "type": "expense"
+        },
+        {
+          "id": "expense-health",
+          "name": "医疗",
+          "type": "expense"
+        },
+        {
+          "id": "expense-other",
+          "name": "其他支出",
+          "type": "expense"
+        },
+        {
+          "id": "income-salary",
+          "name": "工资",
+          "type": "income"
+        },
+        {
+          "id": "income-bonus",
+          "name": "奖金",
+          "type": "income"
+        },
+        {
+          "id": "income-other",
+          "name": "其他收入",
+          "type": "income"
+        }
+      ],
+      "transactions": [
+        {
+          "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+          "type": "expense",
+          "date": "2026-09-01",
+          "amountCents": 100,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        }
+      ],
+      "trash": [],
+      "simulation": {
+        "version": 1,
+        "completeMonths": [],
+        "exclusions": [],
+        "scenarios": [
+          {
+            "id": "scenario-main",
+            "name": "我的方案",
+            "adjustments": [],
+            "oneOffs": []
+          }
+        ],
+        "activeId": "scenario-main"
+      },
+      "imports": {
+        "version": 1,
+        "revision": 1,
+        "templates": [
+          {
+            "id": "template-785a7f4c65c2f82edca66962fd28735e",
+            "name": "review-legacy",
+            "version": 1,
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "headers": [
+              "Date",
+              "Amount",
+              "Type"
+            ],
+            "config": {
+              "sourceKey": "review-legacy",
+              "accountId": "account-cash",
+              "delimiter": ",",
+              "header": true,
+              "columns": {
+                "date": 0,
+                "amount": 1,
+                "direction": 2
+              },
+              "dateFormat": "YYYY-MM-DD",
+              "amountMode": "absolute",
+              "defaultType": null,
+              "categoryIds": {
+                "expense": "expense-other",
+                "income": "income-other"
+              },
+              "directionMap": {
+                "income": "income",
+                "expense": "expense",
+                "transfer": "transfer",
+                "收入": "income",
+                "支出": "expense",
+                "转账": "transfer"
+              },
+              "statusMap": {
+                "completed": "completed",
+                "complete": "completed",
+                "success": "completed",
+                "pending": "pending",
+                "cancelled": "cancelled",
+                "canceled": "cancelled",
+                "已完成": "completed",
+                "交易成功": "completed",
+                "支付成功": "completed",
+                "处理中": "pending",
+                "待支付": "pending",
+                "已取消": "cancelled",
+                "已关闭": "cancelled",
+                "交易关闭": "cancelled"
+              }
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "id": "evidence-623e9f555529b4732f5bd3f5d029401b",
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "stableId": null,
+            "status": "completed",
+            "transactionId": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+            "normalized": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 100,
+              "accountId": "account-cash",
+              "categoryId": "expense-other",
+              "note": ""
+            },
+            "mapped": {
+              "date": "2026-09-01",
+              "amount": "1.00",
+              "direction": "expense"
+            },
+            "fingerprint": "a356186b8a0154dd8fdb4e71bd9ef78d",
+            "expectedLocation": "active",
+            "expectedTransaction": {
+              "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 100,
+              "accountId": "account-cash",
+              "categoryId": "expense-other",
+              "note": ""
+            },
+            "firstBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "lastBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61"
+          }
+        ],
+        "batches": [
+          {
+            "id": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "createdAt": "2026-10-14T11:36:18.269Z",
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "templateId": "template-785a7f4c65c2f82edca66962fd28735e",
+            "fileFingerprint": "74fdaff9d9ae8a57ba55dd91b035fecf",
+            "selectedRowKeys": [
+              "row-74fdaff9d9ae8a57ba55dd91b035fecf-1"
+            ],
+            "changes": [
+              {
+                "rowKey": "row-74fdaff9d9ae8a57ba55dd91b035fecf-1",
+                "evidenceId": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                "before": null,
+                "after": {
+                  "id": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                  "sourceKey": "review-legacy",
+                  "accountId": "account-cash",
+                  "stableId": null,
+                  "status": "completed",
+                  "transactionId": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                  "normalized": {
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "mapped": {
+                    "date": "2026-09-01",
+                    "amount": "1.00",
+                    "direction": "expense"
+                  },
+                  "fingerprint": "a356186b8a0154dd8fdb4e71bd9ef78d",
+                  "expectedLocation": "active",
+                  "expectedTransaction": {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "firstBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+                  "lastBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61"
+                },
+                "transactionBefore": {
+                  "location": null,
+                  "transaction": null,
+                  "deletedAt": null
+                },
+                "transactionAfter": {
+                  "location": "active",
+                  "transaction": {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "deletedAt": null
+                }
+              }
+            ],
+            "quarantineIds": [],
+            "coverageIds": [],
+            "resolvedQuarantineIds": [],
+            "rolledBack": false,
+            "repair": null
+          }
+        ],
+        "quarantine": [],
+        "coverage": [],
+        "audit": [
+          {
+            "id": "audit-24c580b3f3b4350d88d6c069788d040d",
+            "batchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "action": "commit",
+            "at": "2026-10-14T11:36:18.269Z",
+            "selectedCount": 1,
+            "quarantineCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "format": "moneygo-backup",
+    "version": 4,
+    "exportedAt": "2026-10-14T11:36:18.313Z",
+    "data": {
+      "version": 4,
+      "currency": "CNY",
+      "accounts": [
+        {
+          "id": "account-cash",
+          "name": "现金",
+          "openingBalanceCents": 0
+        },
+        {
+          "id": "credit",
+          "name": "Synthetic credit",
+          "openingBalanceCents": 0
+        }
+      ],
+      "categories": [
+        {
+          "id": "expense-food",
+          "name": "餐饮",
+          "type": "expense"
+        },
+        {
+          "id": "expense-transport",
+          "name": "交通",
+          "type": "expense"
+        },
+        {
+          "id": "expense-shopping",
+          "name": "购物",
+          "type": "expense"
+        },
+        {
+          "id": "expense-housing",
+          "name": "居住",
+          "type": "expense"
+        },
+        {
+          "id": "expense-entertainment",
+          "name": "娱乐",
+          "type": "expense"
+        },
+        {
+          "id": "expense-health",
+          "name": "医疗",
+          "type": "expense"
+        },
+        {
+          "id": "expense-other",
+          "name": "其他支出",
+          "type": "expense"
+        },
+        {
+          "id": "income-salary",
+          "name": "工资",
+          "type": "income"
+        },
+        {
+          "id": "income-bonus",
+          "name": "奖金",
+          "type": "income"
+        },
+        {
+          "id": "income-other",
+          "name": "其他收入",
+          "type": "income"
+        }
+      ],
+      "transactions": [
+        {
+          "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+          "type": "expense",
+          "date": "2026-09-01",
+          "amountCents": 100,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        }
+      ],
+      "trash": [],
+      "simulation": {
+        "version": 1,
+        "completeMonths": [],
+        "exclusions": [],
+        "scenarios": [
+          {
+            "id": "scenario-main",
+            "name": "我的方案",
+            "adjustments": [],
+            "oneOffs": []
+          }
+        ],
+        "activeId": "scenario-main"
+      },
+      "imports": {
+        "version": 1,
+        "revision": 1,
+        "templates": [
+          {
+            "id": "template-785a7f4c65c2f82edca66962fd28735e",
+            "name": "review-legacy",
+            "version": 1,
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "headers": [
+              "Date",
+              "Amount",
+              "Type"
+            ],
+            "config": {
+              "sourceKey": "review-legacy",
+              "accountId": "account-cash",
+              "delimiter": ",",
+              "header": true,
+              "columns": {
+                "date": 0,
+                "amount": 1,
+                "direction": 2
+              },
+              "dateFormat": "YYYY-MM-DD",
+              "amountMode": "absolute",
+              "defaultType": null,
+              "categoryIds": {
+                "expense": "expense-other",
+                "income": "income-other"
+              },
+              "directionMap": {
+                "income": "income",
+                "expense": "expense",
+                "transfer": "transfer",
+                "收入": "income",
+                "支出": "expense",
+                "转账": "transfer"
+              },
+              "statusMap": {
+                "completed": "completed",
+                "complete": "completed",
+                "success": "completed",
+                "pending": "pending",
+                "cancelled": "cancelled",
+                "canceled": "cancelled",
+                "已完成": "completed",
+                "交易成功": "completed",
+                "支付成功": "completed",
+                "处理中": "pending",
+                "待支付": "pending",
+                "已取消": "cancelled",
+                "已关闭": "cancelled",
+                "交易关闭": "cancelled"
+              }
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "id": "evidence-623e9f555529b4732f5bd3f5d029401b",
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "stableId": null,
+            "status": "completed",
+            "transactionId": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+            "normalized": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 100,
+              "accountId": "account-cash",
+              "categoryId": "expense-other",
+              "note": ""
+            },
+            "mapped": {
+              "date": "2026-09-01",
+              "amount": "1.00",
+              "direction": "expense"
+            },
+            "fingerprint": "a356186b8a0154dd8fdb4e71bd9ef78d",
+            "expectedLocation": "active",
+            "expectedTransaction": {
+              "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 100,
+              "accountId": "account-cash",
+              "categoryId": "expense-other",
+              "note": ""
+            },
+            "firstBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "lastBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61"
+          }
+        ],
+        "batches": [
+          {
+            "id": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "createdAt": "2026-10-14T11:36:18.269Z",
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "templateId": "template-785a7f4c65c2f82edca66962fd28735e",
+            "fileFingerprint": "74fdaff9d9ae8a57ba55dd91b035fecf",
+            "selectedRowKeys": [
+              "row-74fdaff9d9ae8a57ba55dd91b035fecf-1"
+            ],
+            "changes": [
+              {
+                "rowKey": "row-74fdaff9d9ae8a57ba55dd91b035fecf-1",
+                "evidenceId": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                "before": null,
+                "after": {
+                  "id": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                  "sourceKey": "review-legacy",
+                  "accountId": "account-cash",
+                  "stableId": null,
+                  "status": "completed",
+                  "transactionId": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                  "normalized": {
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "mapped": {
+                    "date": "2026-09-01",
+                    "amount": "1.00",
+                    "direction": "expense"
+                  },
+                  "fingerprint": "a356186b8a0154dd8fdb4e71bd9ef78d",
+                  "expectedLocation": "active",
+                  "expectedTransaction": {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "firstBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+                  "lastBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61"
+                },
+                "transactionBefore": {
+                  "location": null,
+                  "transaction": null,
+                  "deletedAt": null
+                },
+                "transactionAfter": {
+                  "location": "active",
+                  "transaction": {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "deletedAt": null
+                }
+              }
+            ],
+            "quarantineIds": [],
+            "coverageIds": [],
+            "resolvedQuarantineIds": [],
+            "rolledBack": false,
+            "repair": null
+          }
+        ],
+        "quarantine": [],
+        "coverage": [],
+        "audit": [
+          {
+            "id": "audit-24c580b3f3b4350d88d6c069788d040d",
+            "batchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "action": "commit",
+            "at": "2026-10-14T11:36:18.269Z",
+            "selectedCount": 1,
+            "quarantineCount": 0
+          }
+        ]
+      },
+      "bookkeeping": {
+        "version": 1,
+        "revision": 1,
+        "links": [],
+        "refunds": [],
+        "claims": [],
+        "settlements": [],
+        "snapshots": [
+          {
+            "id": "relation-snapshot-1",
+            "createdAt": "2026-10-14T11:36:18.280Z",
+            "accountId": "account-cash",
+            "date": "2026-09-30",
+            "actualBalanceCents": -100,
+            "note": "",
+            "ledgerBalanceCents": -100,
+            "basis": {
+              "openingBalanceCents": 0,
+              "transactions": [
+                {
+                  "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                  "type": "expense",
+                  "date": "2026-09-01",
+                  "amountCents": 100,
+                  "accountId": "account-cash",
+                  "toAccountId": null
+                }
+              ],
+              "excluded": []
+            }
+          }
+        ],
+        "refundPlans": [],
+        "audit": [
+          {
+            "id": "relation-audit-1",
+            "revision": 1,
+            "at": "2026-10-14T11:36:18.280Z",
+            "kind": "snapshot",
+            "recordId": "relation-snapshot-1",
+            "action": "create",
+            "reason": "记录用户提供的日终实际余额",
+            "before": null,
+            "after": {
+              "id": "relation-snapshot-1",
+              "createdAt": "2026-10-14T11:36:18.280Z",
+              "accountId": "account-cash",
+              "date": "2026-09-30",
+              "actualBalanceCents": -100,
+              "note": "",
+              "ledgerBalanceCents": -100,
+              "basis": {
+                "openingBalanceCents": 0,
+                "transactions": [
+                  {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "toAccountId": null
+                  }
+                ],
+                "excluded": []
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "format": "moneygo-backup",
+    "version": 5,
+    "exportedAt": "2026-10-14T11:36:18.321Z",
+    "data": {
+      "version": 5,
+      "currency": "CNY",
+      "accounts": [
+        {
+          "id": "account-cash",
+          "name": "现金",
+          "openingBalanceCents": 0
+        },
+        {
+          "id": "credit",
+          "name": "Synthetic credit",
+          "openingBalanceCents": 0
+        }
+      ],
+      "categories": [
+        {
+          "id": "expense-food",
+          "name": "餐饮",
+          "type": "expense"
+        },
+        {
+          "id": "expense-transport",
+          "name": "交通",
+          "type": "expense"
+        },
+        {
+          "id": "expense-shopping",
+          "name": "购物",
+          "type": "expense"
+        },
+        {
+          "id": "expense-housing",
+          "name": "居住",
+          "type": "expense"
+        },
+        {
+          "id": "expense-entertainment",
+          "name": "娱乐",
+          "type": "expense"
+        },
+        {
+          "id": "expense-health",
+          "name": "医疗",
+          "type": "expense"
+        },
+        {
+          "id": "expense-other",
+          "name": "其他支出",
+          "type": "expense"
+        },
+        {
+          "id": "income-salary",
+          "name": "工资",
+          "type": "income"
+        },
+        {
+          "id": "income-bonus",
+          "name": "奖金",
+          "type": "income"
+        },
+        {
+          "id": "income-other",
+          "name": "其他收入",
+          "type": "income"
+        }
+      ],
+      "transactions": [
+        {
+          "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+          "type": "expense",
+          "date": "2026-09-01",
+          "amountCents": 100,
+          "accountId": "account-cash",
+          "categoryId": "expense-other",
+          "note": ""
+        }
+      ],
+      "trash": [],
+      "simulation": {
+        "version": 1,
+        "completeMonths": [],
+        "exclusions": [],
+        "scenarios": [
+          {
+            "id": "scenario-main",
+            "name": "我的方案",
+            "adjustments": [],
+            "oneOffs": []
+          }
+        ],
+        "activeId": "scenario-main"
+      },
+      "imports": {
+        "version": 1,
+        "revision": 1,
+        "templates": [
+          {
+            "id": "template-785a7f4c65c2f82edca66962fd28735e",
+            "name": "review-legacy",
+            "version": 1,
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "headers": [
+              "Date",
+              "Amount",
+              "Type"
+            ],
+            "config": {
+              "sourceKey": "review-legacy",
+              "accountId": "account-cash",
+              "delimiter": ",",
+              "header": true,
+              "columns": {
+                "date": 0,
+                "amount": 1,
+                "direction": 2
+              },
+              "dateFormat": "YYYY-MM-DD",
+              "amountMode": "absolute",
+              "defaultType": null,
+              "categoryIds": {
+                "expense": "expense-other",
+                "income": "income-other"
+              },
+              "directionMap": {
+                "income": "income",
+                "expense": "expense",
+                "transfer": "transfer",
+                "收入": "income",
+                "支出": "expense",
+                "转账": "transfer"
+              },
+              "statusMap": {
+                "completed": "completed",
+                "complete": "completed",
+                "success": "completed",
+                "pending": "pending",
+                "cancelled": "cancelled",
+                "canceled": "cancelled",
+                "已完成": "completed",
+                "交易成功": "completed",
+                "支付成功": "completed",
+                "处理中": "pending",
+                "待支付": "pending",
+                "已取消": "cancelled",
+                "已关闭": "cancelled",
+                "交易关闭": "cancelled"
+              }
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "id": "evidence-623e9f555529b4732f5bd3f5d029401b",
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "stableId": null,
+            "status": "completed",
+            "transactionId": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+            "normalized": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 100,
+              "accountId": "account-cash",
+              "categoryId": "expense-other",
+              "note": ""
+            },
+            "mapped": {
+              "date": "2026-09-01",
+              "amount": "1.00",
+              "direction": "expense"
+            },
+            "fingerprint": "a356186b8a0154dd8fdb4e71bd9ef78d",
+            "expectedLocation": "active",
+            "expectedTransaction": {
+              "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 100,
+              "accountId": "account-cash",
+              "categoryId": "expense-other",
+              "note": ""
+            },
+            "firstBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "lastBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61"
+          }
+        ],
+        "batches": [
+          {
+            "id": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "createdAt": "2026-10-14T11:36:18.269Z",
+            "sourceKey": "review-legacy",
+            "accountId": "account-cash",
+            "templateId": "template-785a7f4c65c2f82edca66962fd28735e",
+            "fileFingerprint": "74fdaff9d9ae8a57ba55dd91b035fecf",
+            "selectedRowKeys": [
+              "row-74fdaff9d9ae8a57ba55dd91b035fecf-1"
+            ],
+            "changes": [
+              {
+                "rowKey": "row-74fdaff9d9ae8a57ba55dd91b035fecf-1",
+                "evidenceId": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                "before": null,
+                "after": {
+                  "id": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                  "sourceKey": "review-legacy",
+                  "accountId": "account-cash",
+                  "stableId": null,
+                  "status": "completed",
+                  "transactionId": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                  "normalized": {
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "mapped": {
+                    "date": "2026-09-01",
+                    "amount": "1.00",
+                    "direction": "expense"
+                  },
+                  "fingerprint": "a356186b8a0154dd8fdb4e71bd9ef78d",
+                  "expectedLocation": "active",
+                  "expectedTransaction": {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "firstBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+                  "lastBatchId": "batch-622ddb938d35baf91d57f07f0ed8ae61"
+                },
+                "transactionBefore": {
+                  "location": null,
+                  "transaction": null,
+                  "deletedAt": null
+                },
+                "transactionAfter": {
+                  "location": "active",
+                  "transaction": {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "categoryId": "expense-other",
+                    "note": ""
+                  },
+                  "deletedAt": null
+                }
+              }
+            ],
+            "quarantineIds": [],
+            "coverageIds": [],
+            "resolvedQuarantineIds": [],
+            "rolledBack": false,
+            "repair": null
+          }
+        ],
+        "quarantine": [],
+        "coverage": [],
+        "audit": [
+          {
+            "id": "audit-24c580b3f3b4350d88d6c069788d040d",
+            "batchId": "batch-622ddb938d35baf91d57f07f0ed8ae61",
+            "action": "commit",
+            "at": "2026-10-14T11:36:18.269Z",
+            "selectedCount": 1,
+            "quarantineCount": 0
+          }
+        ]
+      },
+      "bookkeeping": {
+        "version": 1,
+        "revision": 1,
+        "links": [],
+        "refunds": [],
+        "claims": [],
+        "settlements": [],
+        "snapshots": [
+          {
+            "id": "relation-snapshot-1",
+            "createdAt": "2026-10-14T11:36:18.280Z",
+            "accountId": "account-cash",
+            "date": "2026-09-30",
+            "actualBalanceCents": -100,
+            "note": "",
+            "ledgerBalanceCents": -100,
+            "basis": {
+              "openingBalanceCents": 0,
+              "transactions": [
+                {
+                  "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                  "type": "expense",
+                  "date": "2026-09-01",
+                  "amountCents": 100,
+                  "accountId": "account-cash",
+                  "toAccountId": null
+                }
+              ],
+              "excluded": []
+            }
+          }
+        ],
+        "refundPlans": [],
+        "audit": [
+          {
+            "id": "relation-audit-1",
+            "revision": 1,
+            "at": "2026-10-14T11:36:18.280Z",
+            "kind": "snapshot",
+            "recordId": "relation-snapshot-1",
+            "action": "create",
+            "reason": "记录用户提供的日终实际余额",
+            "before": null,
+            "after": {
+              "id": "relation-snapshot-1",
+              "createdAt": "2026-10-14T11:36:18.280Z",
+              "accountId": "account-cash",
+              "date": "2026-09-30",
+              "actualBalanceCents": -100,
+              "note": "",
+              "ledgerBalanceCents": -100,
+              "basis": {
+                "openingBalanceCents": 0,
+                "transactions": [
+                  {
+                    "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                    "type": "expense",
+                    "date": "2026-09-01",
+                    "amountCents": 100,
+                    "accountId": "account-cash",
+                    "toAccountId": null
+                  }
+                ],
+                "excluded": []
+              }
+            }
+          }
+        ]
+      },
+      "organizer": {
+        "version": 1,
+        "revision": 1,
+        "rules": [],
+        "aliases": [],
+        "merchants": [],
+        "batches": [],
+        "scopes": [],
+        "reviews": [],
+        "closes": [
+          {
+            "id": "organizer-close-1",
+            "createdAt": "2026-10-14T11:36:18.285Z",
+            "month": "2026-09",
+            "reason": "Synthetic legacy close",
+            "revision": 0,
+            "importRevision": 1,
+            "bookkeepingRevision": 1,
+            "selection": "all-month",
+            "rows": [
+              {
+                "transaction": {
+                  "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                  "type": "expense",
+                  "date": "2026-09-01",
+                  "amountCents": 100,
+                  "accountId": "account-cash",
+                  "note": "",
+                  "categoryId": "expense-other"
+                },
+                "merchant": null,
+                "sources": [
+                  {
+                    "evidenceId": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                    "sourceKey": "review-legacy"
+                  }
+                ],
+                "impact": {
+                  "cashIncomeCents": 0,
+                  "cashExpenseCents": 100,
+                  "transferCents": 0,
+                  "ordinaryIncomeCents": 0,
+                  "personalExpenseCents": 100,
+                  "refundCents": 0,
+                  "claimCents": 0
+                }
+              }
+            ],
+            "categories": [
+              {
+                "id": "expense-other",
+                "name": "其他支出",
+                "type": "expense"
+              }
+            ],
+            "scope": {
+              "start": "2026-09-01",
+              "end": "2026-09-30",
+              "sources": [
+                {
+                  "sourceKey": "review-legacy",
+                  "accountId": "account-cash",
+                  "included": null,
+                  "reason": null,
+                  "declared": false,
+                  "coverage": [],
+                  "gaps": [
+                    {
+                      "start": "2026-09-01",
+                      "end": "2026-09-30"
+                    }
+                  ],
+                  "coverageComplete": false,
+                  "blockers": [],
+                  "unresolvedCount": 0,
+                  "complete": false,
+                  "confirmedThrough": null
+                }
+              ],
+              "accounts": [
+                {
+                  "accountId": "account-cash",
+                  "balanceSnapshotAt": "2026-09-30",
+                  "balanceReconciled": true,
+                  "balanceDifferenceCents": 0,
+                  "balanceVerifiedAt": "2026-09-30",
+                  "snapshotId": "relation-snapshot-1"
+                },
+                {
+                  "accountId": "credit",
+                  "balanceSnapshotAt": null,
+                  "balanceReconciled": null,
+                  "balanceDifferenceCents": null,
+                  "balanceVerifiedAt": null,
+                  "snapshotId": null
+                }
+              ],
+              "unknownAccounts": [
+                "account-cash",
+                "credit"
+              ],
+              "coverageComplete": false,
+              "unresolvedCount": 0,
+              "complete": false,
+              "assumptions": [
+                "完整性仅限用户声明的来源与账户；未声明来源无法自动发现。",
+                "截止日来自用户确认覆盖，不从最早或最晚交易推断；无交易也可有已确认覆盖。",
+                "余额核验日来自用户输入的快照，不代表银行实时余额；范围排除不自动删除或改变所选交易。"
+              ]
+            },
+            "totals": {
+              "cash": {
+                "incomeCents": 0,
+                "expenseCents": 100,
+                "transferCents": 0,
+                "netCents": -100
+              },
+              "personal": {
+                "incomeCents": 0,
+                "expenseCents": 100,
+                "transferCents": 0,
+                "netCents": -100,
+                "refundCents": 0,
+                "claimCents": 0
+              },
+              "categories": [
+                {
+                  "categoryId": "expense-other",
+                  "type": "expense",
+                  "cashCents": 100,
+                  "personalCents": 100
+                }
+              ]
+            }
+          }
+        ],
+        "audit": [
+          {
+            "id": "organizer-audit-1",
+            "revision": 1,
+            "at": "2026-10-14T11:36:18.285Z",
+            "action": "close-month",
+            "reason": "Synthetic legacy close",
+            "changes": [
+              {
+                "collection": "closes",
+                "key": "organizer-close-1",
+                "before": null,
+                "after": {
+                  "id": "organizer-close-1",
+                  "createdAt": "2026-10-14T11:36:18.285Z",
+                  "month": "2026-09",
+                  "reason": "Synthetic legacy close",
+                  "revision": 0,
+                  "importRevision": 1,
+                  "bookkeepingRevision": 1,
+                  "selection": "all-month",
+                  "rows": [
+                    {
+                      "transaction": {
+                        "id": "transaction-import-87d8babdf709d7b323ff65a5ab2ed81b",
+                        "type": "expense",
+                        "date": "2026-09-01",
+                        "amountCents": 100,
+                        "accountId": "account-cash",
+                        "note": "",
+                        "categoryId": "expense-other"
+                      },
+                      "merchant": null,
+                      "sources": [
+                        {
+                          "evidenceId": "evidence-623e9f555529b4732f5bd3f5d029401b",
+                          "sourceKey": "review-legacy"
+                        }
+                      ],
+                      "impact": {
+                        "cashIncomeCents": 0,
+                        "cashExpenseCents": 100,
+                        "transferCents": 0,
+                        "ordinaryIncomeCents": 0,
+                        "personalExpenseCents": 100,
+                        "refundCents": 0,
+                        "claimCents": 0
+                      }
+                    }
+                  ],
+                  "categories": [
+                    {
+                      "id": "expense-other",
+                      "name": "其他支出",
+                      "type": "expense"
+                    }
+                  ],
+                  "scope": {
+                    "start": "2026-09-01",
+                    "end": "2026-09-30",
+                    "sources": [
+                      {
+                        "sourceKey": "review-legacy",
+                        "accountId": "account-cash",
+                        "included": null,
+                        "reason": null,
+                        "declared": false,
+                        "coverage": [],
+                        "gaps": [
+                          {
+                            "start": "2026-09-01",
+                            "end": "2026-09-30"
+                          }
+                        ],
+                        "coverageComplete": false,
+                        "blockers": [],
+                        "unresolvedCount": 0,
+                        "complete": false,
+                        "confirmedThrough": null
+                      }
+                    ],
+                    "accounts": [
+                      {
+                        "accountId": "account-cash",
+                        "balanceSnapshotAt": "2026-09-30",
+                        "balanceReconciled": true,
+                        "balanceDifferenceCents": 0,
+                        "balanceVerifiedAt": "2026-09-30",
+                        "snapshotId": "relation-snapshot-1"
+                      },
+                      {
+                        "accountId": "credit",
+                        "balanceSnapshotAt": null,
+                        "balanceReconciled": null,
+                        "balanceDifferenceCents": null,
+                        "balanceVerifiedAt": null,
+                        "snapshotId": null
+                      }
+                    ],
+                    "unknownAccounts": [
+                      "account-cash",
+                      "credit"
+                    ],
+                    "coverageComplete": false,
+                    "unresolvedCount": 0,
+                    "complete": false,
+                    "assumptions": [
+                      "完整性仅限用户声明的来源与账户；未声明来源无法自动发现。",
+                      "截止日来自用户确认覆盖，不从最早或最晚交易推断；无交易也可有已确认覆盖。",
+                      "余额核验日来自用户输入的快照，不代表银行实时余额；范围排除不自动删除或改变所选交易。"
+                    ]
+                  },
+                  "totals": {
+                    "cash": {
+                      "incomeCents": 0,
+                      "expenseCents": 100,
+                      "transferCents": 0,
+                      "netCents": -100
+                    },
+                    "personal": {
+                      "incomeCents": 0,
+                      "expenseCents": 100,
+                      "transferCents": 0,
+                      "netCents": -100,
+                      "refundCents": 0,
+                      "claimCents": 0
+                    },
+                    "categories": [
+                      {
+                        "categoryId": "expense-other",
+                        "type": "expense",
+                        "cashCents": 100,
+                        "personalCents": 100
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

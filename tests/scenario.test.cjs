@@ -48,6 +48,7 @@ test('UMD exports immutable CommonJS and browser APIs without DOM, storage, time
   assert.ok(Object.isFrozen(Scenario.LIMITS));
   const window = {};
   const context = { window, Date: class { constructor() { throw Error('Clock forbidden'); } } };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/personal-events.js'), 'utf8'), context);
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/ledger.js'), 'utf8'), context);
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/scenario.js'), 'utf8'), context);
   const browser = window.MoneygoScenario;
@@ -126,7 +127,7 @@ test('arrays reject sparse elements, custom fields and accessors rather than ski
 });
 
 test('schema rejects wrong versions, absent active scenario, and zero or excessive scenarios', () => {
-  for (const version of [0, 2, '1', null]) assert.throws(() => Scenario.validate(settings({ version })), code('INVALID_VERSION'));
+  for (const version of [0, 3, '1', null]) assert.throws(() => Scenario.validate(settings({ version })), code('INVALID_VERSION'));
   assert.throws(() => Scenario.validate(settings({ scenarios: [] })), code('LAST_SCENARIO'));
   assert.throws(() => Scenario.validate(settings({ activeId: 'missing' })), code('INVALID_REFERENCE'));
   const three = [plan(), plan({ id: 'scenario-two' }), plan({ id: 'scenario-three' })];

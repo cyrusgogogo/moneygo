@@ -1,0 +1,23 @@
+{
+  "name": "negative-safe-anchor",
+  "construction": "Genuine public account/profile/snapshot writers; each distinct transaction produced by Ledger.putTransaction, then unchanged independent transaction rows assembled and fully validated",
+  "deterministicIdProvider": "Temporary synthetic crypto.randomUUID sequence only; original provider restored in finally",
+  "publicTransactionWriterCalls": 9008,
+  "transactionCount": 9008,
+  "canonicalLegCount": 9008,
+  "rawBytes": 1406420,
+  "rawSha256": "8d5518a42700909cc4bc3b3595273fc3a5fba1b7ea454c4568b130569b94ef85",
+  "writerPins": {
+    "ledger.js": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+    "relations.js": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+    "obligations.js": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+    "retained-identities.js": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+    "personal-events.js": "8bfead2ceeab8fccaf49bae135e63004efe91c870d2c7f1e8660d474ac2241a4",
+    "held-core.js": "bd6d6efd9ca82b8d5ca69613d3aeb1d0a0b66c8479d312f4eae283fc14e0b26e"
+  },
+  "generatorSha256": "4f8271a0ad7525923a680c2bea4f78ad5ecd085f3ff35dd0307341b08d10841c",
+  "validated": true,
+  "backupRoundtripVerified": true,
+  "elapsedConstructionAndValidationMs": 37241.045406,
+  "constructedAt": "2026-10-14T22:00:59.844Z"
+}

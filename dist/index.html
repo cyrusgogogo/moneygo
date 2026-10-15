@@ -4,11 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f6f5f1">
-<meta name="moneygo-version" content="0.5.0">
+<meta name="moneygo-version" content="0.23.0">
 <meta name="description" content="moneygo 个人记账：手动收支、账户转账、本地 CSV 账单导入、分类统计、未来三个月消费沙盘与本地备份。数据只保存在当前浏览器。">
 <title>moneygo · 记下每一笔生活</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="relations-ui.css">
+<link rel="stylesheet" href="composites-ui.css">
+<link rel="stylesheet" href="obligations-ui.css">
+<link rel="stylesheet" href="organizer-ui.css">
+<link rel="stylesheet" href="import-workflow.css">
+<link rel="stylesheet" href="runtime-host.css">
+<link rel="stylesheet" href="held-funds-ui.css">
+<link rel="stylesheet" href="income-planning-ui.css">
+<link rel="stylesheet" href="spending-planning-ui.css">
+<link rel="stylesheet" href="cash-basis-ui.css">
+<link rel="stylesheet" href="daily-cash-ui.css">
 </head>
-<body class="real-ledger"><a class="skip-link" href="#main-content">跳到主要内容</a><div id="app"></div><div id="modal-root"></div><div id="toast" role="status" aria-live="polite"></div><noscript>moneygo 需要 JavaScript 才能记账。请在浏览器设置中启用 JavaScript。</noscript><script src="ledger.js"></script><script src="scenario.js"></script><script src="importer.js"></script><script src="relations.js"></script><script src="relations-ui.js"></script><script src="app.js"></script></body>
+<body class="real-ledger" data-moneygo-entry="personal" data-moneygo-protocol="moneygo-runtime-v1"><a class="skip-link" href="#main-content">跳到主要内容</a><section id="boot-blocker" role="status">账本正在加载。若未启动，请重新加载此页面。</section><a class="boot-reload" href="index.html">重新加载账本页面</a><div id="app" hidden inert></div><div id="modal-root" hidden></div><div hidden id="toast" role="status" aria-live="polite"></div><noscript>moneygo 需要 JavaScript 才能记账。请在浏览器设置中启用 JavaScript。</noscript><script src="held-core.js"></script><script src="personal-events.js"></script>
+<script src="income-core.js"></script><script src="spending-core.js"></script><script src="retained-identities.js"></script><script src="ledger.js"></script><script src="scenario.js"></script><script src="importer.js"></script><script src="relations.js"></script><script src="obligations.js"></script><script src="obligations-ui.js"></script><script src="composites-ui.js"></script><script src="relations-ui.js"></script><script src="organizer.js"></script><script src="organizer-ui.js"></script><script src="import-workflow.js"></script><script src="backup-safety.js"></script><script src="held-funds.js"></script><script src="held-funds-ui.js"></script><script src="income-planning.js"></script><script src="income-planning-ui.js"></script><script src="spending-planning.js"></script><script src="spending-planning-ui.js"></script><script src="refund-receipts.js"></script><script src="refund-receipts-ui.js"></script><script src="cash-basis.js"></script><script src="cash-basis-ui.js"></script><script src="daily-cash.js"></script><script src="daily-cash-ui.js"></script><script src="save-preflight.js"></script><script src="runtime-capability-v1.js"></script><script src="personal-bootstrap-v1.js"></script><script src="app-runtime-v1.js"></script></body>
 </html>

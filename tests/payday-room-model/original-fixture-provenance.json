@@ -1,0 +1,100 @@
+{
+  "format": "moneygo-inherited-resource-cache-provenance-v1",
+  "freshMeasurement": true,
+  "oldTimingsRelabeled": false,
+  "cacheEvidence": [
+    {
+      "fixture": "compact-max-window",
+      "fixtureSha256": "228fbc655303e97d18b1a273f4b3add9dbd10161cdc84c3743327b1fec343591",
+      "originalPublicConstructionMs": null,
+      "originalMeasuredAt": "2026-10-14T21:14:29.291Z",
+      "originalModuleSha256": "eee40267c190e97fb28d1d0781f889cff2910754c99da9dbe491fa214133c9cc",
+      "originalResourceEvidenceSha256": "d69e78907412e4dd04247512cc21752d60149a9238f9933509caf4644b863b71",
+      "originalRunnerSha256": "d26ac8e3e2571a569a5588cdb5fb44777bb14324b5ef8a205830b833045e7887",
+      "unchangedWriterPins": {
+        "ledger": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+        "relations": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+        "obligations": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+        "income-planning": "cb7822a2a8ae9a0d362ee876e4c5ff2d52c30e746026aaaf7808a710bc597d58",
+        "income-core": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6",
+        "spending-planning": "367250ee6d0eb44548a47b7c8d9c4caef11b3770547fbd5b98b22fd87071164a",
+        "spending-core": "793ad670a63003a50f62cb891d54301000444b33f083987eaac99a06e76e71d2",
+        "importer": "6779fd0f02b673aecc9c6f82dccb20921e0c21eb42a1697a4bb29a18341152b0",
+        "retained-identities": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+        "cash-basis": "cd179f123772fd27f89a293449a828402015ec6631941ec048f3f0c936d5eee0"
+      },
+      "fullCurrentValidation": true,
+      "backupRoundtripVerified": true
+    },
+    {
+      "fixture": "public-planner-maxima",
+      "fixtureSha256": "c3578dfe5a82182b1d9501b59dba68830e9b9b7de2e6a1983c3c89958b14db39",
+      "originalPublicConstructionMs": null,
+      "originalMeasuredAt": "2026-10-14T21:15:54.845Z",
+      "originalModuleSha256": "eee40267c190e97fb28d1d0781f889cff2910754c99da9dbe491fa214133c9cc",
+      "originalResourceEvidenceSha256": "d69e78907412e4dd04247512cc21752d60149a9238f9933509caf4644b863b71",
+      "originalRunnerSha256": "d26ac8e3e2571a569a5588cdb5fb44777bb14324b5ef8a205830b833045e7887",
+      "unchangedWriterPins": {
+        "ledger": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+        "relations": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+        "obligations": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+        "income-planning": "cb7822a2a8ae9a0d362ee876e4c5ff2d52c30e746026aaaf7808a710bc597d58",
+        "income-core": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6",
+        "spending-planning": "367250ee6d0eb44548a47b7c8d9c4caef11b3770547fbd5b98b22fd87071164a",
+        "spending-core": "793ad670a63003a50f62cb891d54301000444b33f083987eaac99a06e76e71d2",
+        "importer": "6779fd0f02b673aecc9c6f82dccb20921e0c21eb42a1697a4bb29a18341152b0",
+        "retained-identities": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+        "cash-basis": "cd179f123772fd27f89a293449a828402015ec6631941ec048f3f0c936d5eee0"
+      },
+      "fullCurrentValidation": true,
+      "backupRoundtripVerified": true
+    },
+    {
+      "fixture": "public-import-max-catalog",
+      "fixtureSha256": "5d3f3f8b4ac2042b10a0acbc8823fce8ebe33e67cba05db74f1d6306994f092a",
+      "originalPublicConstructionMs": null,
+      "originalMeasuredAt": "2026-10-14T21:14:37.705Z",
+      "originalModuleSha256": "eee40267c190e97fb28d1d0781f889cff2910754c99da9dbe491fa214133c9cc",
+      "originalResourceEvidenceSha256": "d69e78907412e4dd04247512cc21752d60149a9238f9933509caf4644b863b71",
+      "originalRunnerSha256": "d26ac8e3e2571a569a5588cdb5fb44777bb14324b5ef8a205830b833045e7887",
+      "unchangedWriterPins": {
+        "ledger": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+        "relations": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+        "obligations": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+        "income-planning": "cb7822a2a8ae9a0d362ee876e4c5ff2d52c30e746026aaaf7808a710bc597d58",
+        "income-core": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6",
+        "spending-planning": "367250ee6d0eb44548a47b7c8d9c4caef11b3770547fbd5b98b22fd87071164a",
+        "spending-core": "793ad670a63003a50f62cb891d54301000444b33f083987eaac99a06e76e71d2",
+        "importer": "6779fd0f02b673aecc9c6f82dccb20921e0c21eb42a1697a4bb29a18341152b0",
+        "retained-identities": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+        "cash-basis": "cd179f123772fd27f89a293449a828402015ec6631941ec048f3f0c936d5eee0"
+      },
+      "fullCurrentValidation": true,
+      "backupRoundtripVerified": true
+    },
+    {
+      "fixture": "adversarial-proof",
+      "fixtureSha256": "260c9486c195b93249b2cd2c1fbb846233e9d1c31f5a396a33318fff5c8aec63",
+      "originalPublicConstructionMs": 4600.806981,
+      "originalMeasuredAt": "2026-10-14T21:14:45.776Z",
+      "originalModuleSha256": "eee40267c190e97fb28d1d0781f889cff2910754c99da9dbe491fa214133c9cc",
+      "originalResourceEvidenceSha256": "d69e78907412e4dd04247512cc21752d60149a9238f9933509caf4644b863b71",
+      "originalRunnerSha256": "d26ac8e3e2571a569a5588cdb5fb44777bb14324b5ef8a205830b833045e7887",
+      "unchangedWriterPins": {
+        "ledger": "f3b593b14ed756f303df9cf80c0d05825a0d36831e933bec39408eb1ac6134c7",
+        "relations": "e140dba9c2deb1f442625f189799bbf3d514d9d3774ec9f75552b781c7df11be",
+        "obligations": "619be632d2e4e24b1bc051dfcde5b6a772a27ffe595ed7d3968ebd7e6d5687a7",
+        "income-planning": "cb7822a2a8ae9a0d362ee876e4c5ff2d52c30e746026aaaf7808a710bc597d58",
+        "income-core": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6",
+        "spending-planning": "367250ee6d0eb44548a47b7c8d9c4caef11b3770547fbd5b98b22fd87071164a",
+        "spending-core": "793ad670a63003a50f62cb891d54301000444b33f083987eaac99a06e76e71d2",
+        "importer": "6779fd0f02b673aecc9c6f82dccb20921e0c21eb42a1697a4bb29a18341152b0",
+        "retained-identities": "429641a3e296704f2947632f2831771d316acd40bf423b66fd6d603c624b131a",
+        "cash-basis": "cd179f123772fd27f89a293449a828402015ec6631941ec048f3f0c936d5eee0"
+      },
+      "fullCurrentValidation": true,
+      "backupRoundtripVerified": true
+    }
+  ],
+  "notes": "All cached raw fixtures retain original public-writer setup metadata. Current complete validation and backup roundtrip occurred before the fresh unmodified runner measurements; those verification costs are not included in timed runner phases."
+}

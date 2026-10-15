@@ -5,6 +5,8 @@ playwright-report/
 test-results/
 .cache/
 *.log
+*.orig
+*.rej
 .DS_Store
 .idea/
 .vscode/
@@ -35,3 +37,12 @@ private-data/
 *.sqlite
 *.sqlite3
 *.db
+
+# Reviewed synthetic CSV regression fixtures only.
+!tests/fixtures/header-review/*.csv
+
+# Reviewed immutable synthetic practice downloads only.
+!dist/samples/SYNTHETIC-practice-bank.csv
+!dist/samples/SYNTHETIC-practice-credit.tsv
+!dist/samples/SYNTHETIC-practice-coffee-correction.csv
+!dist/samples/SYNTHETIC-practice-coffee-cancellation.csv

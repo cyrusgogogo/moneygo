@@ -1,0 +1,31 @@
+{
+  "activePositions": 500,
+  "activeRecognitions": 5000,
+  "capturedPersonalRows": 5000,
+  "capturedRawProofs": 500,
+  "organizerBytes": 11775547,
+  "ledgerBytes": 17310703,
+  "secondCloseCapacityError": null,
+  "measurements": [
+    {
+      "label": "validate maximum active graph restore-style fixture",
+      "elapsedMs": 31860,
+      "heapDeltaBytes": 39262600,
+      "rssBytes": 152489984
+    },
+    {
+      "label": "capture full 500-position 5000-recognition event-only month",
+      "elapsedMs": 33508,
+      "heapDeltaBytes": 136328648,
+      "rssBytes": 433209344
+    },
+    {
+      "label": "attempt second full retained close within independent aggregate limits",
+      "elapsedMs": 96012,
+      "heapDeltaBytes": 148836216,
+      "rssBytes": 549912576
+    }
+  ],
+  "maxRssKiB": 628416,
+  "caveat": "Synthetic restore-style valid history is tested through production Ledger validation and Organizer capture. Measurements are environment-dependent observations, not latency promises or browser acceptance."
+}

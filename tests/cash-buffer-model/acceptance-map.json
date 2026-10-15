@@ -1,0 +1,546 @@
+{
+  "format": "moneygo-cash-buffer-economic-case-map-v1",
+  "cases": [
+    {
+      "id": "E01",
+      "title": "Real selected-cost coverage",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E01",
+      "literalExpected": {
+        "usableAnchorCents": 80000,
+        "N_at_H": 48000,
+        "G_at_H": 48000,
+        "coveredDays": 6,
+        "firstShortfallDate": null,
+        "status": "covered-through-window"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E02",
+      "title": "Optional known cash cost cannot disappear",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E02",
+      "literalExpected": {
+        "N_at_H": 78000,
+        "G_at_Oct16": -12000,
+        "guardFirstShortfallDate": "2026-10-16",
+        "summary": "constraints",
+        "never": "overall optimistic necessity-only headline"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E03",
+      "title": "Negative anchor remains already-negative",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E03",
+      "literalExpected": {
+        "usableAnchorCents": -1,
+        "N_firstShortfall": "2026-10-14",
+        "G_firstShortfall": "2026-10-14",
+        "coveredDays": 0,
+        "coveredThrough": "2026-10-14"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E04",
+      "title": "Negative anchor cannot fund reserve",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E04",
+      "literalExpected": {
+        "partition": "allocation-conflict",
+        "allocationConflictCents": 1,
+        "sourceStartingDeficitCents": -100,
+        "usableAnchorCents": null,
+        "fundedUnavailableCents": null,
+        "derivedFirstShortfall": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E05",
+      "title": "Known stock cannot exceed anchor",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E05",
+      "literalExpected": {
+        "partition": "allocation-conflict",
+        "allocationConflictCents": 1,
+        "usableAnchorCents": null,
+        "fundedUnavailableCents": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E06",
+      "title": "Whole stock unavailable remains exact",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E06",
+      "literalExpected": {
+        "U": 100000,
+        "A": 0,
+        "N_firstShortfall": "2026-10-15",
+        "N_at_Oct15": -1,
+        "accountRemoved": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E07",
+      "title": "Unknown supported anchor stays unknown",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E07",
+      "literalExpected": {
+        "partition": "unknown",
+        "usableAnchorCents": null,
+        "fundedUnavailableCents": null,
+        "coverage": "unknown",
+        "firstShortfall": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E08",
+      "title": "Unknown unavailable amount is not zero",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E08",
+      "literalExpected": {
+        "partition": "unknown",
+        "usableAnchorCents": null,
+        "coverage": "unknown",
+        "firstShortfall": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E09",
+      "title": "Unknown reserve cannot hide source deficit",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E09",
+      "literalExpected": {
+        "partition": "unknown",
+        "sourceStartingDeficitDate": "2026-10-14",
+        "sourceStartingDeficitCents": -1,
+        "derivedFirstShortfall": null,
+        "summaryDate": "2026-10-14"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E10",
+      "title": "Zero anchor and zero reserve",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E10",
+      "literalExpected": {
+        "A": 0,
+        "coveredThrough": "2026-10-15",
+        "coveredDays": 1,
+        "firstShortfall": "2026-10-16"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E11",
+      "title": "No future income credit",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E11",
+      "literalExpected": {
+        "N_at_Oct17": -10000,
+        "G_at_Oct17": -10000,
+        "omittedIncomeCents": 150000,
+        "firstShortfall": "2026-10-17"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E12",
+      "title": "Transfer/account-local shortage",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E12",
+      "literalExpected": {
+        "A1_G": -1000,
+        "A2_G": 100000,
+        "pooledCash": null,
+        "incomingTransferCredited": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E13",
+      "title": "Missing choice vs explicit unreviewed",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E13",
+      "literalExpected": {
+        "missingRef": "BUFFER_INVALID_REFERENCE",
+        "unreviewed": "accepted as unresolved choice, N unknown from cost date; G known unaffected",
+        "blankBecomesNotNecessary": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E14",
+      "title": "Unknown necessity chooses uncertainty",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E14",
+      "literalExpected": {
+        "N_prefixEnd": "2026-10-16",
+        "N_coveredDays": 2,
+        "N_firstUnknown": "2026-10-17",
+        "G_at_H": 95000
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E15",
+      "title": "Optional label cannot erase inherited uncertainty",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E15",
+      "literalExpected": {
+        "N_from_Oct17": null,
+        "G_from_Oct17": null,
+        "sourceBlockerPreserved": true
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E16",
+      "title": "Zero unknown shape adds no monetary block",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E16",
+      "literalExpected": {
+        "newNecessityBarrier": false,
+        "knownDebitCents": 0,
+        "proofAndChoiceRetained": true,
+        "noInfinity": true
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E17",
+      "title": "Undated necessary cost is not tail",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E17",
+      "literalExpected": {
+        "unknownFrom": "2026-10-15",
+        "firstShortfall": null,
+        "tail": false,
+        "unplaced": true
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E18",
+      "title": "Unknown debit account is not pooled",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E18",
+      "literalExpected": {
+        "bothAccountsUnknownFrom": "2026-10-17",
+        "otherAccountCannotCover": true
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E19",
+      "title": "Tail-only necessary costs are right-censored",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E19",
+      "literalExpected": {
+        "inWindowKnownCost": false,
+        "N_status": "no-modeled-costs",
+        "tailCount": 1,
+        "extrapolatedDuration": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E20",
+      "title": "Exact zero covers its modeled date",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E20",
+      "literalExpected": {
+        "Oct15_close": 0,
+        "Oct16_close": 0,
+        "coveredThrough": "2026-10-16",
+        "firstShortfall": "2026-10-17"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E21",
+      "title": "Later unknown does not erase early deficit",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E21",
+      "literalExpected": {
+        "firstShortfall": "2026-10-15",
+        "firstUnknown": "2026-10-18",
+        "coverageStatus": "known-shortfall"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E22",
+      "title": "Earlier unknown prevents first-deficit claim",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E22",
+      "literalExpected": {
+        "firstShortfall": null,
+        "firstUnknown": "2026-10-15",
+        "knownComponentClose": -1000,
+        "knownComponentIsLowerBound": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E23",
+      "title": "All costs optional does not prove longevity",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E23",
+      "literalExpected": {
+        "N_status": "no-modeled-costs",
+        "G_shortfall": "2026-10-15",
+        "summary": "constraints",
+        "livingDaysClaim": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E24",
+      "title": "Empty cost set never Infinity",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E24",
+      "literalExpected": {
+        "N_status": "no-modeled-costs",
+        "G_status": "no-modeled-costs",
+        "summary": "no-modeled-costs",
+        "durationExtrapolation": null,
+        "coveredDays": null,
+        "coveredThrough": null,
+        "conditionalClosingAtHorizonCents": 100000
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E25",
+      "title": "Known small residual does not certify original",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E25",
+      "literalExpected": {
+        "sourceFlagsUnknown": false,
+        "sourceFlagsShift": false,
+        "N_at_H": 99999,
+        "guardKnownComponentsAtH": 99999,
+        "guardQualifiedUnknownFrom": "2026-10-17",
+        "gross30001Added": false,
+        "summary": "unknown"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E26",
+      "title": "Earlier original date survives moved assumption",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E26",
+      "literalExpected": {
+        "guardQualifiedUnknownFrom": "2026-10-15",
+        "originalDate": "2026-10-13",
+        "N_Oct22": 100000,
+        "sourceRebooked": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E27",
+      "title": "Source exclusion or empty residual cannot clear guard",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E27",
+      "literalExpected": {
+        "guardQualifiedUnknownFrom": "2026-10-17",
+        "originalAmountNotDebitedAgain": true,
+        "sourceIsPaidClaim": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E28",
+      "title": "Already-debited credit is not debited twice",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E28",
+      "literalExpected": {
+        "G_knownComponents": 100000,
+        "newDebit": 0,
+        "originalConstraintBarrier": "retained exact potential-effect date",
+        "unpaidClaim": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E29",
+      "title": "Genuine no-contribution group exemption",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E29",
+      "literalExpected": {
+        "newOriginalBarrier": false,
+        "fullOriginalProofRetained": true,
+        "legalCancellationClaim": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E30",
+      "title": "Captured and current effects remain distinct",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E30",
+      "literalExpected": {
+        "barrierReferences": "every retained effect exactly once",
+        "accounts": "preserve each actual effect scope",
+        "earliestDate": "earliest actual affected date, not only residual date"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E31",
+      "title": "Held right is not another cash exclusion",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E31",
+      "literalExpected": {
+        "usableAnchorCents": 100000,
+        "automaticHeldDeduction": 0,
+        "heldRightProofRetained": true
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E32",
+      "title": "Incoming-only versus mixed future evidence",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E32",
+      "literalExpected": {
+        "incomingOnlyNewOutgoingBarriers": 0,
+        "mixedNewOutgoingBarriers": "all actual group potential effects retained conservatively",
+        "incomingInheritedBlockers": "unchanged",
+        "mappedLabelAlone": "never direction authority",
+        "incomingOnlyLiteralEffects": [
+          "A/in/2026-10-16",
+          "A/in/2026-10-17",
+          "A/in/2026-10-18"
+        ],
+        "mixedLiteralEffects": [
+          "A/in/2026-10-17",
+          "B/out/2026-10-16"
+        ],
+        "mixedCanonicalOutflowCents": -3001,
+        "historicalPendingIncome": "outgoing-or-unknown; normalized Oct18, retained expense Oct16; actual effect Oct18",
+        "quarantine": "outgoing-or-unknown actual effectOct19",
+        "sameGroupNewPendingPlusQuarantine": "outgoing-or-unknown, preserve Oct17 and Oct19 effects",
+        "reimportedPendingIncome": "outgoing-or-unknown when firstBatchId!=lastBatchId even with null transactionId"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E33",
+      "title": "Unknown incoming source still blocks inherited tracks",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E33",
+      "literalExpected": {
+        "N_unknown": "at inherited fromDate",
+        "G_unknown": "at inherited fromDate",
+        "incomeCredit": 0
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E34",
+      "title": "Exact cents and blocked overflow",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E34",
+      "literalExpected": {
+        "exactResultCents": 1,
+        "overflow": "PROJECTION_AMOUNT_OVERFLOW",
+        "blockedOverflowIgnored": false,
+        "MAX_SAFE_equalStock_usable": 0,
+        "MAX_SAFE_minus1Stock_usable": 1,
+        "wholeStockSupported": true,
+        "yuanText": "90071992547409.91",
+        "oneCentAboveYuan": "reject before Number conversion"
+      },
+      "coverageNotes": "Exact one-cent and genuine MIN_SAFE blocked-overflow are in owned model test; positive9008-transaction MAX_SAFE U=B/U=B−1 and amount-parser UI endpoints are covered by separate boundary/host tests."
+    },
+    {
+      "id": "E35",
+      "title": "Civil calendar boundaries",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E35",
+      "literalExpected": {
+        "days": "exact UTC natural-day count, 1..93",
+        "initialDeficitDate": "asOfDate",
+        "beyondLastDate": "source rejects, no wrapping"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E36",
+      "title": "Many accounts have no pooled result",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E36",
+      "literalExpected": {
+        "A1_shortfall": true,
+        "A2_buffer": 90000,
+        "A1_deficitNotOffset": true,
+        "pooledDaysOrCash": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E37",
+      "title": "Source cash scope remains bounded",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E37",
+      "literalExpected": {
+        "newStockRows": "only source-included cash",
+        "excludedProof": "complete visible",
+        "outsideSourceCashFixedRefs": "complete",
+        "overallClaim": "selected scope only, not whole financial health"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E38",
+      "title": "Original effect entirely after horizon",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E38",
+      "literalExpected": {
+        "guardInWindowUnknown": false,
+        "tailOriginalBarrier": "retained with actual date",
+        "futureLifetimeClaim": null
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E39",
+      "title": "Same-date earliest ties retain all causes",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E39",
+      "literalExpected": {
+        "earliestConstraintDate": "2026-10-15",
+        "tieAccounts": "all three",
+        "tieCauses": "shortfall and original uncertainty retained",
+        "summary": "constraints with uncertainty co-visible"
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    },
+    {
+      "id": "E40",
+      "title": "Stock is additional to all modeled costs",
+      "ownedTestFile": "tests/cash-buffer-model.test.cjs",
+      "testNamePrefix": "Buffer E40",
+      "literalExpected": {
+        "validAdditionalCase_A": 50000,
+        "validAdditionalCase_G_afterBill": 0,
+        "earmarkedSameBill": "Disclose unsupported earmark semantics. Confirmation with unavailableStockAdditionalToAllOutflows false/missing rejects BUFFER_INVALID_CONSENT. No inference from purpose text; a true declaration remains a user assumption, not certified non-overlap.",
+        "newArchitecture": false
+      },
+      "coverageNotes": "Genuine public-writer fixture, full immutable/schema/reference closure, exact literal economic assertions."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+'use strict';
+// Independent proof-heavy fixture: one cash account,1900 public imported movements,
+//100 reviewed residuals. Closed schema, genuine writers, real8MiB limit; no patched caps.
+const test=require('node:test'),F=require('./payday-room-independent-fixtures.cjs'),{A,Fixture,DAY,setup,event,roomConsent,query,code}=F;
+const LIMIT=8388608,bytes=x=>Buffer.byteLength(JSON.stringify(x),'utf8'),textBytes=n=>'界'.repeat(Math.floor(n/3))+(n%3===2?'é':n%3===1?'x':'');
+test('PRI R04 genuine proof-heavy pending and confirmed room exact8388608 and plus1 obey complete-wrapper atomic limit',()=>{
+ const f=new Fixture().snap('a',DAY,100000),n=1900,csv='Date,Amount,Status,Id\n'+Array.from({length:n},(_,i)=>'2026-10-15,0.01,completed,id'+i+'\n').join('');
+ const imported=F.Importer.preview(f.s,csv,{sourceKey:'independent-size',accountId:f.ids.a,delimiter:',',columns:{date:0,amount:1,status:2,stableId:3},defaultType:'expense',coverage:{start:'2026-10-15',end:'2026-10-25',confirmed:true}});f.s=F.Importer.commit(f.s,imported,imported.rows.map(r=>r.key));f.valid();const original=JSON.stringify(f.s),x=setup(f),dailyConsent={...F.consent(),reason:'d'},consent={...roomConsent(),reason:'r'};
+ x.scenario.standaloneEvents=Array.from({length:100},(_,i)=>({...event('byte'+i,1,'2026-10-16',f.ids.a),reason:i===0?'"\\\n界😀':'r',label:'l'}));
+ const source=()=>{const p=x.a.c.preview(f.s,x.a.anchor,x.scenario);return x.a.c.confirm(f.s,x.a.anchor,p.ticket,x.scenario,dailyConsent);};
+ const rq=s=>{const q=query(s);q.protectionFloors[0].purpose='p';return q;};
+ let s=source(),q=rq(s),p=x.a.c.previewRoom(f.s,s,q),r=x.a.c.confirmRoom(f.s,s,p.ticket,q,consent),basePending=bytes(p),baseConfirmed=bytes(r);
+ function tune(targetBase){let remaining=LIMIT-targetBase;A.ok(remaining>=0&&remaining<99*2998,'bounded residual text reaches exact genuine wrapper');for(let i=1;i<x.scenario.standaloneEvents.length;i++){const delta=Math.min(1499,Math.floor(remaining/2));x.scenario.standaloneEvents[i].reason=textBytes(1+delta);remaining-=delta*2;}A.ok(remaining===0||remaining===1);dailyConsent.reason=remaining?'dx':'d';}
+ tune(basePending);s=source();q=rq(s);p=x.a.c.previewRoom(f.s,s,q);A.equal(bytes(p),LIMIT);A.equal(p.report.sourceReport,s);A.equal(s.inventory.fixedEvents.length,1900);A.equal(s.residualEvents.length,100);F.closure(p.report);code(()=>x.a.c.confirmRoom(f.s,s,p.ticket,q,{...consent,reason:'界'.repeat(500)}),'PROJECTION_RESULT_LIMIT');code(()=>x.a.c.confirmRoom(f.s,s,p.ticket,q,consent),'ROOM_REVIEW_USED');A.equal(x.a.c.isCurrent(f.s,s,x.scenario),true);
+ dailyConsent.reason+='x';s=source();q=rq(s);code(()=>x.a.c.previewRoom(f.s,s,q),'PROJECTION_RESULT_LIMIT');A.equal(x.a.c.isCurrent(f.s,s,x.scenario),true);
+ tune(baseConfirmed);s=source();q=rq(s);p=x.a.c.previewRoom(f.s,s,q);A.ok(bytes(p)<=LIMIT);r=x.a.c.confirmRoom(f.s,s,p.ticket,q,consent);A.equal(bytes(r),LIMIT);A.equal(x.a.c.isRoomCurrent(f.s,r,q),true);F.validateEconomics(r);F.closure(r);p=x.a.c.previewRoom(f.s,s,q);code(()=>x.a.c.confirmRoom(f.s,s,p.ticket,q,{...consent,reason:'rx'}),'PROJECTION_RESULT_LIMIT');code(()=>x.a.c.confirmRoom(f.s,s,p.ticket,q,consent),'ROOM_REVIEW_USED');A.equal(x.a.c.isCurrent(f.s,s,x.scenario),true);A.equal(JSON.stringify(f.s),original);A.deepEqual(F.L.verifyBackup(F.L.backup(f.s)).state,f.s);
+ console.log('PRI_EXACT_BYTES '+JSON.stringify({publicImportedRows:1900,residualEvents:100,accounts:1,limit:LIMIT,pendingExact:LIMIT,pendingOneOver:LIMIT+1,confirmedExact:LIMIT,confirmedOneOver:LIMIT+1,rawBytes:bytes(f.s),basePending,baseConfirmed,containsEscapedAndMultibyte:true,failedConfirmationConsumesTicket:true,roomOnlyOverflowPreservesSource:true}));
+});

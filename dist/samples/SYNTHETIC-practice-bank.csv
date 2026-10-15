@@ -1,0 +1,9 @@
+date,amount,direction,note,id,status,channel
+2026-09-30,60.00,expense,SYNTHETIC refundable purchase,practice-refundable,completed,SYNTHETIC local practice
+2026-10-10,50.00,expense,SYNTHETIC shared purchase,practice-shared,completed,SYNTHETIC local practice
+2026-10-14,12.34,expense,SYNTHETIC coffee,practice-coffee,completed,SYNTHETIC local practice
+2026-10-31,100.00,expense,SYNTHETIC repayment outgoing,practice-repayment-out,completed,SYNTHETIC local practice
+2026-11-01,15.00,income,SYNTHETIC refund receipt,practice-refund-in,completed,SYNTHETIC local practice
+2026-11-02,20.00,income,SYNTHETIC third-party receipt,practice-claim-in,completed,SYNTHETIC local practice
+2026-10-16,INVALID,expense,SYNTHETIC bad amount for review,practice-bad-amount,completed,SYNTHETIC local practice
+2026-10-17,7.77,expense,SYNTHETIC cancelled order,practice-cancelled,cancelled,SYNTHETIC local practice

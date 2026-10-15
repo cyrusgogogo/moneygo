@@ -1,0 +1,19 @@
+'use strict';
+const A=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{createRequire}=require('node:module');
+const ROOT=path.resolve(__dirname,'../..'),L=require('../../dist/ledger.js'),R=require('../../dist/relations.js'),I=require('../../dist/importer.js');
+const DAY='2026-10-14',NOW='2026-10-14T12:00:00.000Z',copy=v=>JSON.parse(JSON.stringify(v)),bytes=v=>Buffer.byteLength(JSON.stringify(v),'utf8');
+function transaction(s,patch={}){return L.putTransaction(s,{type:'income',date:DAY,amountCents:5000,accountId:s.accounts[0].id,categoryId:'income-other',note:'Synthetic source',...patch});}
+function fixture({plan=true,note=''}={}){let s=L.createEmpty();s=transaction(s,{type:'expense',date:'2026-10-01',amountCents:10000,categoryId:'expense-shopping',note});const expenseId=s.transactions.at(-1).id;s=transaction(s,{note});const incomeId=s.transactions.at(-1).id;if(plan)s=R.addRefundPlan(s,{expenseId,expectedAmountCents:5000,dueDate:'2026-10-10',status:'waiting',note:'Synthetic expected refund'});const planId=plan?s.bookkeeping.refundPlans.at(-1).id:null;L.validateState(s);A.deepEqual(L.parseBackup(L.backup(s)),s);return{s,expenseId,incomeId,planId};}
+function command(a,patch={}){return{expenseId:a.expenseId,incomeId:a.incomeId,planId:a.planId,amountCents:100,reason:'Reviewed synthetic refund',...patch};}
+function selection(a,patch={}){return{expenseId:a.expenseId,incomeId:a.incomeId,planId:a.planId,...patch};}
+function query(a,patch={}){return{expenseId:a.expenseId,planId:a.planId,classification:'all',search:'',offset:0,limit:100,...patch};}
+function engine(api=require('../../dist/refund-receipts.js')){const clock={day:DAY,now:NOW,dayError:null,nowError:null},c=api.createCoordinator({today(){if(clock.dayError)throw clock.dayError;return typeof clock.day==='function'?clock.day():clock.day;},now(){if(clock.nowError)throw clock.nowError;return typeof clock.now==='function'?clock.now():clock.now;}});return{c,clock};}
+function ready(options={}){return{...fixture(options),...engine(options.api)};}
+function error(code){return e=>{A.equal(e.name,'RefundReceiptsError');A.ok(/^RR_[A-Z_]+$/.test(e.code));if(code)A.equal(e.code,code);A.equal(typeof e.message,'string');A.ok(e.message.length>0&&e.message.length<3000);A.ok(e.downstreamCode===null||typeof e.downstreamCode==='string');return true;};}
+function expect(fn,code){A.throws(fn,error(code));}
+function frozen(v,seen=new Set()){if(v&&typeof v==='object'&&!seen.has(v)){seen.add(v);A.ok(Object.isFrozen(v),'output is deeply frozen');for(const x of Object.values(v))frozen(x,seen);}}
+function detached(v,...sources){const refs=new Set();function add(x){if(x&&typeof x==='object'&&!refs.has(x)){refs.add(x);for(const child of Object.values(x))add(child);}}sources.forEach(add);const seen=new Set();function check(x){if(x&&typeof x==='object'&&!seen.has(x)){A.ok(!refs.has(x),'output does not retain caller objects');seen.add(x);for(const child of Object.values(x))check(child);}}check(v);}
+function unchanged(s){const raw=JSON.stringify(s),backup=JSON.stringify(JSON.parse(L.backup(s)).data);return()=>{A.equal(JSON.stringify(s),raw);A.equal(JSON.stringify(JSON.parse(L.backup(s)).data),backup);};}
+function hostileError(counter){const e=Object.create(null);for(const k of ['message','code','name','stack','toString'])Object.defineProperty(e,k,{get(){counter.reads++;throw Error('Hostile thrown getter');}});return e;}
+function moduleWithMissing(name){const file=path.join(ROOT,'dist/refund-receipts.js'),req=createRequire(file),m={exports:{}};new Function('require','module','exports',fs.readFileSync(file,'utf8'))(n=>n.endsWith('/'+name+'.js')||n==='./'+name+'.js'?undefined:req(n),m,m.exports);return m.exports;}
+module.exports={A,fs,path,vm,ROOT,L,R,I,DAY,NOW,copy,bytes,transaction,fixture,command,selection,query,engine,ready,error,expect,frozen,detached,unchanged,hostileError,moduleWithMissing};

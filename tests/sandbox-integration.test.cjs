@@ -449,9 +449,11 @@ test('sandbox saves honor quota failure and cross-tab protection without partial
 
 test('shipped entry point loads engine before app and sandbox remains local-only', () => {
   const html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8');
+  assert.equal((html.match(/src="personal-events\.js"/g)||[]).length, 1);
+  assert.ok(html.indexOf('src="personal-events.js"') < html.indexOf('src="ledger.js"'));
   assert.ok(html.indexOf('src="ledger.js"') < html.indexOf('src="scenario.js"'));
-  assert.ok(html.indexOf('src="scenario.js"') < html.indexOf('src="app.js"'));
-  for (const filename of ['scenario.js', 'app.js']) {
+  assert.ok(html.indexOf('src="scenario.js"') < html.indexOf('src="app-runtime-v1.js"'));
+  for (const filename of ['scenario.js', 'app-runtime-v1.js']) {
     const source = fs.readFileSync(path.join(__dirname, '../dist', filename), 'utf8');
     assert.doesNotMatch(source, /\b(?:fetch|XMLHttpRequest|WebSocket|sendBeacon)\s*\(/);
   }

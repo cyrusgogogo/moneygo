@@ -16,6 +16,7 @@ function freeze(value) { if (value && typeof value === 'object') { Object.freeze
 
 test('UMD importer works in browser without require or a DOM', () => {
   const window = {}; const context = { window };
+  vm.runInNewContext(fs.readFileSync(require.resolve('../dist/personal-events.js'), 'utf8'), context);
   vm.runInNewContext(fs.readFileSync(require.resolve('../dist/ledger.js'), 'utf8'), context);
   vm.runInNewContext(fs.readFileSync(require.resolve('../dist/importer.js'), 'utf8'), context);
   const importer = window.MoneygoImporter, state = window.MoneygoLedger.createEmpty();
@@ -257,7 +258,7 @@ test('import state and backups round-trip, retain audit evidence and protect ref
 test('backup validation rejects malformed references, inconsistent rollback payloads and unsafe counters', () => {
   const original = apply(L.createEmpty(), [row()]);
   const mutations = [
-    state => { state.imports.version = 2; },
+    state => { state.imports.version = 3; },
     state => { state.imports.revision = -1; },
     state => { state.imports.evidence[0].lastBatchId = 'missing'; },
     state => { state.imports.evidence[0].transactionId = 'missing'; },

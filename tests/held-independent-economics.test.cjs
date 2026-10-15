@@ -1,0 +1,37 @@
+'use strict';
+const test=require('node:test'),A=require('node:assert/strict');
+const {L,R,H,C,P,copy,asOfDate,tx,base,create,recognize,returned,apply,fast,pid,fund,reverseAll,graphInput}=require('./held-independent-fixture.cjs');
+const err=code=>e=>Boolean(e.code)&&(!code||e.code===code);
+function independent(s,cutoff) {
+ const p=s.bookkeeping?.heldPositions||[],rs=s.bookkeeping?.heldRecognitions||[],ts=s.bookkeeping?.heldReturns||[];
+ const totals={fundedCents:0,usedCents:0,lostCents:0,returnedCents:0,remainingCents:0};
+ for(const row of p)if(row.expenseSignature.date<=cutoff)totals.fundedCents+=row.amountCents;
+ for(const row of rs)if(row.effectiveDate<=cutoff)totals[row.kind==='use'?'usedCents':'lostCents']+=row.amountCents;
+ for(const row of ts)if(row.incomeSignature.date<=cutoff)totals.returnedCents+=row.amountCents;
+ totals.remainingCents=totals.fundedCents-totals.usedCents-totals.lostCents-totals.returnedCents;return totals;
+}
+test('independent exact principal vectors, unchanged actuals, and explicit expiry',()=>{
+ for(const [used,ret,remain]of[[20000,30000,50000],[30000,10000,60000]]){
+  const original=base(),actual=R.calculate(original);let s=fund(original,{expiry:{kind:'date',date:'2026-03-31'},refundability:'nonrefundable'});const p=pid(s);s=apply(s,recognize(p,{amountCents:used}));s=apply(s,returned(p,{amountCents:ret}));
+  const f=R.calculate(s),v=H.view(s,{asOfDate});A.equal(v.totals.remainingCents,remain);A.equal(v.expiredUnconsumedRecordedPrincipalCents,remain);A.equal(v.totals.lostCents,0);A.deepEqual(f.cash,actual.cash);A.deepEqual(f.accountBalances,actual.accountBalances);A.deepEqual(f.accountFlows,actual.accountFlows);A.deepEqual(s.transactions,original.transactions);A.equal(f.personal.expenseCents,60010+used);A.equal(f.personal.incomeCents,80020-ret);
+ }
+});
+test('independent randomized lifecycle oracle covers every economic cutoff and reversal',()=>{
+ let seed=311025;const rnd=n=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed%n;};
+ let s=fund();s=apply(s,create({amountCents:20003}));s=apply(s,create({expenseId:'pay2',amountCents:40007}));const actual=R.calculate(s).cash;
+ for(let step=0;step<70;step++){
+  const before=copy(s),p=s.bookkeeping.heldPositions[rnd(3)],recognitions=s.bookkeeping.heldRecognitions,returns=s.bookkeeping.heldReturns,available=p.amountCents-recognitions.filter(r=>r.positionId===p.id).reduce((n,r)=>n+r.amountCents,0)-returns.filter(r=>r.positionId===p.id).reduce((n,r)=>n+r.amountCents,0);
+  let command;if(recognitions.length&&rnd(4)===0)command={action:'reverse-recognition',asOfDate,recognitionId:recognitions[rnd(recognitions.length)].id};else if(returns.length&&rnd(5)===0)command={action:'reverse-return',asOfDate,returnId:returns[rnd(returns.length)].id};else if(available>0&&rnd(3)===0){const incomeId=rnd(2)?'receipt':'receipt2',t=s.transactions.find(t=>t.id===incomeId),capacity=t.amountCents-returns.filter(r=>r.incomeId===incomeId).reduce((n,r)=>n+r.amountCents,0);if(capacity>0)command=returned(p.id,{incomeId,amountCents:1+rnd(Math.min(available,capacity,4000))});}else if(available>0)command=recognize(p.id,{kind:rnd(2)?'use':'loss',amountCents:1+rnd(Math.min(available,3000)),effectiveDate:['2026-01-04','2026-02-10','2026-03-14','2026-04-29'][rnd(4)]});
+  if(!command)continue;s=step%7===0?apply(s,command):fast(s,command);A.deepEqual(before.transactions,s.transactions);A.equal(s.bookkeeping.revision,before.bookkeeping.revision+1);
+  const g=C.validateGraph(graphInput(s));for(const date of ['0001-01-01','2026-01-02','2026-01-03','2026-01-31','2026-02-28','2026-03-31',asOfDate,'9999-12-31'])A.deepEqual(C.balancesAt(g,date).totals,independent(s,date));
+  const f=R.calculate(s);A.deepEqual(f.cash,actual);for(const t of s.transactions){const reserved=(t.type==='expense'?s.bookkeeping.heldPositions.filter(p=>p.expenseId===t.id):s.bookkeeping.heldReturns.filter(r=>r.incomeId===t.id)).reduce((n,r)=>n+r.amountCents,0);A.equal(f.impacts[t.id][t.type==='expense'?'personalExpenseCents':'ordinaryIncomeCents'],t.amountCents-reserved);}
+  for(const month of ['2026-01','2026-02','2026-03','2026-04']){let expectedExpense=0,expectedIncome=0;for(const t of s.transactions.filter(t=>t.date.startsWith(month))){const residual=f.impacts[t.id][t.type==='expense'?'personalExpenseCents':'ordinaryIncomeCents'];if(t.type==='expense')expectedExpense+=residual;else expectedIncome+=residual;}for(const r of s.bookkeeping.heldRecognitions)if(r.effectiveDate.startsWith(month))expectedExpense+=r.amountCents;A.equal(L.summary(s,month).expenseCents,expectedExpense);A.equal(L.summary(s,month).incomeCents,expectedIncome);}
+ }
+ A.deepEqual(L.parseBackup(L.backup(s)),L.validateState(s));
+});
+test('depletion and expired recorded principal never release the whole funding source',()=>{let s=fund(base([tx('fund','expense',100000,'2026-01-02')]));s=apply(s,recognize(pid(s),{kind:'loss',amountCents:100000}));A.equal(H.view(s,{asOfDate}).totals.remainingCents,0);A.throws(()=>apply(s,create({amountCents:1})),err('EXPENSE_OVERALLOCATED'));A.throws(()=>R.createClaim(s,{expenseId:'fund',amountCents:1,kind:'reimbursement',name:'Independent',dueDate:null,note:''}),err());A.throws(()=>apply(s,{action:'reverse-position',asOfDate,positionId:pid(s)}),err('HELD_DEPENDENCIES'));});
+for(const value of [-0,0,-1,'1',1.1,NaN,Infinity,1000000000000,null,undefined])test('independent command amount rejects '+String(value),()=>{const s=base(),before=copy(s);A.throws(()=>apply(s,create({amountCents:value})),err());A.deepEqual(s,before);});
+for(const date of ['0000-01-01','1900-02-29','2026-02-29','2026-04-31','10000-01-01','2026-1-02','2026-01-02T00:00:00Z'])test('independent strict reviewed Gregorian date '+date,()=>A.throws(()=>apply(base(),create({asOfDate:date})),err()));
+for(const day of ['0001-01-01','0099-12-31','2000-02-29','9999-12-31'])test('independent valid extreme economic date '+day,()=>{let s=fund(base([tx('fund','expense',101,day)]),{amountCents:101,asOfDate:day});s=apply(s,recognize(pid(s),{asOfDate:day,effectiveDate:day,amountCents:100}));A.equal(H.view(s,{asOfDate:day}).totals.remainingCents,1);});
+test('typed selection keeps raw identity, provenance account, use/loss and cash separate',()=>{let s=fund();s=apply(s,recognize(pid(s),{kind:'loss'}));const f=R.calculate(s),event=f.personalExpenseEvents.find(e=>e.key.kind==='held-recognition');A.equal(P.select(f.personalExpenseEvents,{accountId:'account-cash'}).some(e=>e.key.kind==='held-recognition'),false);A.equal(P.select(f.personalExpenseEvents,{fundingAccountId:'account-cash'}).some(e=>e.key.kind==='held-recognition'),true);A.equal(P.select(f.personalExpenseEvents,{transactionIds:['fund']}).length,1);A.deepEqual(P.select(f.personalExpenseEvents,{eventKeys:[event.key]}),[event]);A.equal(event.recognitionKind,'loss');A.equal(event.cashEffectCents,0);});
+test('unchanged legacy views, invalid preview, and reversed records preserve activation contract',()=>{const s=base(),before=JSON.stringify(s);H.view(s,{asOfDate});H.eligibility(s,{role:'funding',transactionId:'fund',asOfDate});A.throws(()=>H.preview(s,create({amountCents:0})));A.equal(JSON.stringify(s),before);A.equal(s.bookkeeping,undefined);const retired=reverseAll(fund(s));A.equal(retired.bookkeeping.version,4);A.deepEqual(retired.bookkeeping.heldPositions,[]);A.equal(retired.bookkeeping.audit.length,2);A.deepEqual(L.parseBackup(L.backup(retired)),retired);});

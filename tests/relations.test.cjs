@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const ledgerPath = path.join(__dirname, '../dist/ledger.js');
-const relationPath = fs.existsSync(path.join(__dirname, 'relations.js')) ? path.join(__dirname, 'relations.js') : path.join(__dirname, '../dist/relations.js');
+const relationPath = path.join(__dirname, '../dist/relations.js');
 const L = require(ledgerPath);
 const R = require(relationPath);
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -25,7 +25,7 @@ function inputWithReceipt() { return fixture([transaction('expense', 'expense', 
 
 test('standalone UMD loads with no Ledger, DOM, network or timers', () => {
   const window = {}; vm.runInNewContext(fs.readFileSync(relationPath, 'utf8'), { window });
-  assert.equal(window.MoneygoRelations.VERSION, 1); assert.ok(Object.isFrozen(R)); assert.ok(Object.isFrozen(R.LIMITS));
+  assert.equal(window.MoneygoRelations.VERSION, 2); assert.ok(Object.isFrozen(R)); assert.ok(Object.isFrozen(R.LIMITS));
   const a = R.defaultState(), b = R.defaultState(); a.links.push({}); assert.equal(b.links.length, 0);
 });
 
@@ -268,7 +268,7 @@ test('dependencies enumerate direct blockers and keep snapshots historical, not 
 
 test('strict extension schema rejects unknown fields, unknown statuses and malicious identifiers', () => {
   const state = fixture(), original = R.defaultState();
-  for (const mutate of [v => { v.version = 2; }, v => { v.extra = true; }, v => { v.revision = 1; }, v => { delete v.links; }, v => { v.refunds = [undefined]; }, v => { v.links = new Array(1); }]) { const v = copy(original); mutate(v); assert.throws(() => R.validate(v, state)); }
+  for (const mutate of [v => { v.version = R.VERSION + 1; }, v => { v.extra = true; }, v => { v.revision = 1; }, v => { delete v.links; }, v => { v.refunds = [undefined]; }, v => { v.links = new Array(1); }]) { const v = copy(original); mutate(v); assert.throws(() => R.validate(v, state)); }
   for (const key of ['__proto__', 'constructor', 'prototype', '', 'x/y', 'x'.repeat(101)]) assert.throws(() => R.dependencies(state, key), err('INVALID_ID'));
   assert.throws(() => claim(fixture([transaction('expense', 'expense', 10000)]), 1000, { status: 'paid' }), err('INVALID_RELATION_STATUS'));
   assert.throws(() => claim(fixture([transaction('expense', 'expense', 10000)]), 1000, { kind: 'guaranteed' }), err('INVALID_RELATION_STATUS'));

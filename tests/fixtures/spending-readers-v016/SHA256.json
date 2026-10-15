@@ -1,0 +1,56 @@
+{
+  "sourceRelease": "0.16.0",
+  "sourceBaseline": "moneygo-v016-frozen",
+  "files": [
+    {
+      "file": "held-core.js",
+      "bytes": 17418,
+      "sha256": "bd6d6efd9ca82b8d5ca69613d3aeb1d0a0b66c8479d312f4eae283fc14e0b26e"
+    },
+    {
+      "file": "importer.js",
+      "bytes": 65692,
+      "sha256": "dbcf4225c70db952b93ba5ad6e0b7d39292446696e0f8a15c39cafd554bf022d"
+    },
+    {
+      "file": "income-core.js",
+      "bytes": 29041,
+      "sha256": "9bf5e45489da81230820a7cca7ff199e6ef556e62c54cfa2d90e70461a9182b6"
+    },
+    {
+      "file": "ledger.js",
+      "bytes": 40451,
+      "sha256": "edc43e1c3ea6449f8c42e9900997ffe185dd42f7fd6dd1bdd3def72a05103a50"
+    },
+    {
+      "file": "obligations.js",
+      "bytes": 47381,
+      "sha256": "8f5c7806b6df8079b7637f301518041daccd2476817adce8ca0b2641a185caed"
+    },
+    {
+      "file": "organizer.js",
+      "bytes": 122933,
+      "sha256": "693fb1a0accea75b239b600814eb39a7881ea64a65559b736a61f2da6a9f415b"
+    },
+    {
+      "file": "personal-events.js",
+      "bytes": 21659,
+      "sha256": "8bfead2ceeab8fccaf49bae135e63004efe91c870d2c7f1e8660d474ac2241a4"
+    },
+    {
+      "file": "relations.js",
+      "bytes": 106053,
+      "sha256": "bd249fbbb60319a9d686897e0c4c8ecdb98aa0b0954579fa64873f4262b43dfa"
+    },
+    {
+      "file": "retained-identities.js",
+      "bytes": 17535,
+      "sha256": "a7358f8be013e63960f74e00c45a4d857527a10fbffffe67601aa032ac0179a5"
+    },
+    {
+      "file": "scenario.js",
+      "bytes": 22331,
+      "sha256": "b62f3a7d180bf199ac637821153d9b1d83d2b0bfdc03d17620ad56bd7691ebca"
+    }
+  ]
+}

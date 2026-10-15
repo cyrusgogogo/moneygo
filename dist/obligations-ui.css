@@ -1,0 +1,45 @@
+/* Credit obligations: scoped, responsive and keyboard-visible. */
+.obligations { --ob-line: #dfdfd5; --ob-soft: #f6f5ef; --ob-ink: #374638; }
+.ob-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:24px 0; }
+.ob-tabs button { border:1px solid var(--ob-line); background:#fff; border-radius:18px; padding:9px 15px; color:var(--ob-ink); cursor:pointer; font:inherit; }
+.ob-tabs button.active { color:#fff; background:#3e5845; border-color:#3e5845; }
+.ob-card { margin-bottom:24px; }
+.ob-card .card-head { gap:16px; flex-wrap:wrap; }
+.ob-card .card-head p { max-width:72ch; line-height:1.7; }
+.ob-row { border-top:1px solid var(--ob-line); padding:20px 0; overflow-wrap:anywhere; }
+.ob-row h3 { font-size:16px; margin:0 0 10px; line-height:1.6; }
+.ob-row p,.ob-note,.ob-source,.ob-tail p,.ob-details p { font-size:13px; line-height:1.75; color:#586257; margin:8px 0; }
+.ob-source { white-space:pre-wrap; }
+.ob-warning { color:#7a491d; font-size:13px; line-height:1.75; }
+.ob-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px; }
+.ob-badge { display:inline-block; padding:4px 9px; margin:3px 6px 5px 0; background:#edf2e9; border-radius:6px; color:#35523d; font-size:12px; }
+.ob-badge.warning { color:#78451d; background:#fcf0de; }
+.ob-facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; font-size:13px; }
+.ob-facts div { padding:10px; background:var(--ob-soft); border-radius:8px; }
+.ob-facts dt { color:#596656; margin-bottom:6px; }
+.ob-facts dd { margin:0; line-height:1.7; font-weight:600; }
+.ob-pager { display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:14px; padding:14px 0; font-size:13px; }
+.ob-tail { border-left:3px solid #98a48b; padding:4px 15px; margin:13px 0; }
+.ob-json { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px; line-height:1.65; max-height:360px; overflow:auto; background:#f2f3ed; border-radius:8px; padding:14px; text-align:left; }
+.ob-review { display:grid; grid-template-columns:1fr; gap:5px; }
+.ob-review h3 { font-size:14px; margin:12px 0 0; }
+.ob-evidence { border:1px solid var(--ob-line); border-radius:10px; padding:12px; margin:10px 0; overflow-wrap:anywhere; }
+.ob-evidence strong { font-size:13px; }
+.ob-evidence p { font-size:12px; line-height:1.7; margin:5px 0; }
+.ob-form .full { grid-column:1 / -1; }
+.ob-form textarea { min-height:90px; width:100%; box-sizing:border-box; resize:vertical; }
+.ob-form .field { min-width:0; }
+.ob-form select { width:100%; min-width:0; text-overflow:ellipsis; }
+.ob-confirm { display:flex; align-items:flex-start; gap:10px; line-height:1.7; font-size:14px; margin:18px 0; }
+.ob-confirm input { flex:none; width:18px; height:18px; margin-top:3px; }
+.ob-table-wrap { overflow:auto; width:100%; max-height:65vh; border:1px solid var(--ob-line); border-radius:8px; }
+.ob-table { border-collapse:collapse; font-size:12px; min-width:650px; width:100%; }
+.ob-table caption { text-align:left; padding:12px; font-weight:600; background:var(--ob-soft); }
+.ob-table th,.ob-table td { text-align:left; vertical-align:top; padding:12px 9px; border-bottom:1px solid var(--ob-line); overflow-wrap:anywhere; }
+.ob-table thead th { position:sticky; top:0; background:#eef1e8; z-index:1; }
+.ob-table .btn { font-size:12px; margin-top:5px; padding:5px 8px; }
+.ob-details { border:1px solid var(--ob-line); border-radius:12px; padding:16px; }
+.ob-row summary,.ob-details summary { cursor:pointer; line-height:1.7; }
+.obligations button:focus-visible,.ob-form button:focus-visible,.ob-form input:focus-visible,.ob-form select:focus-visible,.ob-form textarea:focus-visible,.obligations summary:focus-visible { outline:3px solid #426744; outline-offset:3px; }
+@media (max-width:700px) { .ob-tabs { gap:6px; } .ob-tabs button { padding:8px 11px; font-size:12px; } .ob-facts { grid-template-columns:1fr; } .ob-card .card-head { display:block; } .ob-actions .btn { white-space:normal; } .ob-form .form-grid { grid-template-columns:1fr; } .ob-pager { gap:8px; } }
+@media (prefers-reduced-motion:reduce) { .obligations *,.ob-form * { scroll-behavior:auto!important; } }

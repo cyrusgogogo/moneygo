@@ -449,7 +449,9 @@ test('invalid changes are validated before persistence and do not mutate prior d
 test('generated identifiers are unique across many rapid writes and fallback environments', () => {
   const source = fs.readFileSync(path.join(__dirname, '../dist/ledger.js'), 'utf8');
   const window = {};
-  vm.runInNewContext(source, { window });
+  const context = { window };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/personal-events.js'), 'utf8'), context);
+  vm.runInNewContext(source, context);
   const browser = window.MoneygoLedger;
   let state = browser.createEmpty();
   for (let i = 0; i < 100; i++) state = browser.putTransaction(state, expense());
@@ -460,7 +462,9 @@ test('generated identifiers are unique across many rapid writes and fallback env
 test('cryptographic identifier collisions fail safely instead of overwriting a record', () => {
   const source = fs.readFileSync(path.join(__dirname, '../dist/ledger.js'), 'utf8');
   const window = { crypto: { randomUUID: () => 'stable-test-id' } };
-  vm.runInNewContext(source, { window });
+  const context = { window };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/personal-events.js'), 'utf8'), context);
+  vm.runInNewContext(source, context);
   const browser = window.MoneygoLedger;
   const state = browser.putTransaction(browser.createEmpty(), expense());
   assert.throws(() => browser.putTransaction(state, expense()), error => error.code === 'ID_FAILURE');

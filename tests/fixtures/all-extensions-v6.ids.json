@@ -1,0 +1,68 @@
+{
+  "accounts": {
+    "cash": "account-cash",
+    "bank": "account-6fc4b73a-4e52-471e-a56a-d88c49933c59",
+    "credit": "account-a14f4758-9f8d-4d40-bfe3-2e174ee7f77c",
+    "restricted": "account-fce49b68-a37d-4fc3-bd9e-a4669f5fce01",
+    "unknown": "account-126c96be-1ce3-4a20-9eb2-31b6ce0fe895",
+    "other": "account-74430877-835e-4905-ba4b-06fceeca0ae1"
+  },
+  "transactions": {
+    "salary": "transaction-8f718a71-33ff-4f74-8a32-7787a9ac5466",
+    "personalSeptember": "transaction-17b493ad-0b4a-44af-934d-4094de9ee5f5",
+    "personalOctober": "transaction-aa9c567b-742f-4f64-be8b-be8b642ac4d7",
+    "funding": "transaction-a61d6166-e9b1-4eaa-9f55-6c439f400e2f",
+    "duplicatePrimary": "transaction-48933e44-88d1-4b7d-9ff8-4d2db2a834be",
+    "duplicateShadow": "transaction-972a9a7f-961d-40ec-ae06-b3480f729c4d",
+    "refundable": "transaction-8658e1ea-18af-471f-a08c-f597dd8bf075",
+    "refundReceipt": "transaction-079bdd1f-ce04-4947-a933-e08d379ffed3",
+    "sharedPurchase": "transaction-a25bb1c9-bdf5-4380-ada6-c802d344ebe1",
+    "claimReceipt": "transaction-034fc02d-fc54-4c69-bf8b-ca1f488e3325",
+    "fee": "transaction-ef7e174d-41f0-4975-b420-43598b7a127c",
+    "installmentPurchase": "transaction-e5386b3f-0e0e-4aa0-8d53-68dd1209228c",
+    "nativeRepayment": "transaction-e9432fcc-b087-4d86-af6a-f94b474f3e35",
+    "pairOutgoing": "transaction-b34bfb2a-8344-43e7-a5e6-d9fb1336ef45",
+    "pairIncoming": "transaction-1e891a45-655a-4115-83aa-94ca853ccdf3",
+    "restrictedExpense": "transaction-842630b1-321a-40b8-98bc-304891c91a28",
+    "unknownIncome": "transaction-fb6e7e3c-63a2-4581-88dd-529f7291f214",
+    "otherExpense": "transaction-8921bd5e-b7c6-4710-8798-8589de016bde",
+    "trashed": "transaction-1eaf3796-b54d-4af2-aa4f-de8a67065d06",
+    "imported": "transaction-import-3e83316e65db5f40339d0754f97886c0"
+  },
+  "relations": {
+    "link": "relation-link-1",
+    "transferPair": "relation-transferPair-2",
+    "composite": "relation-composite-3",
+    "refundPlan": "relation-refundPlan-4",
+    "removedRefund": "relation-refund-5",
+    "refund": "relation-refund-7",
+    "claim": "relation-claim-8",
+    "settlement": "relation-settlement-10",
+    "bankSnapshot": "relation-snapshot-11",
+    "cashSnapshot": "relation-snapshot-12"
+  },
+  "imports": {
+    "firstBatch": "batch-4fa88b64ec2345aee30669f6e6a4756e",
+    "quarantine": "quarantine-e6cb27d75774d191f1bebfd3bdd7d2e9",
+    "evidence": "evidence-a3a7d5207828b36a3f7ea9063ba668da",
+    "updateBatch": "batch-55e53ee8e5378aea340ba4fafd08213a",
+    "rolledBackBatch": "batch-4fd268798ed8c82b0816e849af1c7313"
+  },
+  "organizer": {
+    "rule": "organizer-rule-1",
+    "rolledBackBatch": "organizer-batch-2",
+    "alias": "organizer-alias-5",
+    "review": "quarantine:quarantine-d1b7417b60414add8029ff59fe95785d",
+    "septemberClose": "organizer-close-9",
+    "octoberClose": "organizer-close-10"
+  },
+  "obligations": {
+    "statement": "obl-statement-mv837e2b-b",
+    "reversedAudit": "obl-audit-mv837e3j-d",
+    "estimate": "obl-statement-mv837e53-f",
+    "contract": "obl-contract-mv837e5y-h",
+    "installment": "installment-1",
+    "removedFee": "obl-fee-mv837ej3-p",
+    "fee": "obl-fee-mv837era-s"
+  }
+}

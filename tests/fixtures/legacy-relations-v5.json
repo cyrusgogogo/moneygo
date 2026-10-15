@@ -1,0 +1,701 @@
+{
+  "format": "moneygo-backup",
+  "version": 5,
+  "exportedAt": "2026-10-14T11:08:51.248Z",
+  "data": {
+    "version": 5,
+    "currency": "CNY",
+    "accounts": [
+      {
+        "id": "account-cash",
+        "name": "现金",
+        "openingBalanceCents": 0
+      },
+      {
+        "id": "bank",
+        "name": "Synthetic bank",
+        "openingBalanceCents": 100000
+      }
+    ],
+    "categories": [
+      {
+        "id": "expense-food",
+        "name": "餐饮",
+        "type": "expense"
+      },
+      {
+        "id": "expense-transport",
+        "name": "交通",
+        "type": "expense"
+      },
+      {
+        "id": "expense-shopping",
+        "name": "购物",
+        "type": "expense"
+      },
+      {
+        "id": "expense-housing",
+        "name": "居住",
+        "type": "expense"
+      },
+      {
+        "id": "expense-entertainment",
+        "name": "娱乐",
+        "type": "expense"
+      },
+      {
+        "id": "expense-health",
+        "name": "医疗",
+        "type": "expense"
+      },
+      {
+        "id": "expense-other",
+        "name": "其他支出",
+        "type": "expense"
+      },
+      {
+        "id": "income-salary",
+        "name": "工资",
+        "type": "income"
+      },
+      {
+        "id": "income-bonus",
+        "name": "奖金",
+        "type": "income"
+      },
+      {
+        "id": "income-other",
+        "name": "其他收入",
+        "type": "income"
+      }
+    ],
+    "transactions": [
+      {
+        "id": "out",
+        "type": "expense",
+        "date": "2026-09-30",
+        "amountCents": 10000,
+        "accountId": "bank",
+        "categoryId": "expense-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "in",
+        "type": "income",
+        "date": "2026-10-02",
+        "amountCents": 10000,
+        "accountId": "account-cash",
+        "categoryId": "income-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "purchase",
+        "type": "expense",
+        "date": "2026-09-01",
+        "amountCents": 1000,
+        "accountId": "bank",
+        "categoryId": "expense-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "refund",
+        "type": "income",
+        "date": "2026-10-05",
+        "amountCents": 200,
+        "accountId": "bank",
+        "categoryId": "income-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "settlement",
+        "type": "income",
+        "date": "2026-10-06",
+        "amountCents": 100,
+        "accountId": "bank",
+        "categoryId": "income-other",
+        "note": "Synthetic legacy review"
+      },
+      {
+        "id": "evidence",
+        "type": "expense",
+        "date": "2026-10-02",
+        "amountCents": 1000,
+        "accountId": "bank",
+        "categoryId": "expense-other",
+        "note": "Synthetic legacy review"
+      }
+    ],
+    "trash": [],
+    "bookkeeping": {
+      "version": 1,
+      "revision": 5,
+      "links": [
+        {
+          "id": "relation-link-1",
+          "createdAt": "2026-10-14T11:08:51.171Z",
+          "primaryId": "purchase",
+          "shadowId": "evidence",
+          "reason": "Synthetic duplicate",
+          "primarySignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          },
+          "shadowSignature": {
+            "type": "expense",
+            "date": "2026-10-02",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "refunds": [
+        {
+          "id": "relation-refund-2",
+          "createdAt": "2026-10-14T11:08:51.177Z",
+          "incomeId": "refund",
+          "expenseId": "purchase",
+          "amountCents": 200,
+          "reason": "Synthetic actual refund",
+          "planId": null,
+          "incomeSignature": {
+            "type": "income",
+            "date": "2026-10-05",
+            "amountCents": 200,
+            "accountId": "bank",
+            "toAccountId": null
+          },
+          "expenseSignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "relation-claim-3",
+          "createdAt": "2026-10-14T11:08:51.180Z",
+          "expenseId": "purchase",
+          "amountCents": 100,
+          "kind": "advance",
+          "name": "Synthetic third-party portion",
+          "dueDate": null,
+          "status": "unsubmitted",
+          "note": "",
+          "expenseSignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "relation-settlement-4",
+          "createdAt": "2026-10-14T11:08:51.189Z",
+          "incomeId": "settlement",
+          "claimId": "relation-claim-3",
+          "amountCents": 100,
+          "reason": "Synthetic settlement",
+          "expenseId": "purchase",
+          "incomeSignature": {
+            "type": "income",
+            "date": "2026-10-06",
+            "amountCents": 100,
+            "accountId": "bank",
+            "toAccountId": null
+          },
+          "expenseSignature": {
+            "type": "expense",
+            "date": "2026-09-01",
+            "amountCents": 1000,
+            "accountId": "bank",
+            "toAccountId": null
+          }
+        }
+      ],
+      "snapshots": [
+        {
+          "id": "relation-snapshot-5",
+          "createdAt": "2026-10-14T11:08:51.210Z",
+          "accountId": "bank",
+          "date": "2026-09-30",
+          "actualBalanceCents": 89000,
+          "note": "",
+          "ledgerBalanceCents": 89000,
+          "basis": {
+            "openingBalanceCents": 100000,
+            "transactions": [
+              {
+                "id": "out",
+                "type": "expense",
+                "date": "2026-09-30",
+                "amountCents": 10000,
+                "accountId": "bank",
+                "toAccountId": null
+              },
+              {
+                "id": "purchase",
+                "type": "expense",
+                "date": "2026-09-01",
+                "amountCents": 1000,
+                "accountId": "bank",
+                "toAccountId": null
+              }
+            ],
+            "excluded": []
+          }
+        }
+      ],
+      "refundPlans": [],
+      "audit": [
+        {
+          "id": "relation-audit-1",
+          "revision": 1,
+          "at": "2026-10-14T11:08:51.171Z",
+          "kind": "link",
+          "recordId": "relation-link-1",
+          "action": "create",
+          "reason": "Synthetic duplicate",
+          "before": null,
+          "after": {
+            "id": "relation-link-1",
+            "createdAt": "2026-10-14T11:08:51.171Z",
+            "primaryId": "purchase",
+            "shadowId": "evidence",
+            "reason": "Synthetic duplicate",
+            "primarySignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            },
+            "shadowSignature": {
+              "type": "expense",
+              "date": "2026-10-02",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-2",
+          "revision": 2,
+          "at": "2026-10-14T11:08:51.177Z",
+          "kind": "refund",
+          "recordId": "relation-refund-2",
+          "action": "create",
+          "reason": "Synthetic actual refund",
+          "before": null,
+          "after": {
+            "id": "relation-refund-2",
+            "createdAt": "2026-10-14T11:08:51.177Z",
+            "incomeId": "refund",
+            "expenseId": "purchase",
+            "amountCents": 200,
+            "reason": "Synthetic actual refund",
+            "planId": null,
+            "incomeSignature": {
+              "type": "income",
+              "date": "2026-10-05",
+              "amountCents": 200,
+              "accountId": "bank",
+              "toAccountId": null
+            },
+            "expenseSignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-3",
+          "revision": 3,
+          "at": "2026-10-14T11:08:51.180Z",
+          "kind": "claim",
+          "recordId": "relation-claim-3",
+          "action": "create",
+          "reason": "登记应收份额",
+          "before": null,
+          "after": {
+            "id": "relation-claim-3",
+            "createdAt": "2026-10-14T11:08:51.180Z",
+            "expenseId": "purchase",
+            "amountCents": 100,
+            "kind": "advance",
+            "name": "Synthetic third-party portion",
+            "dueDate": null,
+            "status": "unsubmitted",
+            "note": "",
+            "expenseSignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-4",
+          "revision": 4,
+          "at": "2026-10-14T11:08:51.189Z",
+          "kind": "settlement",
+          "recordId": "relation-settlement-4",
+          "action": "create",
+          "reason": "Synthetic settlement",
+          "before": null,
+          "after": {
+            "id": "relation-settlement-4",
+            "createdAt": "2026-10-14T11:08:51.189Z",
+            "incomeId": "settlement",
+            "claimId": "relation-claim-3",
+            "amountCents": 100,
+            "reason": "Synthetic settlement",
+            "expenseId": "purchase",
+            "incomeSignature": {
+              "type": "income",
+              "date": "2026-10-06",
+              "amountCents": 100,
+              "accountId": "bank",
+              "toAccountId": null
+            },
+            "expenseSignature": {
+              "type": "expense",
+              "date": "2026-09-01",
+              "amountCents": 1000,
+              "accountId": "bank",
+              "toAccountId": null
+            }
+          }
+        },
+        {
+          "id": "relation-audit-5",
+          "revision": 5,
+          "at": "2026-10-14T11:08:51.210Z",
+          "kind": "snapshot",
+          "recordId": "relation-snapshot-5",
+          "action": "create",
+          "reason": "记录用户提供的日终实际余额",
+          "before": null,
+          "after": {
+            "id": "relation-snapshot-5",
+            "createdAt": "2026-10-14T11:08:51.210Z",
+            "accountId": "bank",
+            "date": "2026-09-30",
+            "actualBalanceCents": 89000,
+            "note": "",
+            "ledgerBalanceCents": 89000,
+            "basis": {
+              "openingBalanceCents": 100000,
+              "transactions": [
+                {
+                  "id": "out",
+                  "type": "expense",
+                  "date": "2026-09-30",
+                  "amountCents": 10000,
+                  "accountId": "bank",
+                  "toAccountId": null
+                },
+                {
+                  "id": "purchase",
+                  "type": "expense",
+                  "date": "2026-09-01",
+                  "amountCents": 1000,
+                  "accountId": "bank",
+                  "toAccountId": null
+                }
+              ],
+              "excluded": []
+            }
+          }
+        }
+      ]
+    },
+    "organizer": {
+      "version": 1,
+      "revision": 1,
+      "rules": [],
+      "aliases": [],
+      "merchants": [],
+      "batches": [],
+      "scopes": [],
+      "reviews": [],
+      "closes": [
+        {
+          "id": "organizer-close-1",
+          "createdAt": "2026-10-14T11:08:51.233Z",
+          "month": "2026-09",
+          "reason": "Synthetic original v0.6 close",
+          "revision": 0,
+          "importRevision": 0,
+          "bookkeepingRevision": 5,
+          "selection": "all-month",
+          "rows": [
+            {
+              "transaction": {
+                "id": "out",
+                "type": "expense",
+                "date": "2026-09-30",
+                "amountCents": 10000,
+                "accountId": "bank",
+                "note": "Synthetic legacy review",
+                "categoryId": "expense-other"
+              },
+              "merchant": null,
+              "sources": [],
+              "impact": {
+                "cashIncomeCents": 0,
+                "cashExpenseCents": 10000,
+                "transferCents": 0,
+                "ordinaryIncomeCents": 0,
+                "personalExpenseCents": 10000,
+                "refundCents": 0,
+                "claimCents": 0
+              }
+            },
+            {
+              "transaction": {
+                "id": "purchase",
+                "type": "expense",
+                "date": "2026-09-01",
+                "amountCents": 1000,
+                "accountId": "bank",
+                "note": "Synthetic legacy review",
+                "categoryId": "expense-other"
+              },
+              "merchant": null,
+              "sources": [],
+              "impact": {
+                "cashIncomeCents": 0,
+                "cashExpenseCents": 1000,
+                "transferCents": 0,
+                "ordinaryIncomeCents": 0,
+                "personalExpenseCents": 700,
+                "refundCents": 200,
+                "claimCents": 100
+              }
+            }
+          ],
+          "categories": [
+            {
+              "id": "expense-other",
+              "name": "其他支出",
+              "type": "expense"
+            }
+          ],
+          "scope": {
+            "start": "2026-09-01",
+            "end": "2026-09-30",
+            "sources": [],
+            "accounts": [
+              {
+                "accountId": "account-cash",
+                "balanceSnapshotAt": null,
+                "balanceReconciled": null,
+                "balanceDifferenceCents": null,
+                "balanceVerifiedAt": null,
+                "snapshotId": null
+              },
+              {
+                "accountId": "bank",
+                "balanceSnapshotAt": "2026-09-30",
+                "balanceReconciled": true,
+                "balanceDifferenceCents": 0,
+                "balanceVerifiedAt": "2026-09-30",
+                "snapshotId": "relation-snapshot-5"
+              }
+            ],
+            "unknownAccounts": [
+              "account-cash",
+              "bank"
+            ],
+            "coverageComplete": false,
+            "unresolvedCount": 0,
+            "complete": false,
+            "assumptions": [
+              "完整性仅限用户声明的来源与账户；未声明来源无法自动发现。",
+              "截止日来自用户确认覆盖，不从最早或最晚交易推断；无交易也可有已确认覆盖。",
+              "余额核验日来自用户输入的快照，不代表银行实时余额；范围排除不自动删除或改变所选交易。"
+            ]
+          },
+          "totals": {
+            "cash": {
+              "incomeCents": 0,
+              "expenseCents": 11000,
+              "transferCents": 0,
+              "netCents": -11000
+            },
+            "personal": {
+              "incomeCents": 0,
+              "expenseCents": 10700,
+              "transferCents": 0,
+              "netCents": -10700,
+              "refundCents": 200,
+              "claimCents": 100
+            },
+            "categories": [
+              {
+                "categoryId": "expense-other",
+                "type": "expense",
+                "cashCents": 11000,
+                "personalCents": 10700
+              }
+            ]
+          }
+        }
+      ],
+      "audit": [
+        {
+          "id": "organizer-audit-1",
+          "revision": 1,
+          "at": "2026-10-14T11:08:51.233Z",
+          "action": "close-month",
+          "reason": "Synthetic original v0.6 close",
+          "changes": [
+            {
+              "collection": "closes",
+              "key": "organizer-close-1",
+              "before": null,
+              "after": {
+                "id": "organizer-close-1",
+                "createdAt": "2026-10-14T11:08:51.233Z",
+                "month": "2026-09",
+                "reason": "Synthetic original v0.6 close",
+                "revision": 0,
+                "importRevision": 0,
+                "bookkeepingRevision": 5,
+                "selection": "all-month",
+                "rows": [
+                  {
+                    "transaction": {
+                      "id": "out",
+                      "type": "expense",
+                      "date": "2026-09-30",
+                      "amountCents": 10000,
+                      "accountId": "bank",
+                      "note": "Synthetic legacy review",
+                      "categoryId": "expense-other"
+                    },
+                    "merchant": null,
+                    "sources": [],
+                    "impact": {
+                      "cashIncomeCents": 0,
+                      "cashExpenseCents": 10000,
+                      "transferCents": 0,
+                      "ordinaryIncomeCents": 0,
+                      "personalExpenseCents": 10000,
+                      "refundCents": 0,
+                      "claimCents": 0
+                    }
+                  },
+                  {
+                    "transaction": {
+                      "id": "purchase",
+                      "type": "expense",
+                      "date": "2026-09-01",
+                      "amountCents": 1000,
+                      "accountId": "bank",
+                      "note": "Synthetic legacy review",
+                      "categoryId": "expense-other"
+                    },
+                    "merchant": null,
+                    "sources": [],
+                    "impact": {
+                      "cashIncomeCents": 0,
+                      "cashExpenseCents": 1000,
+                      "transferCents": 0,
+                      "ordinaryIncomeCents": 0,
+                      "personalExpenseCents": 700,
+                      "refundCents": 200,
+                      "claimCents": 100
+                    }
+                  }
+                ],
+                "categories": [
+                  {
+                    "id": "expense-other",
+                    "name": "其他支出",
+                    "type": "expense"
+                  }
+                ],
+                "scope": {
+                  "start": "2026-09-01",
+                  "end": "2026-09-30",
+                  "sources": [],
+                  "accounts": [
+                    {
+                      "accountId": "account-cash",
+                      "balanceSnapshotAt": null,
+                      "balanceReconciled": null,
+                      "balanceDifferenceCents": null,
+                      "balanceVerifiedAt": null,
+                      "snapshotId": null
+                    },
+                    {
+                      "accountId": "bank",
+                      "balanceSnapshotAt": "2026-09-30",
+                      "balanceReconciled": true,
+                      "balanceDifferenceCents": 0,
+                      "balanceVerifiedAt": "2026-09-30",
+                      "snapshotId": "relation-snapshot-5"
+                    }
+                  ],
+                  "unknownAccounts": [
+                    "account-cash",
+                    "bank"
+                  ],
+                  "coverageComplete": false,
+                  "unresolvedCount": 0,
+                  "complete": false,
+                  "assumptions": [
+                    "完整性仅限用户声明的来源与账户；未声明来源无法自动发现。",
+                    "截止日来自用户确认覆盖，不从最早或最晚交易推断；无交易也可有已确认覆盖。",
+                    "余额核验日来自用户输入的快照，不代表银行实时余额；范围排除不自动删除或改变所选交易。"
+                  ]
+                },
+                "totals": {
+                  "cash": {
+                    "incomeCents": 0,
+                    "expenseCents": 11000,
+                    "transferCents": 0,
+                    "netCents": -11000
+                  },
+                  "personal": {
+                    "incomeCents": 0,
+                    "expenseCents": 10700,
+                    "transferCents": 0,
+                    "netCents": -10700,
+                    "refundCents": 200,
+                    "claimCents": 100
+                  },
+                  "categories": [
+                    {
+                      "categoryId": "expense-other",
+                      "type": "expense",
+                      "cashCents": 11000,
+                      "personalCents": 10700
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

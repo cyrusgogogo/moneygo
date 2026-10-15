@@ -1,4 +1,5 @@
 'use strict';
+const {readEntryManifest,applyBodyAttributes,addListener,removeListener}=require('./entry-manifest.cjs');
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -37,7 +38,8 @@ function loadApp(storage = memoryStorage(), {today} = {}) {
   const windowListeners = new Map();
   const document = {
     body: { style: {}, append() {} }, activeElement: null,
-    addEventListener(type, callback) { documentListeners.set(type, callback); }
+    addEventListener(type, callback) { addListener(documentListeners, type, callback); },
+    removeEventListener(type, callback) { removeListener(documentListeners, type, callback); }
   };
   function node(selector) {
     if (!nodes.has(selector)) {
@@ -46,23 +48,26 @@ function loadApp(storage = memoryStorage(), {today} = {}) {
         checked: false, hidden: false, isConnected: true, dataset: {}, style: {}, listeners: new Map(),
         classList: { add() {}, remove() {}, contains() { return false; } },
         focus() { document.activeElement = this; },
-        addEventListener(type, callback) { this.listeners.set(type, callback); }, setSelectionRange() {},
+        addEventListener(type, callback) { addListener(this.listeners, type, callback); },
+        removeEventListener(type, callback) { removeListener(this.listeners, type, callback); }, setSelectionRange() {},
         querySelectorAll() { return []; }, closest() { return null; }
       });
     }
     return nodes.get(selector);
   }
+  document.querySelectorAll = () => [...nodes.values()];
   document.querySelector = selector => {
     if (selector === '.modal' && !node('#modal-root').innerHTML) return null;
     if (selector === '#entry-form' && !node('#modal-root').innerHTML.includes('id="entry-form"')) return null;
     return node(selector);
   };
   const window = {
-    localStorage: storage, scrollTo() {}, confirm() { return true; },
-    addEventListener(type, callback) { windowListeners.set(type, callback); }
+    document, localStorage: storage, scrollTo() {}, confirm() { return true; },
+    addEventListener(type, callback) { addListener(windowListeners, type, callback); },
+    removeEventListener(type, callback) { removeListener(windowListeners, type, callback); }
   };
   const context = vm.createContext({
-    document, window, console,
+    document, window, console, TextEncoder, TextDecoder,
     ...(today ? {Date: class extends Date {
       constructor(...args) { super(...(args.length ? args : [today + 'T12:00:00Z'])); }
       static now() { return new Date(today + 'T12:00:00Z').getTime(); }
@@ -73,7 +78,9 @@ function loadApp(storage = memoryStorage(), {today} = {}) {
     },
     setTimeout() { return 1; }, clearTimeout() {}
   });
-  for (const filename of ['ledger.js', 'scenario.js', 'relations.js', 'importer.js', 'relations-ui.js', 'app.js']) {
+  const entry = readEntryManifest();
+  applyBodyAttributes(document.body, entry);
+  for (const filename of entry.scripts) {
     const source = fs.readFileSync(path.join(__dirname, '../dist/', filename), 'utf8');
     vm.runInContext(source, context, { filename: 'dist/' + filename });
   }
